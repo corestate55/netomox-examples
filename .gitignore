@@ -4,6 +4,13 @@ model/*.xml
 model/target.json
 model/target[23]*.json
 
+# editor
+.idea
+
+# ruby
+.bundle/
+vendor/bundle/
+
 # Logs
 logs
 *.log

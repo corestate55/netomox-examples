@@ -1,0 +1,39 @@
+GIT
+  remote: https://github.com/corestate55/netomox
+  revision: aab63d9e3eeaab44fda567be98b2e61cfaf1b92f
+  branch: develop
+  specs:
+    netomox (0.1.0)
+      neography (~> 1.8.0)
+      termcolor (~> 1.2.2)
+      thor (~> 0.20.0)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    excon (0.62.0)
+    highline (2.0.1)
+    json (2.1.0)
+    multi_json (1.13.1)
+    neography (1.8.0)
+      excon (>= 0.33.0)
+      json (>= 1.7.7)
+      multi_json (>= 1.3.2)
+      os (>= 0.9.6)
+      rake (>= 0.8.7)
+      rubyzip (>= 1.0.0)
+    os (1.0.0)
+    rake (12.3.2)
+    rubyzip (1.2.2)
+    termcolor (1.2.2)
+      highline (>= 1.5.0)
+    thor (0.20.3)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  netomox!
+
+BUNDLED WITH
+   1.16.1
