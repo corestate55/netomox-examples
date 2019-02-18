@@ -1,12 +1,23 @@
 import express from 'express';
 import TopologyDataAPI from '../netoviz/srv/topology-data-api'
+import TargetWatcher from './target-watcher'
 
 const port = process.env.PORT || 3000 // process.env.PORT for Heroku
 const topoDataAPI = new TopologyDataAPI(process.env.NODE_ENV)
+const targetWatcher = new TargetWatcher('./srv/target-watcher.json')
 
 export default (app, http) => {
   app.use(express.json())
   app.set('port', port)
+
+  app.get('/watcher/config', (req, res) => {
+    res.type('json')
+    res.send(targetWatcher.getConfig())
+  })
+  app.get('/watcher/timestamps', (req, res) => {
+    res.type('json')
+    res.send(targetWatcher.getTimeStamps())
+  })
 
   app.get('/draw/:jsonName', (req, res) => {
     res.type('json')
