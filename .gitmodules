@@ -1,0 +1,3 @@
+[submodule "netoviz"]
+	path = netoviz
+	url = https://github.com/corestate55/netoviz.git
