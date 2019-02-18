@@ -1,4 +1,5 @@
 # generated files
+model_defs/model
 public/model/test*.json
 public/model/*.xml
 public/model/target.json
