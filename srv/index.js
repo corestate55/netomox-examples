@@ -1,24 +1,19 @@
 import express from 'express';
-// import socketIO from "socket.io";
+import TopologyDataAPI from '../netoviz/srv/topology-data-api'
+
+const port = process.env.PORT || 3000 // process.env.PORT for Heroku
+const topoDataAPI = new TopologyDataAPI(process.env.NODE_ENV)
 
 export default (app, http) => {
-  // app.use(express.json());
-  //
-  // app.get('/foo', (req, res) => {
-  //   res.json({msg: 'foo'});
-  // });
-  //
-  // app.post('/bar', (req, res) => {
-  //   res.json(req.body);
-  // });
-  // 
-  // optional support for socket.io
-  // 
-  // let io = socketIO(http);
-  // io.on("connection", client => {
-  //   client.on("message", function(data) {
-  //     // do something
-  //   });
-  //   client.emit("message", "Welcome");
-  // });
+  app.use(express.json())
+  app.set('port', port)
+
+  app.get('/draw/:jsonName', (req, res) => {
+    res.type('json')
+    res.send(topoDataAPI.convertTopoGraphData(req))
+  })
+  app.get('/draw-dep-graph/:jsonName', (req, res) => {
+    res.type('json')
+    res.send(topoDataAPI.convertDependencyGraphData(req))
+  })
 }

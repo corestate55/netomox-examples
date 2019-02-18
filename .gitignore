@@ -1,8 +1,8 @@
 # generated files
-model/test*.json
-model/*.xml
-model/target.json
-model/target[23]*.json
+public/model/test*.json
+public/model/*.xml
+public/model/target.json
+public/model/target[23]*.json
 
 # editor
 .idea

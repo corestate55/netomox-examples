@@ -1,7 +1,7 @@
 require 'rake/clean'
 
 YANG_DIR = './yang'.freeze
-MODEL_DIR = './model'.freeze
+MODEL_DIR = './public/model'.freeze
 MODEL_DEF_DIR = './model_defs'.freeze
 YANG = %W[
   #{YANG_DIR}/ietf-l2-topology@2018-06-29.yang
