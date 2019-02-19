@@ -58,7 +58,7 @@ export default {
     updateTimeStamp () {
       this.oldTimeStamp = this.currentTimeStamp
       const req = new XMLHttpRequest()
-      req.open('GET', '/watcher/timestamp', false)
+      req.open('GET', '/watcher/timestamp', false) // TODO: use async function
       req.onload = () => {
         this.currentTimeStamp = JSON.parse(req.responseText)
       }

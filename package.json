@@ -17,6 +17,7 @@
     "d3-timer": "^1.0.9",
     "d3-zoom": "^1.7.3",
     "localStorage": "^1.0.4",
+    "moment-timezone": "^0.5.23",
     "vue": "^2.5.22",
     "vuex": "^3.0.1"
   },
