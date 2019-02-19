@@ -1,11 +1,15 @@
 import fs from 'fs'
 import path from 'path'
+import { execSync } from 'child_process'
 
 export default class TargetWatcher {
   constructor (configPath) {
     this.config = JSON.parse(fs.readFileSync(configPath, 'utf8'))
     this.config.watchFiles = []
-    this.timeStamps = []
+    this.oldTimeStamps = []
+    this.currentTimeStamps = []
+    this.makeJsonMessage = new Buffer([])
+    this.verifyJsonMessage = new Buffer([])
     this.fillConfigParameters()
     this.findWatchFiles()
     this.setFileWatchInterval()
@@ -14,6 +18,9 @@ export default class TargetWatcher {
   setFileWatchInterval () {
     setInterval(() => {
       this.updateTimeStamps()
+      if (this.fileUpdated()) {
+        this.generateNewTopologyData()
+      }
     }, this.config.interval)
   }
 
@@ -58,9 +65,11 @@ export default class TargetWatcher {
   }
 
   updateTimeStamps () {
+    this.oldTimeStamps = this.currentTimeStamps
+    this.currentTimeStamps = []
     for (const watchFile of this.config.watchFiles) {
       const stat = fs.statSync(watchFile)
-      this.timeStamps.push({
+      this.currentTimeStamps.push({
         file: watchFile,
         mtimeMs: stat.mtimeMs,
         mtime: stat.mtime
@@ -68,8 +77,34 @@ export default class TargetWatcher {
     }
   }
 
-  getTimeStamps () {
-    return JSON.stringify(this.timeStamps)
+  fileUpdated () {
+    for (const currentTimeStamp in this.currentTimeStamps) {
+      const oldTimeStamp = this.oldTimeStamps.find((d) => {
+        return d.file === currentTimeStamp.file
+      })
+      if (oldTimeStamp && oldTimeStamp.mtimeMs < currentTimeStamp.mtimeMs) {
+        return true
+      }
+    }
+    return false
+  }
+
+  generateNewTopologyData () {
+    this.makeJsonMessage = execSync(this.config.makeJsonCommand)
+    this.verifyJsonMessage = execSync(this.config.verifyJsonCommand)
+    console.log('make JSON: ', this.makeJsonMessage.toString())
+    console.log('verify JSON: ', this.verifyJsonMessage.toString())
+  }
+
+  getTimeStamp () {
+    const stats = fs.statSync(this.config.outputFile)
+    return JSON.stringify({
+      modelFile: this.config.outputFile,
+      mtimeMs: stats.mtimeMs,
+      mtime: stats.mtime,
+      makeJsonMessage: this.makeJsonMessage.toString(),
+      verifyJsonMessage: this.verifyJsonMessage.toString()
+    })
   }
 
   getConfig () {

@@ -14,9 +14,9 @@ export default (app, http) => {
     res.type('json')
     res.send(targetWatcher.getConfig())
   })
-  app.get('/watcher/timestamps', (req, res) => {
+  app.get('/watcher/timestamp', (req, res) => {
     res.type('json')
-    res.send(targetWatcher.getTimeStamps())
+    res.send(targetWatcher.getTimeStamp())
   })
 
   app.get('/draw/:jsonName', (req, res) => {
