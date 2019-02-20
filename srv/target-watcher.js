@@ -2,6 +2,9 @@ import fs from 'fs'
 import path from 'path'
 import moment from 'moment-timezone'
 import { execSync } from 'child_process'
+import { promisify } from 'util'
+
+const stat = promisify(fs.stat)
 
 export default class TargetWatcher {
   constructor (configPath) {
@@ -37,7 +40,7 @@ export default class TargetWatcher {
       while (result) {
         const paramKey = result[1]
         if (!this.config[paramKey]) {
-          console.log(`Error in key:${key}, Unknown param ref:${paramKey}`)
+          console.error(`Error in key:${key}, Unknown param ref:${paramKey}`)
         }
         const paramValue = this.config[paramKey]
         console.log(`param found, replace %${paramKey}% -> ${paramValue}`)
@@ -52,30 +55,37 @@ export default class TargetWatcher {
     const sourceFile = this.config.sourceFile
     const sourceDir = path.dirname(sourceFile)
 
-    // TDOO:
-    // search ONLY 1-hierarchy (NOT iterative, deep search)
-    fs.readFileSync(sourceFile, 'utf8')
-      .split(/\n/)
-      .filter(d => !!d.match(/require_relative/))
-      .forEach((d) => {
-        const result = d.match(/require_relative ['"](.+)['"]/)
-        if (result) {
-          const childFile = result[1] + '.rb'
-          this.config.watchFiles.push(path.join(sourceDir, childFile))
-        }
-      })
+    fs.readFile(sourceFile, 'utf8', (error, data) => {
+      if (error) {
+        throw error
+      }
+      // search ONLY 1-hierarchy
+      // TODO: iterative, deep search
+      data.split(/\n/)
+        .forEach((d) => {
+          const result = d.match(/require_relative ['"](.+)['"]/)
+          if (result) {
+            const childFile = result[1] + '.rb'
+            this.config.watchFiles.push(path.join(sourceDir, childFile))
+          }
+        })
+    })
   }
 
-  updateTimeStamps () {
+  async updateTimeStamps () {
     this.oldTimeStamps = this.currentTimeStamps
     this.currentTimeStamps = []
     for (const watchFile of this.config.watchFiles) {
-      const stat = fs.statSync(watchFile)
-      this.currentTimeStamps.push({
-        file: watchFile,
-        mtimeMs: stat.mtimeMs,
-        mtime: moment(stat.mtime).format()
-      })
+      try {
+        const stats = await stat(watchFile)
+        this.currentTimeStamps.push({
+          file: watchFile,
+          mtimeMs: stats.mtimeMs,
+          mtime: moment(stats.mtime).format()
+        })
+      } catch (error) {
+        throw error
+      }
     }
   }
 
@@ -99,11 +109,11 @@ export default class TargetWatcher {
   }
 
   getTimeStamp () {
-    const stat = fs.statSync(this.config.outputFile)
+    const stats = fs.statSync(this.config.outputFile)
     return JSON.stringify({
       modelFile: this.config.outputFile,
-      mtimeMs: stat.mtimeMs,
-      mtime: moment(stat.mtime).format(),
+      mtimeMs: stats.mtimeMs,
+      mtime: moment(stats.mtime).format(),
       makeJsonMessage: this.makeJsonMessage.toString(),
       verifyJsonMessage: this.verifyJsonMessage.toString()
     })
