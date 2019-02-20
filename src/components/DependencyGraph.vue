@@ -55,14 +55,14 @@ export default {
         }
       }, 1500) // TODO: set interval
     },
-    updateTimeStamp () {
+    async updateTimeStamp () {
       this.oldTimeStamp = this.currentTimeStamp
-      const req = new XMLHttpRequest()
-      req.open('GET', '/watcher/timestamp', false)
-      req.onload = () => {
-        this.currentTimeStamp = JSON.parse(req.responseText)
+      try {
+        const response = await fetch('/watcher/timestamp')
+        this.currentTimeStamp = await response.json()
+      } catch (error) {
+        console.error('fetch timestamp failed', error)
       }
-      req.send()
     },
     modelUpdated () {
       return this.oldTimeStamp &&
