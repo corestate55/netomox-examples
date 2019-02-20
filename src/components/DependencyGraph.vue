@@ -1,5 +1,8 @@
 <template>
 <div>
+  <div id="visualizer">
+    <!-- D3.js entry point -->
+  </div>
   <div class="debug">
     <div>
       app setting:
@@ -8,20 +11,22 @@
         <li>modelFile: {{ modelFile }}</li>
       </ul>
     </div>
-    <div v-show="currentTimeStamp">
+    <div v-if="currentTimeStamp">
       timestamps:
       <ul>
-        <li
-          v-for="(value, key) in currentTimeStamp"
-          v-bind:key="key"
-        >
-          {{ key }} : {{ value }}
+        <li>Model File: {{ currentTimeStamp.modelFile }}</li>
+        <li>Modified Time (ms): {{ currentTimeStamp.mtimeMs }}</li>
+        <li>Modified Time: {{ currentTimeStamp.mtime }}</li>
+        <li>
+          Message (generate json):
+          <pre>{{ currentTimeStamp.makeJsonMessage }}</pre>
+        </li>
+        <li>
+          Message (verify json):
+          <pre>{{ currentTimeStamp.verifyJsonMessage }}</pre>
         </li>
       </ul>
     </div>
-  </div>
-  <div id="visualizer">
-    <!-- D3.js entry point -->
   </div>
 </div>
 </template>
@@ -48,20 +53,25 @@ export default {
   methods: {
     ...mapActions(['updateModelFile']),
     setModelUpdateCheckTimer () {
-      this.timer = setInterval(() => {
-        this.updateTimeStamp()
+      this.timer = setInterval(async () => {
+        try {
+          this.oldTimeStamp = this.currentTimeStamp
+          this.currentTimeStamp = await this.requestTimeStamp()
+        } catch (error) {
+          throw error
+        }
         if (this.modelUpdated()) {
+          console.log('model updated')
           visualizer.drawJsonModel(this.modelFile)
         }
       }, 1500) // TODO: set interval
     },
-    async updateTimeStamp () {
-      this.oldTimeStamp = this.currentTimeStamp
+    async requestTimeStamp () {
       try {
         const response = await fetch('/watcher/timestamp')
-        this.currentTimeStamp = await response.json()
+        return await response.json()
       } catch (error) {
-        console.error('fetch timestamp failed', error)
+        throw error
       }
     },
     modelUpdated () {

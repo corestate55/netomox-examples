@@ -22,10 +22,11 @@ export default class TargetWatcher {
 
   setFileWatchInterval () {
     setInterval(() => {
-      this.updateTimeStamps()
-      if (this.fileUpdated()) {
-        this.generateNewTopologyData()
-      }
+      this.updateTimeStamps().then(() => {
+        this.existsUpdatedFile() && this.generateNewTopologyData()
+      }).catch((error) => {
+        throw error
+      })
     }, this.config.interval)
   }
 
@@ -89,12 +90,13 @@ export default class TargetWatcher {
     }
   }
 
-  fileUpdated () {
-    for (const currentTimeStamp in this.currentTimeStamps) {
+  existsUpdatedFile () {
+    for (const currentTimeStamp of this.currentTimeStamps) {
       const oldTimeStamp = this.oldTimeStamps.find((d) => {
         return d.file === currentTimeStamp.file
       })
       if (oldTimeStamp && oldTimeStamp.mtimeMs < currentTimeStamp.mtimeMs) {
+        console.log('found updated file: ', currentTimeStamp.file)
         return true
       }
     }

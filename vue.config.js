@@ -4,5 +4,10 @@ module.exports = {
       shouldServeApp: true,
       serverDir: './srv'
     }
+  },
+  devServer: {
+    watchOptions: {
+      ignored: [/model_defs/, /public\/model/]
+    }
   }
 }
