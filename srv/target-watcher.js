@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import moment from 'moment-timezone'
 import { execSync } from 'child_process'
 
 export default class TargetWatcher {
@@ -8,8 +9,9 @@ export default class TargetWatcher {
     this.config.watchFiles = []
     this.oldTimeStamps = []
     this.currentTimeStamps = []
-    this.makeJsonMessage = new Buffer([])
-    this.verifyJsonMessage = new Buffer([])
+    this.makeJsonMessage = Buffer.from('')
+    this.verifyJsonMessage = Buffer.from('')
+    moment.tz.setDefault('Asia/Tokyo') // default time zone
     this.fillConfigParameters()
     this.findWatchFiles()
     this.setFileWatchInterval()
@@ -72,7 +74,7 @@ export default class TargetWatcher {
       this.currentTimeStamps.push({
         file: watchFile,
         mtimeMs: stat.mtimeMs,
-        mtime: stat.mtime
+        mtime: moment(stat.mtime).format()
       })
     }
   }
@@ -97,11 +99,11 @@ export default class TargetWatcher {
   }
 
   getTimeStamp () {
-    const stats = fs.statSync(this.config.outputFile)
+    const stat = fs.statSync(this.config.outputFile)
     return JSON.stringify({
       modelFile: this.config.outputFile,
-      mtimeMs: stats.mtimeMs,
-      mtime: stats.mtime,
+      mtimeMs: stat.mtimeMs,
+      mtime: moment(stat.mtime).format(),
       makeJsonMessage: this.makeJsonMessage.toString(),
       verifyJsonMessage: this.verifyJsonMessage.toString()
     })
