@@ -8,9 +8,10 @@ export default new Vuex.Store({
   strict: process.env.NODE_ENV !== 'production',
   state: {
     visualizer: 'Dependency',
-    modelFile: '',
+    modelFile: 'target3b.json',
     wholeLayers: [],
-    selectedLayers: []
+    selectedLayers: [],
+    watchInterval: 1000
   },
   mutations: {
     setVisualizer (state, payload) {
@@ -24,6 +25,9 @@ export default new Vuex.Store({
     },
     setWholeLayers (state, payload) {
       state.wholeLayers = payload
+    },
+    setWatchInterval (state, payload) {
+      state.watchInterval = payload
     }
   },
   getters: {
@@ -38,6 +42,9 @@ export default new Vuex.Store({
     },
     wholeLayers (state) {
       return state.wholeLayers
+    },
+    watchInterval (state) {
+      return state.watchInterval
     }
   },
   actions: {

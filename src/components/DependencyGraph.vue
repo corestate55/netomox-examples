@@ -4,35 +4,42 @@
     <!-- D3.js entry point -->
   </div>
   <div class="debug">
-    <div>
-      app setting:
-      <ul>
-        <li>visualizer: {{ visualizer }}</li>
-        <li>modelFile: {{ modelFile }}</li>
-      </ul>
-    </div>
-    <div v-if="currentTimeStamp">
-      timestamps:
-      <ul>
-        <li>Model File: {{ currentTimeStamp.modelFile }}</li>
-        <li>Modified Time (ms): {{ currentTimeStamp.mtimeMs }}</li>
-        <li>Modified Time: {{ currentTimeStamp.mtime }}</li>
-        <li>
-          Message (generate json):
-          <pre>{{ currentTimeStamp.makeJsonMessage }}</pre>
-        </li>
-        <li>
-          Message (verify json):
-          <pre>{{ currentTimeStamp.verifyJsonMessage }}</pre>
-        </li>
-      </ul>
-    </div>
+    <el-collapse>
+      <el-collapse-item
+        title="App Settings"
+        name="appSettings"
+      >
+        <ul>
+          <li>visualizer: {{ visualizer }}</li>
+          <li>modelFile: {{ modelFile }}</li>
+          <li>watchInterval: {{ watchInterval }}</li>
+        </ul>
+      </el-collapse-item>
+      <el-collapse-item
+        title="Timestamps"
+        name="timeStamps"
+      >
+        <ul v-if="currentTimeStamp">
+          <li>Model File: {{ currentTimeStamp.modelFile }}</li>
+          <li>Modified Time (ms): {{ currentTimeStamp.mtimeMs }}</li>
+          <li>Modified Time: {{ currentTimeStamp.mtime }}</li>
+          <li>
+            Message (generate json):
+            <pre>{{ currentTimeStamp.makeJsonMessage }}</pre>
+          </li>
+          <li>
+            Message (verify json):
+            <pre>{{ currentTimeStamp.verifyJsonMessage }}</pre>
+          </li>
+        </ul>
+      </el-collapse-item>
+    </el-collapse>
   </div>
 </div>
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters } from 'vuex'
 import DepGraphVisualizer from '../../netoviz/src/dep-graph/visualizer'
 import '../../netoviz/src/css/dep-graph.scss'
 
@@ -48,10 +55,9 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['visualizer', 'modelFile'])
+    ...mapGetters(['visualizer', 'modelFile', 'watchInterval'])
   },
   methods: {
-    ...mapActions(['updateModelFile']),
     setModelUpdateCheckTimer () {
       this.timer = setInterval(async () => {
         try {
@@ -64,7 +70,13 @@ export default {
           console.log('model updated')
           visualizer.drawJsonModel(this.modelFile)
         }
-      }, 1500) // TODO: set interval
+      }, this.watchInterval)
+    },
+    clearModelUpdateCheckTimer () {
+      clearInterval(this.timer)
+      this.oldTimeStamp = null
+      this.currentTimeStamp = null
+      this.timer = null
     },
     async requestTimeStamp () {
       try {
@@ -80,17 +92,23 @@ export default {
     }
   },
   mounted () {
-    const target = 'target3b.json' // TODO: model select, POST config server
-    this.updateModelFile(target)
     visualizer.drawJsonModel(this.modelFile)
     this.setModelUpdateCheckTimer()
+    this.$store.watch(
+      state => state.modelFile,
+      (newModelFile, oldModelFile) => {
+        visualizer.drawJsonModel(newModelFile)
+        this.clearModelUpdateCheckTimer()
+        this.setModelUpdateCheckTimer()
+      }
+    )
   }
 }
 </script>
 
 <style lang="scss" scoped>
 .debug {
-  background-color: lightgray;
-  padding: 1em;
+  padding: 0.2em;
+  border: lightgray solid 1px;
 }
 </style>

@@ -10,6 +10,11 @@ export default (app, http) => {
   app.use(express.json())
   app.set('port', port)
 
+  app.post('/watcher/config', (req, res) => {
+    const config = req.body
+    targetWatcher.updateConfig(config)
+    res.send('config received.')
+  })
   app.get('/watcher/config', (req, res) => {
     res.type('json')
     res.send(targetWatcher.getConfig())

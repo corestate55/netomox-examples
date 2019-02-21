@@ -5,16 +5,33 @@ import { execSync } from 'child_process'
 import { promisify } from 'util'
 
 const stat = promisify(fs.stat)
+moment.tz.setDefault('Asia/Tokyo') // default time zone
 
 export default class TargetWatcher {
   constructor (configPath) {
-    this.config = JSON.parse(fs.readFileSync(configPath, 'utf8'))
+    this.configPath = configPath
+    this.readInitialConfig({})
+    console.log(this.config)
+  }
+
+  updateConfig (updateConfig) {
+    this.readInitialConfig(updateConfig)
+    console.log(this.config)
+  }
+
+  readInitialConfig (updateConfig) {
+    // read default config
+    this.config = JSON.parse(fs.readFileSync(this.configPath, 'utf8'))
+    // merge config
+    for (const key in updateConfig) {
+      this.config[key] = updateConfig[key] // overwrite default config
+    }
+    // set config params
     this.config.watchFiles = []
     this.oldTimeStamps = []
     this.currentTimeStamps = []
     this.makeJsonMessage = Buffer.from('')
     this.verifyJsonMessage = Buffer.from('')
-    moment.tz.setDefault('Asia/Tokyo') // default time zone
     this.fillConfigParameters()
     this.findWatchFiles()
     this.setFileWatchInterval()
