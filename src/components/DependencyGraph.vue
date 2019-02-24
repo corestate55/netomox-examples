@@ -4,78 +4,70 @@
     <!-- D3.js entry point -->
   </div>
   <div class="debug">
-    <el-collapse>
-      <el-collapse-item
-        title="App Settings"
-        name="appSettings"
-      >
-        <ul>
-          <li>visualizer: {{ visualizer }}</li>
-          <li>modelFile: {{ modelFile }}</li>
-          <li>watchInterval: {{ watchInterval }}</li>
-        </ul>
-      </el-collapse-item>
-      <el-collapse-item
-        title="Timestamps"
-        name="timeStamps"
-      >
-        <ul v-if="currentTimeStamp">
-          <li>Model File: {{ currentTimeStamp.modelFile }}</li>
-          <li>Modified Time (ms): {{ currentTimeStamp.mtimeMs }}</li>
-          <li>Modified Time: {{ currentTimeStamp.mtime }}</li>
-          <li>
-            Message (generate json):
-            <pre>{{ currentTimeStamp.makeJsonMessage }}</pre>
-          </li>
-          <li>
-            Message (verify json):
-            <pre>{{ currentTimeStamp.verifyJsonMessage }}</pre>
-          </li>
-        </ul>
-      </el-collapse-item>
-    </el-collapse>
+    <el-tabs type="border-card">
+      <el-tab-pane label="App Configs">
+        <ListAppConfig />
+      </el-tab-pane>
+      <el-tab-pane label="Timestamps">
+        <ListModelFileInfo
+          v-bind:timestamp="currentTimestampInfo"
+        />
+      </el-tab-pane>
+      <el-tab-pane label="Server Configs">
+        <ListWatchConfig />
+      </el-tab-pane>
+    </el-tabs>
   </div>
 </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
+import ListAppConfig from './ListAppConfig'
+import ListModelFileInfo from './ListModelFileInfo'
+import ListWatchConfig from './ListWatcherConfig'
 import DepGraphVisualizer from '../../netoviz/src/dep-graph/visualizer'
 import '../../netoviz/src/css/dep-graph.scss'
-
-const visualizer = new DepGraphVisualizer()
+import '../css/dep-graph.scss'
 
 export default {
   name: 'DependencyGraph.vue',
+  components: {
+    ListAppConfig,
+    ListModelFileInfo,
+    ListWatchConfig
+  },
   data () {
     return {
+      visualizer: null,
+      unwatchModelFile: null,
       timer: null,
-      currentTimeStamp: null,
-      oldTimeStamp: null
+      currentTimestampInfo: null,
+      oldTimestampInfo: null
     }
   },
   computed: {
-    ...mapGetters(['visualizer', 'modelFile', 'watchInterval'])
+    ...mapGetters(['modelFile', 'watchInterval'])
   },
   methods: {
     setModelUpdateCheckTimer () {
       this.timer = setInterval(async () => {
         try {
-          this.oldTimeStamp = this.currentTimeStamp
-          this.currentTimeStamp = await this.requestTimeStamp()
+          this.oldTimestampInfo = this.currentTimestampInfo
+          this.currentTimestampInfo = await this.requestTimeStamp()
         } catch (error) {
           throw error
         }
         if (this.modelUpdated()) {
           console.log('model updated')
-          visualizer.drawJsonModel(this.modelFile)
+          this.visualizer.drawJsonModel(this.modelFile)
         }
       }, this.watchInterval)
     },
     clearModelUpdateCheckTimer () {
       clearInterval(this.timer)
-      this.oldTimeStamp = null
-      this.currentTimeStamp = null
+      this.oldTimestampInfo = null
+      this.currentTimestampInfo = null
       this.timer = null
     },
     async requestTimeStamp () {
@@ -87,28 +79,29 @@ export default {
       }
     },
     modelUpdated () {
-      return this.oldTimeStamp &&
-        this.oldTimeStamp.mtimeMs < this.currentTimeStamp.mtimeMs
+      return this.oldTimestampInfo &&
+        this.oldTimestampInfo.mtimeMs < this.currentTimestampInfo.mtimeMs
+    },
+    resetGraph () {
+      this.visualizer.drawJsonModel(this.modelFile)
+      this.clearModelUpdateCheckTimer()
+      this.setModelUpdateCheckTimer()
     }
   },
   mounted () {
-    visualizer.drawJsonModel(this.modelFile)
-    this.setModelUpdateCheckTimer()
-    this.$store.watch(
+    this.visualizer = new DepGraphVisualizer()
+    this.resetGraph()
+    this.unwatchModelFile = this.$store.watch(
       state => state.modelFile,
-      (newModelFile, oldModelFile) => {
-        visualizer.drawJsonModel(newModelFile)
-        this.clearModelUpdateCheckTimer()
-        this.setModelUpdateCheckTimer()
-      }
+      (newModelFile) => { this.resetGraph() }
     )
+  },
+  beforeDestroy () {
+    delete this.visualizer
+    this.unwatchModelFile()
   }
 }
 </script>
 
 <style lang="scss" scoped>
-.debug {
-  padding: 0.2em;
-  border: lightgray solid 1px;
-}
 </style>

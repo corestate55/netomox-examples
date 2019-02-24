@@ -70,7 +70,7 @@ export default {
       })
         .then(response => response.text())
         .then(text => {
-          console.log(text)
+          console.log('[app param input] submit: ', text)
         })
     }
   }

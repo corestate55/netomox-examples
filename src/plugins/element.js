@@ -2,7 +2,7 @@ import Vue from 'vue'
 import {
   Button,
   Form, FormItem,
-  Collapse, CollapseItem,
+  Tabs, TabPane,
   Input, InputNumber
 } from 'element-ui'
 import lang from 'element-ui/lib/locale/lang/ja'
@@ -13,7 +13,7 @@ locale.use(lang)
 Vue.use(Button)
 Vue.use(Form)
 Vue.use(FormItem)
-Vue.use(Collapse)
-Vue.use(CollapseItem)
+Vue.use(Tabs)
+Vue.use(TabPane)
 Vue.use(Input)
 Vue.use(InputNumber)
