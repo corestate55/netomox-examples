@@ -10,6 +10,10 @@ export default (app, http) => {
   app.use(express.json())
   app.set('port', port)
 
+  app.post('/watcher/force-update', (req, res) => {
+    targetWatcher.generateNewTopologyData()
+    res.send('force update request received.')
+  })
   app.post('/watcher/config', (req, res) => {
     const config = req.body
     targetWatcher.updateConfig(config)

@@ -1,17 +1,38 @@
 <template>
-  <ul v-if="timestamp">
-    <li>Model File: <code>{{ timestamp.modelFile }}</code></li>
-    <li>Modified Time (ms): <code>{{ timestamp.mtimeMs }}</code></li>
-    <li>Modified Time: <code>{{ timestamp.mtime }}</code></li>
-    <li>
+  <div>
+    <ul v-if="timestamp">
+      <li>Model File: <code>{{ timestamp.modelFile }}</code></li>
+      <li>Modified Time (ms): <code>{{ timestamp.mtimeMs }}</code></li>
+      <li>Modified Time: <code>{{ timestamp.mtime }}</code></li>
+    </ul>
+    <div v-if="timestamp && timestamp.makeJsonMessage">
       Message (generate json):
       <pre>{{ timestamp.makeJsonMessage }}</pre>
-    </li>
-    <li>
+    </div>
+    <div v-if="timestamp && timestamp.verifyJsonMessage">
       Message (verify json):
-      <pre>{{ timestamp.verifyJsonMessage }}</pre>
-    </li>
-  </ul>
+      <ul>
+        <li
+          v-for="result in timestamp.verifyJsonMessage"
+          v-bind:key="result.checkup"
+        >
+          {{ result.checkup }}
+          <ul v-if="result.messages">
+            <li
+              v-for="message in result.messages"
+              v-bind:key="message.path"
+            >
+              in <code>{{ message.path }}</code> :
+              <span v-bind:class="message.severity">
+                <strong>[{{ message.severity }}]</strong>
+                {{ message.message }}
+              </span>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -29,5 +50,14 @@ export default {
 <style lang="scss" scoped>
 code, pre {
   background-color: lightgoldenrodyellow;
+}
+.info {
+  background-color: #ccff99;
+}
+.warn {
+  background-color: yellow;
+}
+.error {
+  background-color: lightpink;
 }
 </style>

@@ -8,13 +8,13 @@
       <el-tab-pane label="App Configs">
         <ListAppConfig />
       </el-tab-pane>
-      <el-tab-pane label="Timestamps">
+      <el-tab-pane label="Server Configs">
+        <ListWatchConfig />
+      </el-tab-pane>
+      <el-tab-pane label="Model File Info">
         <ListModelFileInfo
           v-bind:timestamp="currentTimestampInfo"
         />
-      </el-tab-pane>
-      <el-tab-pane label="Server Configs">
-        <ListWatchConfig />
       </el-tab-pane>
     </el-tabs>
   </div>

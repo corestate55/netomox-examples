@@ -12,6 +12,18 @@ export default class TargetWatcher {
     this.configPath = configPath
     this.readInitialConfig({})
     console.log(this.config)
+    this.verifyJsonMessage = JSON.stringify([
+      {
+        checkup: 'yet',
+        messages: [
+          {
+            severity: 'info',
+            path: '(networks)',
+            message: 'verify have not executed'
+          }
+        ]
+      }
+    ])
   }
 
   updateConfig (updateConfig) {
@@ -129,12 +141,14 @@ export default class TargetWatcher {
 
   getTimeStamp () {
     const stats = fs.statSync(this.config.outputFile)
+    const verifyMessages = JSON.parse(this.verifyJsonMessage)
+      .filter(d => d.messages.length > 0)
     return JSON.stringify({
       modelFile: this.config.outputFile,
       mtimeMs: stats.mtimeMs,
       mtime: moment(stats.mtime).format(),
       makeJsonMessage: this.makeJsonMessage.toString(),
-      verifyJsonMessage: this.verifyJsonMessage.toString()
+      verifyJsonMessage: verifyMessages
     })
   }
 
