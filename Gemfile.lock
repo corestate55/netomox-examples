@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/corestate55/netomox
-  revision: aab63d9e3eeaab44fda567be98b2e61cfaf1b92f
+  revision: 64e0ae63b42fe0c8a6434ac5e23626acaf82ddf8
   branch: develop
   specs:
     netomox (0.1.0)
@@ -13,7 +13,7 @@ GEM
   specs:
     excon (0.62.0)
     highline (2.0.1)
-    json (2.1.0)
+    json (2.2.0)
     multi_json (1.13.1)
     neography (1.8.0)
       excon (>= 0.33.0)
@@ -36,4 +36,4 @@ DEPENDENCIES
   netomox!
 
 BUNDLED WITH
-   1.16.1
+   1.17.3
