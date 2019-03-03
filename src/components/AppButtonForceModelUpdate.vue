@@ -4,7 +4,7 @@
       type="primary"
       v-on:click="requestUpdate"
     >
-      Update Model
+      Force Update Model
     </el-button>
   </div>
 </template>

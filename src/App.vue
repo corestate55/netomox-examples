@@ -2,20 +2,20 @@
   <div id="app">
     <DependencyGraph />
     <AppButtonForceModelUpdate />
-    <AppParamInput />
+    <AppInputParam />
   </div>
 </template>
 
 <script>
 import AppButtonForceModelUpdate from './components/AppButtonForceModelUpdate'
-import AppParamInput from './components/AppParamInput'
+import AppInputParam from './components/AppInputParam'
 import DependencyGraph from './components/DependencyGraph'
 
 export default {
   name: 'app',
   components: {
     AppButtonForceModelUpdate,
-    AppParamInput,
+    AppInputParam,
     DependencyGraph
   }
 }
@@ -24,5 +24,6 @@ export default {
 <style lang="scss">
 #app {
   color: #2c3e50;
+  font-size: 11pt;
 }
 </style>

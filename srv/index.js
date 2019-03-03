@@ -28,12 +28,12 @@ export default (app, http) => {
     res.send(targetWatcher.getTimeStamp())
   })
 
-  app.get('/draw/:jsonName', (req, res) => {
+  app.get('/draw/:jsonName', async (req, res) => {
     res.type('json')
-    res.send(topoDataAPI.convertTopoGraphData(req))
+    res.send(await topoDataAPI.convertTopoGraphData(req))
   })
-  app.get('/draw-dep-graph/:jsonName', (req, res) => {
+  app.get('/draw-dep-graph/:jsonName', async (req, res) => {
     res.type('json')
-    res.send(topoDataAPI.convertDependencyGraphData(req))
+    res.send(await topoDataAPI.convertDependencyGraphData(req))
   })
 }

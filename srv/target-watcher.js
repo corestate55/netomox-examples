@@ -12,18 +12,6 @@ export default class TargetWatcher {
     this.configPath = configPath
     this.readInitialConfig({})
     console.log(this.config)
-    this.verifyJsonMessage = JSON.stringify([
-      {
-        checkup: 'yet',
-        messages: [
-          {
-            severity: 'info',
-            path: '(networks)',
-            message: 'verify have not executed'
-          }
-        ]
-      }
-    ])
   }
 
   updateConfig (updateConfig) {
@@ -47,6 +35,18 @@ export default class TargetWatcher {
     this.fillConfigParameters()
     this.findWatchFiles()
     this.setFileWatchInterval()
+    this.verifyJsonMessage = JSON.stringify([
+      {
+        checkup: 'yet',
+        messages: [
+          {
+            severity: 'info',
+            path: '(networks)',
+            message: 'no result of verification'
+          }
+        ]
+      }
+    ])
   }
 
   setFileWatchInterval () {
