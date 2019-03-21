@@ -8,7 +8,8 @@ export default new Vuex.Store({
   state: {
     visualizerName: 'Dependency',
     modelFile: 'target3b.json',
-    watchInterval: 1000
+    watchInterval: 1000,
+    nestReverse: false
   },
   mutations: {
     setVisualizerName (state, payload) {
@@ -19,6 +20,9 @@ export default new Vuex.Store({
     },
     setWatchInterval (state, payload) {
       state.watchInterval = payload
+    },
+    setNestReverse (state, payload) {
+      state.nestReverse = payload
     }
   },
   getters: {
@@ -30,11 +34,17 @@ export default new Vuex.Store({
     },
     watchInterval (state) {
       return state.watchInterval
+    },
+    nestReverse (state) {
+      return state.nestReverse
     }
   },
   actions: {
-    updateModelFile ({ commit, dispatch }, payload) {
+    updateModelFile ({ commit }, payload) {
       commit('setModelFile', payload)
+    },
+    toggleNestReverse ({ state, commit }) {
+      commit('setNestReverse', !state.nestReverse)
     }
   }
 })

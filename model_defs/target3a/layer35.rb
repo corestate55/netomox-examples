@@ -34,12 +34,18 @@ def register_target_layer35(nws)
       end
 
       node 'Seg.A' do
-        term_point 'p0'
+        term_point 'p0' do
+          support %w[target-L3 Seg.A p1]
+          support %w[target-L3 Seg.A p2]
+        end
         support %w[target-L3 Seg.A]
       end
 
       node 'Seg.B' do
-        term_point 'p0'
+        term_point 'p0' do
+          support %w[target-L3 Seg.B p1]
+          support %w[target-L3 Seg.B p2]
+        end
         support %w[target-L3 Seg.B]
       end
 
