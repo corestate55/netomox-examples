@@ -5,7 +5,10 @@
     v-bind:inline="true"
   >
     <el-form-item label="Target name">
-      <el-input v-model="form.target">
+      <el-input
+        v-model="form.target"
+        size="small"
+      >
         <template slot="append">.json</template>
       </el-input>
     </el-form-item>
@@ -14,12 +17,14 @@
         v-model="form.interval"
         v-bind:step="100"
         v-bind:min="1000"
+        size="small"
       />
     </el-form-item>
     <el-form-item>
       <el-button
         type="primary"
         v-on:click="submit"
+        size="small"
       >
         Submit
       </el-button>

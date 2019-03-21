@@ -1,12 +1,11 @@
 <template>
-  <div>
-    <el-button
-      type="primary"
-      v-on:click="requestUpdate"
-    >
-      Force Update Model
-    </el-button>
-  </div>
+  <el-button
+    type="warning"
+    v-on:click="requestUpdate"
+    size="small"
+  >
+    Force Update
+  </el-button>
 </template>
 
 <script>

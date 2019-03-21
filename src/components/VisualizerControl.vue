@@ -26,12 +26,14 @@ import { mapGetters } from 'vuex'
 import ListAppConfig from './ListAppConfig'
 import ListModelFileInfo from './ListModelFileInfo'
 import ListWatchConfig from './ListWatcherConfig'
-import DepGraphVisualizer from '../../netoviz/src/dep-graph/visualizer'
-import '../../netoviz/src/css/dep-graph.scss'
+import DepGraphVisualizer from '../../netoviz/src/graph/dependency/visualizer'
+import NestedGraphVisualizer from '../../netoviz/src/graph/nested/visualizer'
+import '../../netoviz/src/css/dependency.scss'
+import '../../netoviz/src/css/nested.scss'
 import '../css/dep-graph.scss'
 
 export default {
-  name: 'DependencyGraph.vue',
+  name: 'VisualizerControl.vue',
   components: {
     ListAppConfig,
     ListModelFileInfo,
@@ -41,13 +43,14 @@ export default {
     return {
       visualizer: null,
       unwatchModelFile: null,
+      unwatchVisualizerName: null,
       timer: null,
       currentTimestampInfo: null,
       oldTimestampInfo: null
     }
   },
   computed: {
-    ...mapGetters(['modelFile', 'watchInterval'])
+    ...mapGetters(['visualizerName', 'modelFile', 'watchInterval'])
   },
   methods: {
     setModelUpdateCheckTimer () {
@@ -86,19 +89,37 @@ export default {
       this.visualizer.drawJsonModel(this.modelFile)
       this.clearModelUpdateCheckTimer()
       this.setModelUpdateCheckTimer()
+    },
+    resetVisualizer (visualizerName) {
+      console.log(`[viz] visualizerName: ${visualizerName}`)
+      delete this.visualizer
+      if (visualizerName === 'Nested') {
+        this.visualizer = new NestedGraphVisualizer()
+      } else {
+        // default: dependency graph
+        this.visualizer = new DepGraphVisualizer()
+      }
+      this.resetGraph()
     }
   },
   mounted () {
-    this.visualizer = new DepGraphVisualizer()
-    this.resetGraph()
+    this.resetVisualizer(this.visualizerName)
     this.unwatchModelFile = this.$store.watch(
       state => state.modelFile,
       (newModelFile) => { this.resetGraph() }
+    )
+    this.unwatchVisualizerName = this.$store.watch(
+      state => state.visualizerName,
+      (newVisualizerName) => {
+        console.log(`change visualizer to: ${newVisualizerName}`)
+        this.resetVisualizer(newVisualizerName)
+      }
     )
   },
   beforeDestroy () {
     delete this.visualizer
     this.unwatchModelFile()
+    this.unwatchVisualizerName()
   }
 }
 </script>

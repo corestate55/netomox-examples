@@ -1,7 +1,8 @@
 <template>
   <div id="app">
-    <DependencyGraph />
+    <VisualizerControl />
     <AppButtonForceModelUpdate />
+    <AppSelectVisualizer />
     <AppInputParam />
   </div>
 </template>
@@ -9,14 +10,16 @@
 <script>
 import AppButtonForceModelUpdate from './components/AppButtonForceModelUpdate'
 import AppInputParam from './components/AppInputParam'
-import DependencyGraph from './components/DependencyGraph'
+import AppSelectVisualizer from './components/AppSelectVisualizer'
+import VisualizerControl from './components/VisualizerControl'
 
 export default {
   name: 'app',
   components: {
     AppButtonForceModelUpdate,
     AppInputParam,
-    DependencyGraph
+    AppSelectVisualizer,
+    VisualizerControl
   }
 }
 </script>
