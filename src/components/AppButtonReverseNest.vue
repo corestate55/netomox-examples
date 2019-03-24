@@ -4,6 +4,7 @@
     v-on:click="toggleNestReverse"
     v-bind:disabled="visualizerName !== 'Nested'"
     size="small"
+    round
   >
     Change Reverse to {{ !nestReverse }}
   </el-button>

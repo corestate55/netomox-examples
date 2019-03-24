@@ -3,6 +3,7 @@
     type="warning"
     v-on:click="requestUpdate"
     size="small"
+    round
   >
     Force Update
   </el-button>

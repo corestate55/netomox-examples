@@ -25,6 +25,7 @@
         type="primary"
         v-on:click="submit"
         size="small"
+        round
       >
         Submit
       </el-button>
