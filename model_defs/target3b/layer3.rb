@@ -102,7 +102,7 @@ def register_target_layer3(nws)
           flags: %w[l3-segment pseudo-node]
         )
         term_point 'p1' do
-          support %w[target-L2b HYP1-vSW1-BR-VL30 p1]
+          support %w[target-L2b HYP1-vSW1-BR-VL30 p3]
         end
         term_point 'p2' do
           support %w[target-L2b SW2-BR-VL30 p3]

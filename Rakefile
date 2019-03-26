@@ -15,6 +15,7 @@ TARGET_RB = FileList["#{MODEL_DEF_DIR}/target*.rb"]
 TARGET_JSON = FileList.new do |f|
   f.include("#{MODEL_DIR}/target*.json")
   f.exclude("#{MODEL_DIR}/*.orig.json")
+  f.exclude("#{MODEL_DIR}/*-layout.json")
 end
 
 task default: %i[rb2json model_check validate_json json2xml]

@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/corestate55/netomox
-  revision: 3314227fd6fb4e675690d73547371e4170913660
+  revision: d2116593f438902a3b332b72a263de88e32b5fe4
   branch: develop
   specs:
     netomox (0.1.0)
