@@ -30,6 +30,7 @@ import DepGraphVisualizer from '../../netoviz/src/graph/dependency/visualizer'
 import NestedGraphVisualizer from '../../netoviz/src/graph/nested/visualizer'
 import '../../netoviz/src/css/dependency.scss'
 import '../../netoviz/src/css/nested.scss'
+import '../../netoviz/src/css/tooltip.scss'
 import '../css/dep-graph.scss'
 
 export default {
