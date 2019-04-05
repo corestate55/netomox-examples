@@ -1,3 +1,6 @@
+# backups
+*.tgz
+
 # generated files
 model_defs/model
 public/model/test*.json
