@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/corestate55/netomox
-  revision: 76070508c99695cc0d597cf9c00b543f89e4d6ea
+  revision: d38eb6b7577f7e24e3311c3b47e480a98c02b005
   branch: develop
   specs:
     netomox (0.1.0)
@@ -11,8 +11,8 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
-    excon (0.62.0)
-    highline (2.0.1)
+    excon (0.64.0)
+    highline (2.0.2)
     json (2.2.0)
     multi_json (1.13.1)
     neography (1.8.0)
@@ -22,7 +22,7 @@ GEM
       os (>= 0.9.6)
       rake (>= 0.8.7)
       rubyzip (>= 1.0.0)
-    os (1.0.0)
+    os (1.0.1)
     rake (12.3.2)
     rubyzip (1.2.2)
     termcolor (1.2.2)
