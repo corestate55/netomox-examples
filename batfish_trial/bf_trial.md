@@ -82,7 +82,7 @@ Then, it throws several queries and save results as csv files.
 ## convert data from batfish to topology
 Convert data
 ```bash
-hagiwara@dev01:~/nwmodel/netomox-examples/batfish$ bundle exec ruby bf_topology.rb > bf_trial.json
+hagiwara@dev01:~/nwmodel/netomox-examples/batfish$ bundle exec ruby bf_topology.rb > ../public/model/bf_trial.json
 ```
 For debugging (each layer)
 ```bash
@@ -91,5 +91,5 @@ bundle exec ruby bf_topology.rb [bgp|ospf|l3]
 
 Check data file
 ```bash
-hagiwara@dev01:~/nwmodel/netomox-examples/batfish$ bundle exec netomox check bf_trial.json 
+hagiwara@dev01:~/nwmodel/netomox-examples/batfish$ bundle exec netomox check ../public/model/bf_trial.json
 ```

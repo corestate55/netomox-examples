@@ -26,6 +26,12 @@ end
 
 exit 0 unless debug.nil?
 
+def shortening_interface_name(str)
+  str
+    .gsub(/GigabitEthernet/, 'Gi')
+    .gsub!(/Loopback/, 'Lo')
+end
+
 # integrate
 layer_bgp = BGPTopologyConverter.new
 layer_ospf = OSPFTopologyConverter.new
@@ -35,4 +41,4 @@ nws = Netomox::DSL::Networks.new
 layer_bgp.make_topology(nws)
 layer_ospf.make_topology(nws)
 layer_3.make_topology(nws)
-puts JSON.pretty_generate(nws.topo_data)
+puts shortening_interface_name(JSON.pretty_generate(nws.topo_data))

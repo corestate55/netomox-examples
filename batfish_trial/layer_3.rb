@@ -29,7 +29,7 @@ class Layer3TopologyConverter < TopologyLayerBase
         node node do
           interfaces.each do |tp|
             term_point tp[:interface] do
-              # TODO: L3 tp attribute
+              attribute(ip_addrs: ["#{tp[:ip]}/#{tp[:mask]}"])
             end
           end
         end
@@ -48,7 +48,11 @@ class Layer3TopologyConverter < TopologyLayerBase
   end
 
   def make_layer3_layer(nws)
-    nws.register { network 'layer3' }
+    nws.register do
+      network 'layer3' do
+        type Netomox::NWTYPE_L3
+      end
+    end
     make_layer3_layer_nodes(nws)
     make_layer3_layer_links(nws)
   end
