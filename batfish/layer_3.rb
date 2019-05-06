@@ -1,9 +1,10 @@
 require 'csv'
-require 'json'
 require 'netomox'
+require_relative 'layer_base'
 
-class Layer3TopologyConverter
-  def initialize
+class Layer3TopologyConverter < TopologyLayerBase
+  def initialize(opts={})
+    super(opts)
     @edges_layer3_table = read_table('csv/edges_layer3.csv')
     @ip_owners_table = read_table('csv/ip_owners.csv')
     make_tables
@@ -13,19 +14,13 @@ class Layer3TopologyConverter
     make_layer3_layer(nws)
   end
 
-  def puts_json
-    nws = Netomox::DSL::Networks.new
-    make_topology(nws)
-    puts JSON.pretty_generate(nws.topo_data)
-  end
-
   private
 
   def make_tables
     @node_interfaces_table = make_node_interfaces_table
-    # puts '# node_interfaces_table: ', @node_interfaces_table
+    debug '# node_interfaces_table: ', @node_interfaces_table
     @links = make_layer3_links
-    # puts '# links: ', @links
+    debug '# links: ', @links
   end
 
   def make_layer3_layer_nodes(nws)
@@ -33,7 +28,7 @@ class Layer3TopologyConverter
       nws.network('layer3').register do
         node node do
           interfaces.each do |tp|
-            term_point tp do
+            term_point tp[:interface] do
               # TODO: L3 tp attribute
             end
           end
@@ -75,10 +70,6 @@ class Layer3TopologyConverter
       node_interfaces_table[node] = find_interfaces(node)
     end
     node_interfaces_table
-  end
-
-  def read_table(file_path)
-    CSV.table(file_path)
   end
 
   def make_layer3_links

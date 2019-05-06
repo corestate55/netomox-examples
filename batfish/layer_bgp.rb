@@ -1,9 +1,10 @@
 require 'csv'
-require 'json'
 require 'netomox'
+require_relative 'layer_base'
 
-class BGPTopologyConverter
-  def initialize
+class BGPTopologyConverter < TopologyLayerBase
+  def initialize(opts={})
+    super(opts)
     @edges_bgp_table = read_table('csv/edges_bgp.csv')
     @config_bgp_proc_table = read_table('csv/config_bgp_proc.csv')
     @config_ospf_area_table = read_table('csv/config_ospf_area.csv')
@@ -16,23 +17,17 @@ class BGPTopologyConverter
     make_bgp_proc_layer(nws)
   end
 
-  def puts_json
-    nws = Netomox::DSL::Networks.new
-    make_topology(nws)
-    puts JSON.pretty_generate(nws.topo_data)
-  end
-
   private
 
   def make_tables
     @as_numbers = @edges_bgp_table[:as_number].uniq
-    # puts '# as_numbers: ', @as_numbers
+    debug '# as_numbers: ', @as_numbers
     @nodes_in_as = make_nodes_in_as
-    # puts '# nodes_in_as: ', @nodes_in_as
+    debug '# nodes_in_as: ', @nodes_in_as
     @areas_in_as = make_areas_in_as
-    # puts '# areas_in_as: ', @areas_in_as
+    debug '# areas_in_as: ', @areas_in_as
     @links_inter_as = make_links_inter_as
-    # puts '# links_inter_as: ', @links_inter_as
+    debug '# links_inter_as: ', @links_inter_as
   end
 
   def find_interface(node, ip)
@@ -67,7 +62,7 @@ class BGPTopologyConverter
   def make_bgp_proc_layer_nodes(nws)
     @config_bgp_proc_table.each do |row|
       tps = ips_facing_neighbors(row[:node], row[:neighbors])
-      # p "### check node:#{row[:node]}, neighbors:#{row[:neighbors]}, tps:", tps
+      debug "### check node:#{row[:node]}, neighbors:#{row[:neighbors]}, tps:", tps
 
       nws.network('bgp-proc').register do
         node row[:router_id] do
@@ -117,15 +112,15 @@ class BGPTopologyConverter
     forward_key = "#{src[:key]}-#{dst[:key]}"
     reverse_key = "#{dst[:key]}-#{src[:key]}"
 
-    # p "###### fwd_key=#{forward_key}, rev_key=#{reverse_key}"
+    debug "###### fwd_key=#{forward_key}, rev_key=#{reverse_key}"
     if @link_ref_count[forward_key].nil? && @link_ref_count[reverse_key].nil?
       count_tp_ref(src[:key])
       count_tp_ref(dst[:key])
       @link_ref_count[forward_key] = [ @tp_ref_count[src[:key]], @tp_ref_count[dst[:key]] ]
-      # p "### rev/fwd not found, #{@link_ref_count[forward_key]}"
+      debug "### rev/fwd not found, #{@link_ref_count[forward_key]}"
     elsif @link_ref_count[forward_key].nil? # exists reverse
       @link_ref_count[forward_key] = @link_ref_count[reverse_key].reverse
-      # p "### rev found (fwd not found), #{@link_ref_count[forward_key]}"
+      debug "### rev found (fwd not found), #{@link_ref_count[forward_key]}"
     else
       warn 'WARNING: duplicated link?'
     end
@@ -133,10 +128,10 @@ class BGPTopologyConverter
     src[:ip] = counted_name(src[:ip], @link_ref_count[forward_key][0])
     dst[:ip] = counted_name(dst[:ip], @link_ref_count[forward_key][1])
 
-    # p "### check2, tp_ref_count: ", @tp_ref_count
-    # p "### check2, link_ref_count: ", @link_ref_count
-    # p "### src: #{src[:node]}, #{src[:ip]}, #{src[:interface]}"
-    # p "### dst: #{dst[:node]}, #{dst[:ip]}, #{dst[:interface]}"
+    # debug "### check2, tp_ref_count: ", @tp_ref_count
+    # debug "### check2, link_ref_count: ", @link_ref_count
+    debug "### src: #{src[:node]}, #{src[:ip]}, #{src[:interface]}"
+    debug "### dst: #{dst[:node]}, #{dst[:ip]}, #{dst[:interface]}"
     [ src, dst ]
   end
 
@@ -201,10 +196,6 @@ class BGPTopologyConverter
     nws.register { network 'bgp' }
     make_bgp_layer_nodes(nws)
     make_bgp_layer_links(nws)
-  end
-
-  def read_table(file_path)
-    CSV.table(file_path)
   end
 
   def router_ids_in_as(asn)

@@ -1,9 +1,10 @@
 require 'csv'
-require 'json'
 require 'netomox'
+require_relative 'layer_base'
 
-class OSPFTopologyConverter
-  def initialize
+class OSPFTopologyConverter < TopologyLayerBase
+  def initialize(opts={})
+    super(opts)
     @edges_bgp_table = read_table('csv/edges_bgp.csv')
     @config_ospf_area_table = read_table('csv/config_ospf_area.csv')
     @edges_ospf_table = read_table('csv/edges_ospf.csv')
@@ -15,32 +16,26 @@ class OSPFTopologyConverter
     make_ospf_proc_layer(nws)
   end
 
-  def puts_json
-    nws = Netomox::DSL::Networks.new
-    make_topology(nws)
-    puts JSON.pretty_generate(nws.topo_data)
-  end
-
   private
 
   def make_tables
     @as_numbers = @edges_bgp_table[:as_number].uniq
-    # puts '# as_numbers: ', @as_numbers
+    debug '# as_numbers: ', @as_numbers
     @nodes_in_as = find_nodes_in_as
-    # puts '# nodes_in_as:', @nodes_in_as
+    debug '# nodes_in_as:', @nodes_in_as
     @as_area_table = make_as_area_table
-    # puts '# as_area_table: ', @as_area_table
+    debug '# as_area_table: ', @as_area_table
     @links = make_ospf_links
-    # puts '# ospf_link (edges)', @links
+    debug '# ospf_link (edges)', @links
   end
 
   def make_ospf_area_layer_nodes(nws)
     @as_numbers.each do |asn|
-      # p "# areas in #{asn} -- #{areas_in_as(asn)}"
+      debug "# areas in #{asn} -- #{areas_in_as(asn)}"
       areas_in_as(asn).each do |area|
         support_nodes = nodes_in(asn, area)
-        # p "## asn,area = #{asn}, #{area}"
-        # p support_nodes
+        debug "## asn,area = #{asn}, #{area}"
+        debug support_nodes
         nws.network('ospf').register do
           node "as#{asn}-area#{area}" do
             # TODO: term point (inter ospf area)
@@ -61,20 +56,16 @@ class OSPFTopologyConverter
   end
 
   def make_ospf_proc_layer_nodes(nws)
-    @as_area_table.each do |row|
+    @as_area_table.select { |row| row[:area] >= 0 }.each do |row|
       nws.network('ospf-proc').register do
-        # p "# node #{row[:node]}"
         node "#{row[:node]}" do
           # tp
           row[:interfaces].each do |tp|
-            # p "## term point #{tp}"
             term_point tp do
-              # p "### support tp layer3__#{row[:node]}__#{tp}"
               support 'layer3', row[:node], tp
             end
           end
           # support-node
-          # p "## support node layer3__#{row[:node]}"
           support 'layer3', row[:node]
         end
         # TODO: link (inter ospf proc)
@@ -111,10 +102,6 @@ class OSPFTopologyConverter
       .find_all { |row| row[:as] == asn && row[:area] == area }
       .map { |row| row[:node] }
       .sort.uniq
-  end
-
-  def read_table(file_path)
-    CSV.table(file_path)
   end
 
   def find_nodes_in_as
