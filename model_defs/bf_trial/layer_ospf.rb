@@ -57,6 +57,7 @@ class OSPFTopologyConverter < TopologyLayerBase
 
   def make_ospf_proc_layer_nodes(nws)
     @as_area_table.select { |row| row[:area] >= 0 }.each do |row|
+      prefixes = routes_of(row[:node], /ospf.*/)
       nws.network('ospf-proc').register do
         node "#{row[:node]}" do
           # tp
@@ -67,6 +68,7 @@ class OSPFTopologyConverter < TopologyLayerBase
           end
           # support-node
           support 'layer3', row[:node]
+          attribute(prefixes: prefixes, flags: ['ospf-proc'])
         end
         # TODO: link (inter ospf proc)
       end
@@ -84,7 +86,11 @@ class OSPFTopologyConverter < TopologyLayerBase
   end
 
   def make_ospf_proc_layer(nws)
-    nws.register { network 'ospf-proc' }
+    nws.register do
+      network 'ospf-proc' do
+        type Netomox::NWTYPE_L3
+      end
+    end
     make_ospf_proc_layer_nodes(nws)
     make_ospf_proc_layer_links(nws)
   end

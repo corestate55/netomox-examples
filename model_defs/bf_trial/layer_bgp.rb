@@ -61,6 +61,7 @@ class BGPTopologyConverter < TopologyLayerBase
 
   def make_bgp_proc_layer_nodes(nws)
     @config_bgp_proc_table.each do |row|
+      prefixes = routes_of(row[:node], /.*bgp/)
       tps = ips_facing_neighbors(row[:node], row[:neighbors])
       debug "### check node:#{row[:node]}, neighbors:#{row[:neighbors]}, tps:", tps
 
@@ -81,6 +82,7 @@ class BGPTopologyConverter < TopologyLayerBase
             end
           end
           support 'layer3', row[:node]
+          attribute(prefixes: prefixes, flags: ['bgp-proc'])
         end
       end
     end
@@ -148,7 +150,11 @@ class BGPTopologyConverter < TopologyLayerBase
   end
 
   def make_bgp_proc_layer(nws)
-    nws.register { network 'bgp-proc' }
+    nws.register do
+      network 'bgp-proc' do
+        type Netomox::NWTYPE_L3
+      end
+    end
     make_bgp_proc_layer_nodes(nws)
     make_bgp_proc_layer_links(nws)
   end

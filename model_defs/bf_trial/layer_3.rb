@@ -25,6 +25,7 @@ class Layer3TopologyConverter < TopologyLayerBase
 
   def make_layer3_layer_nodes(nws)
     @node_interfaces_table.each_pair do |node, interfaces|
+      prefixes = routes_of(node, /^(?!.*(bgp|ospf)).+$/) # exclude bgp,ospf
       nws.network('layer3').register do
         node node do
           interfaces.each do |tp|
@@ -32,6 +33,7 @@ class Layer3TopologyConverter < TopologyLayerBase
               attribute(ip_addrs: ["#{tp[:ip]}/#{tp[:mask]}"])
             end
           end
+          attribute(prefixes: prefixes, flags: ['layer3'])
         end
       end
     end
