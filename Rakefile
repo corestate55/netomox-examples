@@ -11,9 +11,10 @@ YANG = %W[
 ].freeze
 JSON_SCHEMA = "#{MODEL_DIR}/topol23.jsonschema".freeze
 JTOX = "#{MODEL_DIR}/topol23.jtox".freeze
-TARGET_RB = FileList["#{MODEL_DEF_DIR}/target*.rb"]
+TARGET_RB = FileList["#{MODEL_DEF_DIR}/*.rb"]
 TARGET_JSON = FileList.new do |f|
   f.include("#{MODEL_DIR}/target*.json")
+  f.include("#{MODEL_DIR}/bf_trial.json")
   f.exclude("#{MODEL_DIR}/*.orig.json")
   f.exclude("#{MODEL_DIR}/*-layout.json")
 end

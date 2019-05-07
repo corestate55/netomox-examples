@@ -1,8 +1,8 @@
 require 'json'
 require 'netomox'
-require_relative 'layer_bgp'
-require_relative 'layer_ospf'
-require_relative 'layer_3'
+require_relative 'bf_trial/layer_bgp'
+require_relative 'bf_trial/layer_ospf'
+require_relative 'bf_trial/layer_3'
 
 # usage:
 #   bundle exec ruby THIS.rb [bgp|ospf|l3]

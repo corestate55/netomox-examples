@@ -1,9 +1,11 @@
 from pybatfish.client.commands import *
 from pybatfish.question.question import load_questions
 from pybatfish.question import bfq
+from os import path
 
-snapshot_dir = 'pybatfish/jupyter_notebooks/networks/example'
+snapshot_dir = path.expanduser('~/batfish/pybatfish/jupyter_notebooks/networks/example')
 snapshot_name = 'bf_example_snapshot'
+csv_dir = './csv/'
 
 if __name__ == '__main__':
     # load question
@@ -13,6 +15,7 @@ if __name__ == '__main__':
     # query
     queries = {
         'ip_owners': lambda: bfq.ipOwners(),
+        'routes': lambda: bfq.routes(),
         'edges_bgp': lambda: bfq.edges(edgeType='bgp'),
         'edges_ospf': lambda: bfq.edges(edgeType='ospf'),
         'edges_layer3': lambda: bfq.edges(edgeType='layer3'),
@@ -22,5 +25,5 @@ if __name__ == '__main__':
     # exec query
     for query in queries:
         print("# Exec Query = %s" % query)
-        with open(query + '.csv', 'w') as outfile:
+        with open(path.join('./', csv_dir, query + '.csv'), 'w') as outfile:
             outfile.write(queries[query]().answer().frame().to_csv())

@@ -2,7 +2,8 @@ require 'json'
 require 'netomox'
 
 class TopologyLayerBase
-  def initialize(debug: false)
+  def initialize(debug: false, csv_dir: 'model_defs/bf_trial/csv')
+    @csv_dir = csv_dir # default: bundle exec ruby model_defs/bf_trial.rb
     @use_debug = debug
   end
 
@@ -20,6 +21,6 @@ class TopologyLayerBase
   end
 
   def read_table(file_path)
-    CSV.table(file_path)
+    CSV.table("#{@csv_dir}/#{file_path}")
   end
 end

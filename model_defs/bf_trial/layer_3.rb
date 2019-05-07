@@ -5,8 +5,8 @@ require_relative 'layer_base'
 class Layer3TopologyConverter < TopologyLayerBase
   def initialize(opts={})
     super(opts)
-    @edges_layer3_table = read_table('csv/edges_layer3.csv')
-    @ip_owners_table = read_table('csv/ip_owners.csv')
+    @edges_layer3_table = read_table('edges_layer3.csv')
+    @ip_owners_table = read_table('ip_owners.csv')
     make_tables
   end
 

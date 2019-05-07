@@ -5,10 +5,10 @@ require_relative 'layer_base'
 class BGPTopologyConverter < TopologyLayerBase
   def initialize(opts={})
     super(opts)
-    @edges_bgp_table = read_table('csv/edges_bgp.csv')
-    @config_bgp_proc_table = read_table('csv/config_bgp_proc.csv')
-    @config_ospf_area_table = read_table('csv/config_ospf_area.csv')
-    @ip_owners_table = read_table('csv/ip_owners.csv')
+    @edges_bgp_table = read_table('edges_bgp.csv')
+    @config_bgp_proc_table = read_table('config_bgp_proc.csv')
+    @config_ospf_area_table = read_table('config_ospf_area.csv')
+    @ip_owners_table = read_table('ip_owners.csv')
     make_tables
   end
 

@@ -5,9 +5,9 @@ require_relative 'layer_base'
 class OSPFTopologyConverter < TopologyLayerBase
   def initialize(opts={})
     super(opts)
-    @edges_bgp_table = read_table('csv/edges_bgp.csv')
-    @config_ospf_area_table = read_table('csv/config_ospf_area.csv')
-    @edges_ospf_table = read_table('csv/edges_ospf.csv')
+    @edges_bgp_table = read_table('edges_bgp.csv')
+    @config_ospf_area_table = read_table('config_ospf_area.csv')
+    @edges_ospf_table = read_table('edges_ospf.csv')
     make_tables
   end
 
