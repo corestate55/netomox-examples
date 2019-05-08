@@ -1,6 +1,6 @@
 require 'netomox'
 
-# rubocop:disable Metrics/MethodLength, Metrics/BlockLength, Metrics/AbcSize
+# rubocop:disable Metrics/MethodLength, Metrics/AbcSize
 def register_target_layer1(nws)
   nws.register do
     network 'target-L1' do
@@ -44,4 +44,4 @@ def register_target_layer1(nws)
     end
   end
 end
-# rubocop:enable Metrics/MethodLength, Metrics/BlockLength, Metrics/AbcSize
+# rubocop:enable Metrics/MethodLength, Metrics/AbcSize

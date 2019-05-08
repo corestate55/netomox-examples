@@ -2,8 +2,10 @@ require 'csv'
 require 'netomox'
 require_relative 'layer_base'
 
+# rubocop:disable Metrics/ClassLength
+# layer topology converter for batfish ospf network data
 class OSPFTopologyConverter < TopologyLayerBase
-  def initialize(opts={})
+  def initialize(opts = {})
     super(opts)
     @edges_bgp_table = read_table('edges_bgp.csv')
     @config_ospf_area_table = read_table('config_ospf_area.csv')
@@ -29,6 +31,7 @@ class OSPFTopologyConverter < TopologyLayerBase
     debug '# ospf_link (edges)', @links
   end
 
+  # rubocop:disable Metrics/MethodLength
   def make_ospf_area_layer_nodes(nws)
     @as_numbers.each do |asn|
       debug "# areas in #{asn} -- #{areas_in_as(asn)}"
@@ -49,17 +52,19 @@ class OSPFTopologyConverter < TopologyLayerBase
       end
     end
   end
+  # rubocop:enable Metrics/MethodLength
 
   def make_ospf_area_layer(nws)
     nws.register { network 'ospf' }
     make_ospf_area_layer_nodes(nws)
   end
 
+  # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
   def make_ospf_proc_layer_nodes(nws)
     @as_area_table.select { |row| row[:area] >= 0 }.each do |row|
       prefixes = routes_of(row[:node], /ospf.*/)
       nws.network('ospf-proc').register do
-        node "#{row[:node]}" do
+        node row[:node] do
           # tp
           row[:interfaces].each do |tp|
             term_point tp do
@@ -74,6 +79,7 @@ class OSPFTopologyConverter < TopologyLayerBase
       end
     end
   end
+  # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
   def make_ospf_proc_layer_links(nws)
     @links.each do |link_row|
@@ -130,8 +136,8 @@ class OSPFTopologyConverter < TopologyLayerBase
     else
       [
         row[:area],
-        [ eval(row[:active_interfaces]),
-          eval(row[:passive_interfaces]) ].flatten
+        [eval(row[:active_interfaces]),
+         eval(row[:passive_interfaces])].flatten
       ]
     end
   end
@@ -157,16 +163,16 @@ class OSPFTopologyConverter < TopologyLayerBase
     /(.+)\[(.+)\]/.match(node_interface).captures
   end
 
-  def make_tp_info_from(node, tp)
+  def make_tp_info_from(node, term_point)
     found_row = @as_area_table.find do |row|
-      row[:node] == node && row[:interfaces].include?(tp)
+      row[:node] == node && row[:interfaces].include?(term_point)
     end
     # TODO: if not found?
     {
       as: found_row[:as],
       area: found_row[:area],
       node: node,
-      interface: tp
+      interface: term_point
     }
   end
 
@@ -183,3 +189,4 @@ class OSPFTopologyConverter < TopologyLayerBase
     end
   end
 end
+# rubocop:enable Metrics/ClassLength

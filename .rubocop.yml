@@ -1,0 +1,16 @@
+AllCops:
+  Exclude:
+    - 'netoviz/**/*'
+    - 'vendor/**/*'
+    - 'node_modules/**/*'
+    - 'yang/**/*'
+    - 'public/**/*'
+    - 'dist/**/*'
+
+Metrics/BlockLength:
+  Exclude:
+    - 'model_defs/**/*'
+
+Security/Eval:
+  Exclude:
+    - 'model_defs/bf_trial/*.rb'

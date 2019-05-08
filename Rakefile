@@ -91,9 +91,18 @@ task :testgen do
   end
 end
 
+begin
+  require 'rubocop/rake_task'
+  RuboCop::RakeTask.new
+rescue LoadError
+  task :rubocop do
+    warn 'RuboCop is disabled'
+  end
+end
+
 CLOBBER.include(
   TARGET_JSON, # JTOX, JSON_SCHEMA,
   "#{MODEL_DIR}/*.xml",
-  "#{MODEL_DIR}/test_*.json",
+  "#{MODEL_DIR}/test_*.json"
 )
 CLEAN.include('**/*~')

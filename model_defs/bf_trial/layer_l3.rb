@@ -2,8 +2,9 @@ require 'csv'
 require 'netomox'
 require_relative 'layer_base'
 
+# layer topology converter for batfish layer3 network data
 class Layer3TopologyConverter < TopologyLayerBase
-  def initialize(opts={})
+  def initialize(opts = {})
     super(opts)
     @edges_layer3_table = read_table('edges_layer3.csv')
     @ip_owners_table = read_table('ip_owners.csv')
@@ -23,6 +24,7 @@ class Layer3TopologyConverter < TopologyLayerBase
     debug '# links: ', @links
   end
 
+  # rubocop:disable Metrics/MethodLength
   def make_layer3_layer_nodes(nws)
     @node_interfaces_table.each_pair do |node, interfaces|
       prefixes = routes_of(node, /^(?!.*(bgp|ospf)).+$/) # exclude bgp,ospf
@@ -38,6 +40,7 @@ class Layer3TopologyConverter < TopologyLayerBase
       end
     end
   end
+  # rubocop:enable Metrics/MethodLength
 
   def make_layer3_layer_links(nws)
     @links.each do |link_row|
@@ -60,7 +63,7 @@ class Layer3TopologyConverter < TopologyLayerBase
   end
 
   def make_interface_info(interface, ip, mask)
-    { interface: interface, ip: ip, mask: mask}
+    { interface: interface, ip: ip, mask: mask }
   end
 
   def find_interfaces(node)
@@ -93,6 +96,6 @@ class Layer3TopologyConverter < TopologyLayerBase
   def make_l3_link_info(node_interface, ips)
     node, tp = separate_node_interface(node_interface)
     ips = eval(ips) # ip list
-    { node: node, interface: tp, ips: ips}
+    { node: node, interface: tp, ips: ips }
   end
 end

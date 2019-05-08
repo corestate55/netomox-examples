@@ -2,8 +2,10 @@ require 'csv'
 require 'netomox'
 require_relative 'layer_base'
 
+# rubocop:disable Metrics/ClassLength
+# layer topology converter for batfish bgp network data
 class BGPTopologyConverter < TopologyLayerBase
-  def initialize(opts={})
+  def initialize(opts = {})
     super(opts)
     @edges_bgp_table = read_table('edges_bgp.csv')
     @config_bgp_proc_table = read_table('config_bgp_proc.csv')
@@ -31,10 +33,10 @@ class BGPTopologyConverter < TopologyLayerBase
   end
 
   def find_interface(node, ip)
-    row = @ip_owners_table.find do |row|
+    data = @ip_owners_table.find do |row|
       row[:node] == node && row[:ip] == ip
     end
-    row[:interface]
+    data[:interface]
   end
 
   def make_bgp_proc_tp(node, edge)
@@ -47,7 +49,7 @@ class BGPTopologyConverter < TopologyLayerBase
 
   def find_edges(node, neighbor_ip)
     @edges_bgp_table.find do |row|
-      row[:node] == node && row[:remote_ip] == neighbor_ip.gsub(/\/\d+/, '')
+      row[:node] == node && row[:remote_ip] == neighbor_ip.gsub(%r{/\d+}, '')
     end
   end
 
@@ -59,11 +61,13 @@ class BGPTopologyConverter < TopologyLayerBase
       .map { |edge| make_bgp_proc_tp(node, edge) }
   end
 
+  # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
   def make_bgp_proc_layer_nodes(nws)
     @config_bgp_proc_table.each do |row|
       prefixes = routes_of(row[:node], /.*bgp/)
       tps = ips_facing_neighbors(row[:node], row[:neighbors])
-      debug "### check node:#{row[:node]}, neighbors:#{row[:neighbors]}, tps:", tps
+      debug "### check node:#{row[:node]}, " \
+            "neighbors:#{row[:neighbors]}, tps:", tps
 
       nws.network('bgp-proc').register do
         node row[:router_id] do
@@ -87,6 +91,7 @@ class BGPTopologyConverter < TopologyLayerBase
       end
     end
   end
+  # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
   def count_tp_ref(key)
     @tp_ref_count[key] = -1 if @tp_ref_count[key].nil?
@@ -108,6 +113,7 @@ class BGPTopologyConverter < TopologyLayerBase
     }
   end
 
+  # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
   def make_bgp_proc_link_tp(row)
     src = make_bgp_proc_link_param(row[:node], row[:ip])
     dst = make_bgp_proc_link_param(row[:remote_node], row[:remote_ip])
@@ -118,7 +124,9 @@ class BGPTopologyConverter < TopologyLayerBase
     if @link_ref_count[forward_key].nil? && @link_ref_count[reverse_key].nil?
       count_tp_ref(src[:key])
       count_tp_ref(dst[:key])
-      @link_ref_count[forward_key] = [ @tp_ref_count[src[:key]], @tp_ref_count[dst[:key]] ]
+      @link_ref_count[forward_key] = [
+        @tp_ref_count[src[:key]], @tp_ref_count[dst[:key]]
+      ]
       debug "### rev/fwd not found, #{@link_ref_count[forward_key]}"
     elsif @link_ref_count[forward_key].nil? # exists reverse
       @link_ref_count[forward_key] = @link_ref_count[reverse_key].reverse
@@ -134,8 +142,9 @@ class BGPTopologyConverter < TopologyLayerBase
     # debug "### check2, link_ref_count: ", @link_ref_count
     debug "### src: #{src[:node]}, #{src[:ip]}, #{src[:interface]}"
     debug "### dst: #{dst[:node]}, #{dst[:ip]}, #{dst[:interface]}"
-    [ src, dst ]
+    [src, dst]
   end
+  # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
   def make_bgp_proc_layer_links(nws)
     # TODO
@@ -159,6 +168,7 @@ class BGPTopologyConverter < TopologyLayerBase
     make_bgp_proc_layer_links(nws)
   end
 
+  # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
   def make_bgp_layer_nodes(nws)
     @as_numbers.each do |asn|
       tps = interfaces_inter_as(asn)
@@ -187,6 +197,7 @@ class BGPTopologyConverter < TopologyLayerBase
       end
     end
   end
+  # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
   def make_bgp_layer_links(nws)
     @links_inter_as.each do |link_row|
@@ -215,10 +226,10 @@ class BGPTopologyConverter < TopologyLayerBase
   end
 
   def find_router_id(node)
-    row = @config_bgp_proc_table.find { |row| row[:node] == node }
+    data = @config_bgp_proc_table.find { |row| row[:node] == node }
     # NOTICE: assume single process in node
     #   bgp_proc_table has only "neighbor ip list" (destination ip list)
-    row[:router_id]
+    data[:router_id]
   end
 
   def make_as_link_tp(asn, node, interface)
@@ -231,9 +242,11 @@ class BGPTopologyConverter < TopologyLayerBase
   def make_as_link(link)
     {
       source: make_as_link_tp(
-        link[:as_number], link[:node], link[:ip]),
+        link[:as_number], link[:node], link[:ip]
+      ),
       destination: make_as_link_tp(
-        link[:remote_as_number], link[:remote_node], link[:remote_ip])
+        link[:remote_as_number], link[:remote_node], link[:remote_ip]
+      )
     }
   end
 
@@ -275,3 +288,4 @@ class BGPTopologyConverter < TopologyLayerBase
     areas_in_as
   end
 end
+# rubocop:enable Metrics/ClassLength

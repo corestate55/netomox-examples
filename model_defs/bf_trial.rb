@@ -2,7 +2,7 @@ require 'json'
 require 'netomox'
 require_relative 'bf_trial/layer_bgp'
 require_relative 'bf_trial/layer_ospf'
-require_relative 'bf_trial/layer_3'
+require_relative 'bf_trial/layer_l3'
 
 # usage:
 #   bundle exec ruby THIS.rb [bgp|ospf|l3]
@@ -20,8 +20,8 @@ if debug == :ospf
   layer_ospf.puts_json
 end
 if debug == :l3
-  layer_3 = Layer3TopologyConverter.new(debug: true)
-  layer_3.puts_json
+  layer_l3 = Layer3TopologyConverter.new(debug: true)
+  layer_l3.puts_json
 end
 
 exit 0 unless debug.nil?
@@ -35,10 +35,10 @@ end
 # integrate
 layer_bgp = BGPTopologyConverter.new
 layer_ospf = OSPFTopologyConverter.new
-layer_3 = Layer3TopologyConverter.new
+layer_l3 = Layer3TopologyConverter.new
 
 nws = Netomox::DSL::Networks.new
 layer_bgp.make_topology(nws)
 layer_ospf.make_topology(nws)
-layer_3.make_topology(nws)
+layer_l3.make_topology(nws)
 puts shortening_interface_name(JSON.pretty_generate(nws.topo_data))
