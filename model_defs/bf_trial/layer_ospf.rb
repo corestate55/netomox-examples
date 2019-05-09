@@ -10,6 +10,7 @@ class OSPFTopologyConverter < TopologyLayerBase
     @edges_bgp_table = read_table('edges_bgp.csv')
     @config_ospf_area_table = read_table('config_ospf_area.csv')
     @edges_ospf_table = read_table('edges_ospf.csv')
+    @ip_owners_table = read_table('ip_owners.csv')
     make_tables
   end
 
@@ -67,13 +68,18 @@ class OSPFTopologyConverter < TopologyLayerBase
         node row[:node] do
           # tp
           row[:interfaces].each do |tp|
-            term_point tp do
-              support 'layer3', row[:node], tp
+            term_point tp[:interface] do
+              support 'layer3', row[:node], tp[:interface]
+              attribute(ip_addrs: [tp[:ip]])
             end
           end
           # support-node
           support 'layer3', row[:node]
-          attribute(prefixes: prefixes, flags: ['ospf-proc'])
+          attribute(
+            name: "process_#{row[:process_id]}",
+            prefixes: prefixes,
+            flags: ['ospf-proc']
+          )
         end
         # TODO: link (inter ospf proc)
       end
@@ -130,20 +136,41 @@ class OSPFTopologyConverter < TopologyLayerBase
     @config_ospf_area_table.find { |row| row[:node] == node }
   end
 
-  def get_area_interface_from(row)
-    if row.nil?
-      [-1, []]
-    else
-      [
-        row[:area],
-        [eval(row[:active_interfaces]),
-         eval(row[:passive_interfaces])].flatten
-      ]
+  def find_interface(node, interface)
+    @ip_owners_table.find do |row|
+      row[:node] == node && row[:interface] == interface
     end
   end
 
-  def make_as_area_row(asn, area, node, interfaces)
-    { as: asn, area: area, node: node, interfaces: interfaces }
+  def make_interface_info(node, interfaces)
+    interfaces.map do |interface|
+      if_data = find_interface(node, interface)
+      {
+        interface: interface,
+        ip: "#{if_data[:ip]}/#{if_data[:mask]}"
+      }
+    end
+  end
+
+  def get_area_interface_from(row)
+    if row.nil?
+      [-1, -1, []] # ospf area does not exists
+    else
+      interfaces = [eval(row[:active_interfaces]),
+                    eval(row[:passive_interfaces])].flatten
+      if_info = make_interface_info(row[:node], interfaces)
+      [row[:area], row[:process_id], if_info]
+    end
+  end
+
+  def make_as_area_row(asn, area, node, proc_id, interfaces)
+    {
+      as: asn,
+      area: area,
+      node: node,
+      process_id: proc_id,
+      interfaces: interfaces
+    }
   end
 
   def make_as_area_table
@@ -151,8 +178,8 @@ class OSPFTopologyConverter < TopologyLayerBase
     @nodes_in_as.each_pair do |asn, nodes|
       nodes.each do |node|
         config = find_ospf_config(node)
-        area, interfaces = get_area_interface_from(config)
-        as_area = make_as_area_row(asn, area, node, interfaces)
+        area, proc_id, interfaces = get_area_interface_from(config)
+        as_area = make_as_area_row(asn, area, node, proc_id, interfaces)
         as_area_table.push(as_area)
       end
     end
@@ -163,9 +190,13 @@ class OSPFTopologyConverter < TopologyLayerBase
     /(.+)\[(.+)\]/.match(node_interface).captures
   end
 
+  def interface_names(as_area_row)
+    as_area_row[:interfaces].map {|if_info| if_info[:interface] }
+  end
+
   def make_tp_info_from(node, term_point)
     found_row = @as_area_table.find do |row|
-      row[:node] == node && row[:interfaces].include?(term_point)
+      row[:node] == node && interface_names(row).include?(term_point)
     end
     # TODO: if not found?
     {

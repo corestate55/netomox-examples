@@ -83,10 +83,14 @@ class BGPTopologyConverter < TopologyLayerBase
             # p "### check1, tp_name:#{tp_name}"
             term_point tp_name do
               support 'layer3', row[:node], tp[:interface]
+              attribute(ip_addrs: [tp[:ip]])
             end
           end
           support 'layer3', row[:node]
-          attribute(prefixes: prefixes, flags: ['bgp-proc'])
+          attribute(name: row[:node],
+                    router_id: row[:router_id],
+                    prefixes: prefixes,
+                    flags: ['bgp-proc'])
         end
       end
     end
@@ -172,7 +176,7 @@ class BGPTopologyConverter < TopologyLayerBase
   def make_bgp_layer_nodes(nws)
     @as_numbers.each do |asn|
       tps = interfaces_inter_as(asn)
-      # p "### check: AS:#{asn}, tps:", tps
+      debug "### check: AS:#{asn}, tps:", tps
       areas = @areas_in_as[asn]
       router_ids = router_ids_in_as(asn)
 
@@ -183,6 +187,7 @@ class BGPTopologyConverter < TopologyLayerBase
           tps.each do |tp|
             term_point tp[:interface] do
               support 'bgp-proc', tp[:router_id], tp[:interface]
+              attribute(ip_addrs: [tp[:interface]])
             end
           end
           # support-node to ospf layer
