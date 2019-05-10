@@ -3,6 +3,7 @@
     ref="form"
     v-bind:model="form"
     v-bind:inline="true"
+    v-on:submit.native.prevent="submit"
   >
     <el-form-item label="Target name">
       <el-input
@@ -23,7 +24,7 @@
     <el-form-item>
       <el-button
         type="primary"
-        v-on:click="submit"
+        native-type="submit"
         size="small"
         round
       >

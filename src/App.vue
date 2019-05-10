@@ -2,7 +2,8 @@
   <div id="app">
     <AppButtonForceModelUpdate />
     <AppSelectVisualizer />
-    <AppButtonReverseNest />
+    <AppSwitchReverseNest />
+    <AppSwitchDeepNest />
     <AppInputParam />
     <VisualizerControl />
   </div>
@@ -10,7 +11,8 @@
 
 <script>
 import AppButtonForceModelUpdate from './components/AppButtonForceModelUpdate'
-import AppButtonReverseNest from './components/AppButtonReverseNest'
+import AppSwitchReverseNest from './components/AppSwitchReverseNest'
+import AppSwitchDeepNest from './components/AppSwitchDeepNest'
 import AppInputParam from './components/AppInputParam'
 import AppSelectVisualizer from './components/AppSelectVisualizer'
 import VisualizerControl from './components/VisualizerControl'
@@ -19,7 +21,8 @@ export default {
   name: 'app',
   components: {
     AppButtonForceModelUpdate,
-    AppButtonReverseNest,
+    AppSwitchReverseNest,
+    AppSwitchDeepNest,
     AppInputParam,
     AppSelectVisualizer,
     VisualizerControl

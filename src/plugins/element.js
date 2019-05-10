@@ -4,7 +4,8 @@ import {
   Form, FormItem,
   Tabs, TabPane,
   Input, InputNumber,
-  RadioButton, RadioGroup
+  RadioButton, RadioGroup,
+  Switch
 } from 'element-ui'
 import lang from 'element-ui/lib/locale/lang/ja'
 import locale from 'element-ui/lib/locale'
@@ -20,3 +21,4 @@ Vue.use(Input)
 Vue.use(InputNumber)
 Vue.use(RadioButton)
 Vue.use(RadioGroup)
+Vue.use(Switch)

@@ -45,7 +45,7 @@ export default {
       visualizer: null,
       unwatchModelFile: null,
       unwatchVisualizerName: null,
-      unwatchNestReverse: null,
+      unwatchNestParam: null,
       timer: null,
       currentTimestampInfo: null,
       oldTimestampInfo: null
@@ -53,7 +53,7 @@ export default {
   },
   computed: {
     ...mapGetters(
-      ['visualizerName', 'modelFile', 'watchInterval', 'nestReverse']
+      ['visualizerName', 'modelFile', 'watchInterval', 'nestReverse', 'nestDeep']
     )
   },
   methods: {
@@ -90,7 +90,9 @@ export default {
         this.oldTimestampInfo.mtimeMs < this.currentTimestampInfo.mtimeMs
     },
     drawJsonModel () {
-      this.visualizer.drawJsonModel(this.modelFile, null, this.nestReverse)
+      this.visualizer.drawJsonModel(
+        this.modelFile, null, this.nestReverse, this.nestDeep
+      )
     },
     resetGraph () {
       this.drawJsonModel()
@@ -122,16 +124,16 @@ export default {
         this.resetVisualizer(newVisualizerName)
       }
     )
-    this.unwatchNestReverse = this.$store.watch(
-      state => state.nestReverse,
-      (newNestReverse) => { this.drawJsonModel() }
+    this.unwatchNestParam = this.$store.watch(
+      state => state.nestReverse + state.nestDeep,
+      (newNestParam) => { this.drawJsonModel() }
     )
   },
   beforeDestroy () {
     delete this.visualizer
     this.unwatchModelFile()
     this.unwatchVisualizerName()
-    this.unwatchNestReverse()
+    this.unwatchNestParam()
   }
 }
 </script>
