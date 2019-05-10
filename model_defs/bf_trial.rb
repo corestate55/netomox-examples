@@ -32,6 +32,11 @@ def shortening_interface_name(str)
     .gsub!(/Loopback/, 'Lo')
 end
 
+def sort_node_tp!(nws)
+  nws.networks.each { |network| network.nodes.each(&:sort_tp_by_name!) }
+  nws.networks.each(&:sort_node_by_name!)
+end
+
 # integrate
 layer_bgp = BGPTopologyConverter.new
 layer_ospf = OSPFTopologyConverter.new
@@ -41,4 +46,5 @@ nws = Netomox::DSL::Networks.new
 layer_bgp.make_topology(nws)
 layer_ospf.make_topology(nws)
 layer_l3.make_topology(nws)
+sort_node_tp!(nws)
 puts shortening_interface_name(JSON.pretty_generate(nws.topo_data))

@@ -191,7 +191,7 @@ class OSPFTopologyConverter < TopologyLayerBase
   end
 
   def interface_names(as_area_row)
-    as_area_row[:interfaces].map {|if_info| if_info[:interface] }
+    as_area_row[:interfaces].map { |if_info| if_info[:interface] }
   end
 
   def make_tp_info_from(node, term_point)
