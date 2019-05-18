@@ -1,16 +1,18 @@
+# frozen_string_literal: true
+
 require 'rake/clean'
 
-YANG_DIR = './yang'.freeze
-MODEL_DIR = './public/model'.freeze
-MODEL_DEF_DIR = './model_defs'.freeze
+YANG_DIR = './yang'
+MODEL_DIR = './public/model'
+MODEL_DEF_DIR = './model_defs'
 YANG = %W[
   #{YANG_DIR}/ietf-l2-topology@2018-06-29.yang
   #{YANG_DIR}/ietf-l3-unicast-topology@2018-02-26.yang
   #{YANG_DIR}/ietf-network-topology@2018-02-26.yang
   #{YANG_DIR}/ietf-network@2018-02-26.yang
 ].freeze
-JSON_SCHEMA = "#{MODEL_DIR}/topol23.jsonschema".freeze
-JTOX = "#{MODEL_DIR}/topol23.jtox".freeze
+JSON_SCHEMA = "#{MODEL_DIR}/topol23.jsonschema"
+JTOX = "#{MODEL_DIR}/topol23.jtox"
 TARGET_RB = FileList["#{MODEL_DEF_DIR}/*.rb"]
 TARGET_JSON = FileList.new do |f|
   f.include("#{MODEL_DIR}/target*.json")

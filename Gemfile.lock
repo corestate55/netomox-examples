@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/corestate55/netomox
-  revision: cb88850bdf674a11c81058b87e8d66faa8ed917c
+  revision: b83476b2c6001ec389724d01a783922108163c2b
   branch: develop
   specs:
     netomox (0.1.0)
@@ -30,19 +30,19 @@ GEM
       ast (~> 2.4.0)
     rainbow (3.0.0)
     rake (12.3.2)
-    rubocop (0.68.1)
+    rubocop (0.69.0)
       jaro_winkler (~> 1.5.1)
       parallel (~> 1.10)
-      parser (>= 2.5, != 2.5.1.1)
+      parser (>= 2.6)
       rainbow (>= 2.2.2, < 4.0)
       ruby-progressbar (~> 1.7)
-      unicode-display_width (>= 1.4.0, < 1.6)
+      unicode-display_width (>= 1.4.0, < 1.7)
     ruby-progressbar (1.10.0)
     rubyzip (1.2.2)
     termcolor (1.2.2)
       highline (>= 1.5.0)
     thor (0.20.3)
-    unicode-display_width (1.5.0)
+    unicode-display_width (1.6.0)
 
 PLATFORMS
   ruby

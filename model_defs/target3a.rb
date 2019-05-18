@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'json'
 require 'netomox'
 require_relative 'target3a/layer1'

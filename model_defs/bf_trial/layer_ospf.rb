@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'csv'
 require 'netomox'
 require_relative 'layer_base'
@@ -111,7 +113,7 @@ class OSPFTopologyConverter < TopologyLayerBase
     @as_area_table
       .find_all { |row| row[:as] == asn }
       .map { |row| row[:area] }
-      .find_all { |area| area > 0 }
+      .find_all(&:positive?)
       .sort.uniq
   end
 

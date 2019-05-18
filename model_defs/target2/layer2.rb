@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'netomox'
 
 # rubocop:disable Metrics/MethodLength, Metrics/AbcSize

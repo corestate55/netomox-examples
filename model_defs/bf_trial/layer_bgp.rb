@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'csv'
 require 'netomox'
 require_relative 'layer_base'
@@ -76,7 +78,7 @@ class BGPTopologyConverter < TopologyLayerBase
             # NOTICE: for IGP, loopback interface connects multiple edges...
             tp_name = if tp[:interface] =~ /Loopback/i
                         lo_count += 1
-                        lo_count > 0 ? "#{tp[:ip]}:#{lo_count}" : tp[:ip]
+                        lo_count.positive? ? "#{tp[:ip]}:#{lo_count}" : tp[:ip]
                       else
                         tp[:ip]
                       end
@@ -103,7 +105,7 @@ class BGPTopologyConverter < TopologyLayerBase
   end
 
   def counted_name(name, count)
-    count > 0 ? "#{name}:#{count}" : name
+    count.positive? ? "#{name}:#{count}" : name
   end
 
   def make_bgp_proc_link_param(node, ip)

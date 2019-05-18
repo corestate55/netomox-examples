@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'csv'
 require 'netomox'
 require_relative 'layer_base'
