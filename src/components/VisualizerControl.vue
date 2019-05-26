@@ -26,12 +26,15 @@ import { mapGetters } from 'vuex'
 import ListAppConfig from './ListAppConfig'
 import ListModelFileInfo from './ListModelFileInfo'
 import ListWatchConfig from './ListWatcherConfig'
+import TopoGraphVisualizer from '../../netoviz/src/graph/topology/visualizer'
 import DepGraphVisualizer from '../../netoviz/src/graph/dependency/visualizer'
 import NestedGraphVisualizer from '../../netoviz/src/graph/nested/visualizer'
+// import '../../netoviz/src/css/topology.scss' // TODO: not work, use alternative scss
+import '../css/topo-graph.scss' // alternative
 import '../../netoviz/src/css/dependency.scss'
 import '../../netoviz/src/css/nested.scss'
-import '../../netoviz/src/css/tooltip.scss'
 import '../css/dep-graph.scss'
+import '../../netoviz/src/css/tooltip.scss'
 
 export default {
   name: 'VisualizerControl.vue',
@@ -104,6 +107,8 @@ export default {
       delete this.visualizer
       if (visualizerName === 'Nested') {
         this.visualizer = new NestedGraphVisualizer()
+      } else if (visualizerName === 'Topology') {
+        this.visualizer = new TopoGraphVisualizer()
       } else {
         // default: dependency graph
         this.visualizer = new DepGraphVisualizer()

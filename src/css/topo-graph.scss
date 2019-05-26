@@ -1,0 +1,269 @@
+// color selection
+// https://www.w3schools.com/colors/
+
+// fill color
+// normal color
+$fill_normal1: #FEF6EB; // node center circle
+$fill_normal2: lightgray; // node outer circle
+// color for object selection (node outer circle)
+$fill_select_child: #BDD2FA;
+$fill_select_parent: #5E92F2;
+$fill_select: #33CCFF;
+$fill_select_ready: #66FFFF;
+// color for diff state (tp and node center circle)
+$fill_diff_changed: #FDED3A;
+$fill_diff_deleted: #FE7367;
+$fill_diff_added: #92D364;
+// stroke color
+$stroke_normal: #303030; // for line and circle
+$stroke_diff_changed: #CBCB01;
+$stroke_diff_deleted: #B71001;
+$stroke_diff_added: #66B032;
+// defaults
+$default_font_size: 10pt;
+$default_font_color: #333;
+$fixed_stroke: hotpink;
+
+%inactive {
+  fill-opacity: 0.2;
+  stroke-opacity: 0.1;
+  transition: fill-opacity .5s ease-in-out, stroke-opacity .5s ease-in-out;
+}
+%active {
+  fill-opacity: 1.0;
+  stroke-opacity: 1.0;
+  transition: fill-opacity .5s ease-in-out, stroke-opacity .5s ease-in-out;
+}
+
+text {
+  fill: $stroke_normal;
+  &.select-ready {
+    font-weight: bold;
+  }
+  &.inactive {
+    @extend %inactive;
+  }
+  &.active {
+    @extend %active;
+  }
+}
+
+%circle-base {
+  fill: $fill_normal1;
+  stroke: $stroke_normal;
+  stroke-width: 1px;
+}
+
+circle {
+  // operation
+  &.fixed {
+    stroke: $fixed_stroke;
+    stroke-width: 2pt;
+  }
+  &.inactive {
+    @extend %inactive;
+  }
+  &.active {
+    @extend %active;
+  }
+
+  // node circle: core(center) circle
+  &.node {
+    @extend %circle-base;
+
+    &.changed {
+      fill: $fill_diff_changed;
+    }
+    &.added {
+      fill: $fill_diff_added;
+    }
+    &.deleted {
+      fill: $fill_diff_deleted;
+    }
+  }
+
+  // node circle: outer circle
+  &.node-circle {
+    fill: $fill_normal2;
+    stroke: none;
+
+    &.selected-children {
+      fill: $fill_select_child;
+    }
+    &.selected-parents {
+      fill: $fill_select_parent;
+    }
+    &.selected {
+      fill: $fill_select;
+    }
+    &.select-ready {
+      fill: $fill_select_ready;
+      transition: fill .2s ease-in-out;
+    }
+  }
+
+  // termination point circle
+  &.tp {
+    @extend %circle-base;
+
+    &.changed {
+      fill: $fill_diff_changed;
+    }
+    &.added {
+      fill: $fill_diff_added;
+    }
+    &.deleted {
+      fill: $fill_diff_deleted;
+    }
+
+    &.selected-children {
+      fill: $fill_select_child;
+    }
+    &.selected-parents {
+      fill: $fill_select_parent;
+    }
+    &.selected {
+      fill: $fill_select;
+    }
+    &.select-ready {
+      fill: $fill_select_ready;
+      transition: fill .2s ease-in-out;
+    }
+  }
+}
+
+%link-base {
+  stroke: $stroke_normal;
+  stroke-width: 1px;
+}
+
+line.link {
+  @extend %link-base;
+
+  &.inactive {
+    @extend %inactive;
+  }
+  &.active {
+    @extend %active;
+  }
+
+  &.changed {
+    stroke: $stroke_diff_changed;
+    stroke-width: 3pt;
+  }
+  &.added {
+    stroke: $stroke_diff_added;
+    stroke-width: 3pt;
+  }
+  &.deleted {
+    stroke: $stroke_diff_deleted;
+    stroke-width: 3pt;
+  }
+}
+
+div {
+  /*
+  &.control {
+    padding: $default_font_size;
+    display: inline-block;
+    vertical-align: top;
+
+    ul {
+      list-style: none;
+      padding-left: 1em;
+    }
+  }
+
+  &#model-selector {
+    width: 20%;
+  }
+
+  &#layer-selector {
+    width: 20%;
+  }
+
+  &#visualizer-selector {
+    width: 20%;
+  }
+
+  &#legend {
+    width: 30%;
+  }
+
+  &#visualizer {
+    clear: both;
+  }
+
+  &.network-layer {
+    float: left;
+    width: 100%;
+    p {
+      margin: 0.3em;
+    }
+  }
+  */
+
+  &.info-tables {
+    display: inline-block;
+    vertical-align: top;
+  }
+}
+
+// node/termination-point label
+text {
+  &.tp-label {
+    dominant-baseline: central;
+    font-size: 8px;
+    fill-opacity: 0.5;
+  }
+  &.node-label {
+    dominant-baseline: central;
+    font-size: 10px;
+  }
+}
+
+// info tables
+table {
+  display: inline-block;
+  margin: 0.25em;
+
+  &.node-info-table {
+    float: left;
+  }
+  &.tp-info-table {
+    float: right;
+  }
+  th {
+    font-size: $default_font_size;
+    padding: 0.25em;
+    background: palegoldenrod;
+    white-space: nowrap;
+  }
+  td {
+    font-size: $default_font_size;
+    padding: 0.25em;
+    white-space: nowrap;
+    transition: all .2s ease-in-out;
+
+    &.fixed {
+      border: 2px solid $fixed_stroke;
+    }
+
+    &.selected-children {
+      background: $fill_select_child;
+    }
+    &.selected-parents {
+      background: $fill_select_parent;
+      color: white;
+    }
+    &.selected {
+      background: $fill_select;
+      color: white;
+    }
+    &.select-ready {
+      background: $fill_select_ready;
+      color: $default_font_color;
+      transition: all .2s ease-in-out;
+    }
+  }
+}

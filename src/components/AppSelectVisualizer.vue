@@ -3,6 +3,7 @@
     v-model="visualizerName"
     size="small"
   >
+    <el-radio-button label="Topology" />
     <el-radio-button label="Dependency" />
     <el-radio-button label="Nested" />
   </el-radio-group>
