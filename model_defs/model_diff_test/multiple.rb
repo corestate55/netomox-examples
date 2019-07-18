@@ -3,7 +3,7 @@
 require 'json'
 require 'netomox'
 
-model_dir = 'model/'
+model_dir = 'model_defs/model/'
 
 test_nws1 = Netomox::DSL::Networks.new do
   network 'layer1' do
@@ -30,41 +30,60 @@ test_nws1 = Netomox::DSL::Networks.new do
     type Netomox::NWTYPE_L3
     support 'layer1'
 
-    seg_a = node 'seg_a' do
+    node 'seg_a' do
       attribute(pref_a)
       support %w[layer1 sw1]
-      support %w[layer1 sv1]
-      support %w[layer1 sv2]
+      term_point 'p0' do
+        support %w[layer1 sw1 gi0]
+      end
+      term_point 'p1' do
+        support %w[layer1 sw1 gi0]
+      end
     end
-    seg_b = node 'seg_b' do
+    node 'seg_b' do
       support %w[layer1 sw1]
-      support %w[layer1 sv1]
-      support %w[layer1 sv2]
       attribute(pref_b)
+      term_point 'p0' do
+        support %w[layer1 sw1 gi0]
+      end
+      term_point 'p1' do
+        support %w[layer1 sw1 gi1]
+      end
     end
-    seg_c = node 'seg_c' do
+    node 'seg_c' do
       support %w[layer1 sv2]
       attribute(pref_c)
     end
-    vm1 = node 'vm1' do
+    node 'vm1' do
       attribute(pref_a)
       support %w[layer1 sv1]
+      term_point 'eth0' do
+        support %w[layer1 sv1 eth0]
+      end
     end
-    vm2 = node 'vm2' do
+    node 'vm2' do
       attribute(pref_ab)
       support %w[layer1 sv1]
+      term_point 'eth0' do
+        support %w[layer1 sv1 eth0]
+      end
+      term_point 'eth1' do
+        support %w[layer1 sv1 eth0]
+      end
     end
-    vm3 = node 'vm3' do
+    node 'vm3' do
       attribute(pref_bc)
       support %w[layer1 sv2]
+      term_point 'eth0' do
+        support %w[layer1 sv2 eth0]
+      end
+      term_point 'eth1'
     end
-    [vm1, vm2, vm3].each { |vm| vm.tp_prefix = 'eth' }
-
-    seg_a.bdlink_to(vm1)
-    seg_a.bdlink_to(vm2)
-    seg_b.bdlink_to(vm2)
-    seg_b.bdlink_to(vm3)
-    seg_c.bdlink_to(vm3)
+    bdlink %w[vm1 eth0 seg_a p0]
+    bdlink %w[seg_a p1 vm2 eth0]
+    bdlink %w[vm2 eth1 seg_b p0]
+    bdlink %w[seg_b p1 vm3 eth0]
+    bdlink %w[vm3 eth1 seg_c p0]
   end
 end
 
@@ -93,41 +112,57 @@ test_nws2 = Netomox::DSL::Networks.new do
     type Netomox::NWTYPE_L3
     support 'layer1'
 
-    seg_a = node 'seg_a' do
+    node 'seg_a' do
       attribute(pref_a)
       support %w[layer1 sw1]
-      support %w[layer1 sv1]
-      support %w[layer1 sv2]
+      term_point 'p0' do
+        support %w[layer1 sw1 gi0]
+      end
     end
-    seg_b = node 'seg_b' do
+    node 'seg_b' do
       support %w[layer1 sw1]
-      support %w[layer1 sv1]
-      support %w[layer1 sv2]
       attribute(pref_b)
+      term_point 'p0' do
+        support %w[layer1 sw1 gi0]
+      end
+      term_point 'p1' do
+        support %w[layer1 sw1 gi1]
+      end
     end
-    seg_c = node 'seg_c' do
+    node 'seg_c' do
       support %w[layer1 sv2]
       attribute(pref_c)
+      term_point 'p0'
+      term_point 'p1'
     end
-    vm1 = node 'vm1' do
+    node 'vm1' do
       attribute(pref_ab)
       support %w[layer1 sv1]
+      term_point 'eth0' do
+        support %w[layer1 sv1 eth0]
+      end
+      term_point 'eth1' do
+        support %w[layer1 sv1 eth1]
+      end
     end
-    vm3 = node 'vm3' do
+    node 'vm3' do
       attribute(pref_bc)
-      support %w[layer1 sv1]
+      support %w[layer1 sv2]
+      term_point 'eth0' do
+        support %w[layer1 sv2 eth0]
+      end
+      term_point 'eth1'
     end
-    vm4 = node 'vm4' do
+    node 'vm4' do
       attribute(pref_c)
       support %w[layer1 sv2]
+      term_point 'eth0'
     end
-    [vm1, vm3, vm4].each { |vm| vm.tp_prefix = 'eth' }
-
-    seg_a.bdlink_to(vm1)
-    seg_b.bdlink_to(vm1)
-    seg_b.bdlink_to(vm3)
-    seg_c.bdlink_to(vm3)
-    seg_c.bdlink_to(vm4)
+    bdlink %w[seg_a p0 vm1 eth0]
+    bdlink %w[vm1 eth1 seg_b p0]
+    bdlink %w[seg_b p1 vm3 eth0]
+    bdlink %w[vm3 eth1 seg_c p0]
+    bdlink %w[seg_c p1 vm4 eth0]
   end
 end
 
