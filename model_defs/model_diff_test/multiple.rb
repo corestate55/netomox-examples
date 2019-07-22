@@ -53,6 +53,7 @@ test_nws1 = Netomox::DSL::Networks.new do
     node 'seg_c' do
       support %w[layer1 sv2]
       attribute(pref_c)
+      term_point 'p0'
     end
     node 'vm1' do
       attribute(pref_a)
@@ -112,6 +113,12 @@ test_nws2 = Netomox::DSL::Networks.new do
     type Netomox::NWTYPE_L3
     support 'layer1'
 
+    node 'seg_c' do
+      support %w[layer1 sv2]
+      attribute(pref_c)
+      term_point 'p0'
+      term_point 'p1'
+    end
     node 'seg_a' do
       attribute(pref_a)
       support %w[layer1 sw1]
@@ -129,12 +136,6 @@ test_nws2 = Netomox::DSL::Networks.new do
         support %w[layer1 sw1 gi1]
       end
     end
-    node 'seg_c' do
-      support %w[layer1 sv2]
-      attribute(pref_c)
-      term_point 'p0'
-      term_point 'p1'
-    end
     node 'vm1' do
       attribute(pref_ab)
       support %w[layer1 sv1]
@@ -142,7 +143,7 @@ test_nws2 = Netomox::DSL::Networks.new do
         support %w[layer1 sv1 eth0]
       end
       term_point 'eth1' do
-        support %w[layer1 sv1 eth1]
+        support %w[layer1 sv1 eth0]
       end
     end
     node 'vm3' do
