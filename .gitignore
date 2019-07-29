@@ -8,6 +8,7 @@ public/model/*.xml
 public/model/target.json
 public/model/target[23]*.json
 public/model/bf_trial.json
+public/model/pbp1.json
 
 # editor
 .idea
