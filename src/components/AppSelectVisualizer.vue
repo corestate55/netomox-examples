@@ -5,6 +5,7 @@
   >
     <el-radio-button label="Topology" />
     <el-radio-button label="Dependency" />
+    <el-radio-button label="Dependency2" />
     <el-radio-button label="Nested" />
   </el-radio-group>
 </template>

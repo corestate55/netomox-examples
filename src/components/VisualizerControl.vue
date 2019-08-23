@@ -28,6 +28,7 @@ import ListModelFileInfo from './ListModelFileInfo'
 import ListWatchConfig from './ListWatcherConfig'
 import TopoGraphVisualizer from '../../netoviz/src/graph/topology/visualizer'
 import DepGraphVisualizer from '../../netoviz/src/graph/dependency/visualizer'
+import Dep2GraphVisualizer from '../../netoviz/src/graph/dependency2/visualizer'
 import NestedGraphVisualizer from '../../netoviz/src/graph/nested/visualizer'
 // import '../../netoviz/src/css/topology.scss' // TODO: not work, use alternative scss
 import '../css/topo-graph.scss' // alternative
@@ -48,7 +49,7 @@ export default {
       visualizer: null,
       unwatchModelFile: null,
       unwatchVisualizerName: null,
-      unwatchNestParam: null,
+      unwatchGraphParam: null,
       timer: null,
       currentTimestampInfo: null,
       oldTimestampInfo: null
@@ -56,7 +57,7 @@ export default {
   },
   computed: {
     ...mapGetters(
-      ['visualizerName', 'modelFile', 'watchInterval', 'nestReverse', 'nestDeep']
+      ['visualizerName', 'modelFile', 'watchInterval', 'currentAlertRow', 'nestReverse', 'nestDepth']
     )
   },
   methods: {
@@ -94,7 +95,7 @@ export default {
     },
     drawJsonModel () {
       this.visualizer.drawJsonModel(
-        this.modelFile, null, this.nestReverse, this.nestDeep
+        this.modelFile, this.currentAlertRow, this.nestReverse, this.nestDepth
       )
     },
     resetGraph () {
@@ -105,13 +106,17 @@ export default {
     resetVisualizer (visualizerName) {
       console.log(`[viz] visualizerName: ${visualizerName}`)
       delete this.visualizer
-      if (visualizerName === 'Nested') {
-        this.visualizer = new NestedGraphVisualizer()
-      } else if (visualizerName === 'Topology') {
+      const svgWidth = window.innerWidth * 0.95
+      const svgHeight = window.innerHeight * 0.8
+      if (visualizerName === 'Topology') {
         this.visualizer = new TopoGraphVisualizer()
+      } else if (visualizerName === 'Nested') {
+        this.visualizer = new NestedGraphVisualizer(svgWidth, svgHeight)
+      } else if (visualizerName === 'Dependency2') {
+        this.visualizer = new Dep2GraphVisualizer(svgWidth, svgHeight)
       } else {
         // default: dependency graph
-        this.visualizer = new DepGraphVisualizer()
+        this.visualizer = new DepGraphVisualizer(svgWidth, svgHeight)
       }
       this.resetGraph()
     }
@@ -129,16 +134,19 @@ export default {
         this.resetVisualizer(newVisualizerName)
       }
     )
-    this.unwatchNestParam = this.$store.watch(
-      state => state.nestReverse + state.nestDeep,
-      (newNestParam) => { this.drawJsonModel() }
+    this.unwatchGraphParam = this.$store.watch(
+      state => [state.currentAlertRow.host, state.nestReverse, state.nestDepth].join(', '),
+      (newNestParam) => {
+        console.log(`change graph params to: ${newNestParam}`)
+        this.drawJsonModel()
+      }
     )
   },
   beforeDestroy () {
     delete this.visualizer
     this.unwatchModelFile()
     this.unwatchVisualizerName()
-    this.unwatchNestParam()
+    this.unwatchGraphParam()
   }
 }
 </script>

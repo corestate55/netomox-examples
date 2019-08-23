@@ -5,7 +5,8 @@ import {
   Tabs, TabPane,
   Input, InputNumber,
   RadioButton, RadioGroup,
-  Switch
+  Switch,
+  Row, Col
 } from 'element-ui'
 import lang from 'element-ui/lib/locale/lang/ja'
 import locale from 'element-ui/lib/locale'
@@ -22,3 +23,5 @@ Vue.use(InputNumber)
 Vue.use(RadioButton)
 Vue.use(RadioGroup)
 Vue.use(Switch)
+Vue.use(Row)
+Vue.use(Col)

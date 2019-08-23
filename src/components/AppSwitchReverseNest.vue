@@ -6,6 +6,7 @@
     size="small"
     active-text="Bottom"
     inactive-text="Top"
+    inactive-color="#13ce66"
   />
 </template>
 

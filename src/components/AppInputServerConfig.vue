@@ -35,10 +35,10 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations, mapActions } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
 
 export default {
-  name: 'AppParamInput.vue',
+  name: 'AppInputServerConfig.vue',
   data () {
     return {
       form: {
@@ -56,17 +56,17 @@ export default {
     ...mapGetters(['modelFile', 'watchInterval'])
   },
   methods: {
-    ...mapMutations(['setWatchInterval']),
-    ...mapActions(['updateModelFile']),
+    ...mapMutations(['setModelFile', 'setWatchInterval']),
     getTargetNameFromModelFile () {
       return this.modelFile.replace(/\.json$/, '')
     },
     submit () {
-      this.updateModelFile(this.form.target + '.json')
+      this.setModelFile(this.form.target + '.json')
       this.setWatchInterval(this.form.interval)
       const config = {
         targetName: this.form.target,
-        interval: this.form.interval
+        interval: this.form.interval,
+        alertHost: this.form.alertHost
       }
       fetch('/watcher/config', {
         method: 'POST',
