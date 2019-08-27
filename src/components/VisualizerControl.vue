@@ -1,24 +1,24 @@
 <template>
-<div>
-  <div id="visualizer">
+  <div>
+    <div id="visualizer">
     <!-- D3.js entry point -->
+    </div>
+    <div class="debug">
+      <el-tabs type="border-card">
+        <el-tab-pane label="App Configs">
+          <ListAppConfig />
+        </el-tab-pane>
+        <el-tab-pane label="Server Configs">
+          <ListWatchConfig />
+        </el-tab-pane>
+        <el-tab-pane label="Model File Info">
+          <ListModelFileInfo
+            v-bind:timestamp="currentTimestampInfo"
+          />
+        </el-tab-pane>
+      </el-tabs>
+    </div>
   </div>
-  <div class="debug">
-    <el-tabs type="border-card">
-      <el-tab-pane label="App Configs">
-        <ListAppConfig />
-      </el-tab-pane>
-      <el-tab-pane label="Server Configs">
-        <ListWatchConfig />
-      </el-tab-pane>
-      <el-tab-pane label="Model File Info">
-        <ListModelFileInfo
-          v-bind:timestamp="currentTimestampInfo"
-        />
-      </el-tab-pane>
-    </el-tabs>
-  </div>
-</div>
 </template>
 
 <script>
@@ -38,7 +38,7 @@ import '../css/dep-graph.scss'
 import '../../netoviz/src/css/tooltip.scss'
 
 export default {
-  name: 'VisualizerControl.vue',
+  name: 'VisualizerControl',
   components: {
     ListAppConfig,
     ListModelFileInfo,
@@ -60,15 +60,38 @@ export default {
       ['visualizerName', 'modelFile', 'watchInterval', 'currentAlertRow', 'nestReverse', 'nestDepth']
     )
   },
+  mounted () {
+    this.resetVisualizer(this.visualizerName)
+    this.unwatchModelFile = this.$store.watch(
+      state => state.modelFile,
+      (newModelFile) => { this.resetGraph() }
+    )
+    this.unwatchVisualizerName = this.$store.watch(
+      state => state.visualizerName,
+      (newVisualizerName) => {
+        console.log(`change visualizer to: ${newVisualizerName}`)
+        this.resetVisualizer(newVisualizerName)
+      }
+    )
+    this.unwatchGraphParam = this.$store.watch(
+      state => [state.currentAlertRow.host, state.nestReverse, state.nestDepth].join(', '),
+      (newNestParam) => {
+        console.log(`change graph params to: ${newNestParam}`)
+        this.drawJsonModel()
+      }
+    )
+  },
+  beforeDestroy () {
+    delete this.visualizer
+    this.unwatchModelFile()
+    this.unwatchVisualizerName()
+    this.unwatchGraphParam()
+  },
   methods: {
     setModelUpdateCheckTimer () {
       this.timer = setInterval(async () => {
-        try {
-          this.oldTimestampInfo = this.currentTimestampInfo
-          this.currentTimestampInfo = await this.requestTimeStamp()
-        } catch (error) {
-          throw error
-        }
+        this.oldTimestampInfo = this.currentTimestampInfo
+        this.currentTimestampInfo = await this.requestTimeStamp()
         if (this.modelUpdated()) {
           console.log('model updated')
           this.drawJsonModel()
@@ -82,12 +105,8 @@ export default {
       this.timer = null
     },
     async requestTimeStamp () {
-      try {
-        const response = await fetch('/watcher/timestamp')
-        return await response.json()
-      } catch (error) {
-        throw error
-      }
+      const response = await fetch('/watcher/timestamp')
+      return response.json()
     },
     modelUpdated () {
       return this.oldTimestampInfo &&
@@ -120,33 +139,6 @@ export default {
       }
       this.resetGraph()
     }
-  },
-  mounted () {
-    this.resetVisualizer(this.visualizerName)
-    this.unwatchModelFile = this.$store.watch(
-      state => state.modelFile,
-      (newModelFile) => { this.resetGraph() }
-    )
-    this.unwatchVisualizerName = this.$store.watch(
-      state => state.visualizerName,
-      (newVisualizerName) => {
-        console.log(`change visualizer to: ${newVisualizerName}`)
-        this.resetVisualizer(newVisualizerName)
-      }
-    )
-    this.unwatchGraphParam = this.$store.watch(
-      state => [state.currentAlertRow.host, state.nestReverse, state.nestDepth].join(', '),
-      (newNestParam) => {
-        console.log(`change graph params to: ${newNestParam}`)
-        this.drawJsonModel()
-      }
-    )
-  },
-  beforeDestroy () {
-    delete this.visualizer
-    this.unwatchModelFile()
-    this.unwatchVisualizerName()
-    this.unwatchGraphParam()
   }
 }
 </script>

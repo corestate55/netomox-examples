@@ -38,7 +38,7 @@ import AppSelectVisualizer from './components/AppSelectVisualizer'
 import VisualizerControl from './components/VisualizerControl'
 
 export default {
-  name: 'app',
+  name: 'App',
   components: {
     AppButtonForceModelUpdate,
     AppInputAlertHost,

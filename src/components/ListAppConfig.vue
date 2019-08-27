@@ -13,7 +13,7 @@
 import { mapGetters } from 'vuex'
 
 export default {
-  name: 'ListAppConfig.vue',
+  name: 'ListAppConfig',
   computed: {
     ...mapGetters(['modelFile', 'watchInterval'])
   }

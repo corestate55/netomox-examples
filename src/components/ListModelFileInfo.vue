@@ -37,7 +37,7 @@
 
 <script>
 export default {
-  name: 'ListModelFileInfo.vue',
+  name: 'ListModelFileInfo',
   props: {
     timestamp: {
       type: Object,

@@ -12,7 +12,7 @@
 
 <script>
 export default {
-  name: 'AppSelectVisualizer.vue',
+  name: 'AppSelectVisualizer',
   computed: {
     visualizerName: {
       get () { return this.$store.getters.visualizerName },

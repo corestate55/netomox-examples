@@ -9,7 +9,7 @@ export default new Vuex.Store({
     visualizerName: 'Dependency',
     modelFile: 'target3b.json',
     watchInterval: 1000,
-    currentAlertRow: { 'host': '' },
+    currentAlertRow: { host: '' },
     nestReverse: false,
     nestDepth: 1
   },

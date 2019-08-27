@@ -20,21 +20,11 @@
 
 <script>
 export default {
-  name: 'ListWatcherConfig.vue',
+  name: 'ListWatcherConfig',
   data () {
     return {
       config: null,
       unwatchAppSettings: null
-    }
-  },
-  methods: {
-    async updateConfig () {
-      try {
-        const response = await fetch('/watcher/config')
-        this.config = await response.json()
-      } catch (error) {
-        throw error
-      }
     }
   },
   created () {
@@ -48,6 +38,12 @@ export default {
   },
   beforeDestroy () {
     this.unwatchAppSettings()
+  },
+  methods: {
+    async updateConfig () {
+      const response = await fetch('/watcher/config')
+      this.config = await response.json()
+    }
   }
 }
 </script>

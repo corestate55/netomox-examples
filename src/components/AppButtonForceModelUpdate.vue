@@ -1,9 +1,9 @@
 <template>
   <el-button
     type="warning"
-    v-on:click="requestUpdate"
     size="small"
     round
+    v-on:click="requestUpdate"
   >
     Force Update
   </el-button>
@@ -11,7 +11,7 @@
 
 <script>
 export default {
-  name: 'AppButtonForceModelUpdate.vue',
+  name: 'AppButtonForceModelUpdate',
   methods: {
     requestUpdate () {
       fetch('/watcher/force-update', {

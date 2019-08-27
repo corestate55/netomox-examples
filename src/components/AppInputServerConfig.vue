@@ -10,7 +10,9 @@
         v-model="form.target"
         size="small"
       >
-        <template slot="append">.json</template>
+        <template slot="append">
+          .json
+        </template>
       </el-input>
     </el-form-item>
     <el-form-item label="Watch interval (msec)">
@@ -38,7 +40,7 @@
 import { mapGetters, mapMutations } from 'vuex'
 
 export default {
-  name: 'AppInputServerConfig.vue',
+  name: 'AppInputServerConfig',
   data () {
     return {
       form: {
@@ -47,13 +49,13 @@ export default {
       }
     }
   },
+  computed: {
+    ...mapGetters(['modelFile', 'watchInterval'])
+  },
   mounted () {
     // set initial value from store
     this.form.target = this.getTargetNameFromModelFile()
     this.form.interval = this.watchInterval
-  },
-  computed: {
-    ...mapGetters(['modelFile', 'watchInterval'])
   },
   methods: {
     ...mapMutations(['setModelFile', 'setWatchInterval']),

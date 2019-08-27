@@ -5,10 +5,10 @@
       v-model="depth"
       controls-position="right"
       v-bind:disabled="visualizerName !== 'Nested'"
-      v-on:change="setNestDepth(depth)"
       size="small"
       v-bind:min="1"
       v-bind:max="30"
+      v-on:change="setNestDepth(depth)"
     />
   </div>
 </template>
@@ -16,7 +16,7 @@
 <script>
 import { mapGetters, mapMutations } from 'vuex'
 export default {
-  name: 'AppInputDeepNest.vue',
+  name: 'AppInputDepth',
   data () {
     return {
       depth: 1

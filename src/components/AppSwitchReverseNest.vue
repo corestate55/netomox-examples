@@ -2,18 +2,18 @@
   <el-switch
     v-model="reverse"
     v-bind:disabled="visualizerName !== 'Nested'"
-    v-on:change="setNestReverse(reverse)"
     size="small"
     active-text="Bottom"
     inactive-text="Top"
     inactive-color="#13ce66"
+    v-on:change="setNestReverse(reverse)"
   />
 </template>
 
 <script>
 import { mapGetters, mapMutations } from 'vuex'
 export default {
-  name: 'AppSwitchReverseNest.vue',
+  name: 'AppSwitchReverseNest',
   data () {
     return {
       reverse: false
