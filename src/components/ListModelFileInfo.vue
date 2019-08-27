@@ -18,9 +18,10 @@
         >
           {{ result.checkup }}
           <ul v-if="result.messages">
+            <!-- TODO: MUST unique v-bind key (only path or message will not unique -->
             <li
               v-for="message in result.messages"
-              v-bind:key="message.path"
+              v-bind:key="message.path + message.message"
             >
               in <code>{{ message.path }}</code> :
               <span v-bind:class="message.severity">
