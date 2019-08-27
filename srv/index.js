@@ -1,5 +1,5 @@
 import express from 'express';
-import TopologyDataAPI from '../netoviz/srv/topology-data-api'
+import TopologyDataAPI from '../netoviz/srv/graph-api/topology-data-api'
 import TargetWatcher from './target-watcher'
 
 const port = process.env.PORT || 3000 // process.env.PORT for Heroku

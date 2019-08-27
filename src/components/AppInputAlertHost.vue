@@ -3,6 +3,7 @@
     <span class="input-label">Alert Host </span>
     <el-input
       v-model="alertHost"
+      class="host-input"
       sizer="small"
       v-on:change="setCurrentAlertRow({ 'host': alertHost })"
     />
@@ -28,8 +29,8 @@ export default {
 </script>
 
 <style scoped lang="scss">
-  .el-input {
-    width: 70%;
+  .host-input {
+    width: 200px;
   }
   .input-label {
     display: inline-block;
