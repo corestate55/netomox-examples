@@ -5,13 +5,15 @@
       v-model="alertHost"
       class="host-input"
       sizer="small"
-      v-on:change="setCurrentAlertRow({ 'host': alertHost })"
+      v-on:change="inputAlertHost"
     />
   </div>
 </template>
 
 <script>
 import { mapGetters, mapMutations } from 'vuex'
+import { debounce } from 'debounce'
+
 export default {
   name: 'AppInputAlertHost',
   data () {
@@ -23,7 +25,10 @@ export default {
     ...mapGetters(['currentAlertRow'])
   },
   methods: {
-    ...mapMutations(['setCurrentAlertRow'])
+    ...mapMutations(['setCurrentAlertRow']),
+    inputAlertHost: debounce(function () {
+      this.setCurrentAlertRow({ host: this.alertHost })
+    }, 500)
   }
 }
 </script>

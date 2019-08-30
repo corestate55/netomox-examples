@@ -11,7 +11,8 @@ export default new Vuex.Store({
     watchInterval: 1000,
     currentAlertRow: { host: '' },
     nestReverse: false,
-    nestDepth: 1
+    nestDepth: 1,
+    autoFitting: false
   },
   mutations: {
     setVisualizerName (state, payload) {
@@ -31,6 +32,9 @@ export default new Vuex.Store({
     },
     setNestDepth (state, payload) {
       state.nestDepth = payload
+    },
+    setAutoFitting (state, payload) {
+      state.autoFitting = payload
     }
   },
   getters: {
@@ -51,6 +55,9 @@ export default new Vuex.Store({
     },
     nestDepth (state) {
       return state.nestDepth
+    },
+    autoFitting (state) {
+      return state.autoFitting
     }
   }
 })

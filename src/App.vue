@@ -12,16 +12,26 @@
       <el-col v-bind:span="5">
         <AppInputAlertHost />
       </el-col>
-      <el-col v-bind:span="8">
+      <el-col v-bind:span="10">
         <AppSelectVisualizer />
+      </el-col>
+    </el-row>
+    <!-- control for nested view -->
+    <el-row>
+      <el-col v-bind:span="3">
+        <span>Control for Nested</span>
       </el-col>
       <el-col v-bind:span="3">
         <AppSwitchReverseNest />
       </el-col>
-      <el-col v-bind:span="3">
+      <el-col v-bind:span="5">
+        <AppSwitchFitAuto />
+      </el-col>
+      <el-col v-bind:span="5">
         <AppInputDepth />
       </el-col>
     </el-row>
+    <!-- selected diagram view -->
     <el-row>
       <VisualizerControl />
     </el-row>
@@ -31,8 +41,9 @@
 <script>
 import AppButtonForceModelUpdate from './components/AppButtonForceModelUpdate'
 import AppInputAlertHost from './components/AppInputAlertHost'
-import AppSwitchReverseNest from './components/AppSwitchReverseNest'
 import AppInputDepth from './components/AppInputDepth'
+import AppSwitchReverseNest from './components/AppSwitchReverseNest'
+import AppSwitchFitAuto from './components/AppSwitchFitAuto'
 import AppInputParam from './components/AppInputServerConfig'
 import AppSelectVisualizer from './components/AppSelectVisualizer'
 import VisualizerControl from './components/VisualizerControl'
@@ -42,9 +53,10 @@ export default {
   components: {
     AppButtonForceModelUpdate,
     AppInputAlertHost,
-    AppSwitchReverseNest,
     AppInputDepth,
     AppInputParam,
+    AppSwitchReverseNest,
+    AppSwitchFitAuto,
     AppSelectVisualizer,
     VisualizerControl
   }

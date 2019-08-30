@@ -57,7 +57,7 @@ export default {
   },
   computed: {
     ...mapGetters(
-      ['visualizerName', 'modelFile', 'watchInterval', 'currentAlertRow', 'nestReverse', 'nestDepth']
+      ['visualizerName', 'modelFile', 'watchInterval', 'currentAlertRow', 'nestReverse', 'nestDepth', 'autoFitting']
     )
   },
   mounted () {
@@ -114,7 +114,12 @@ export default {
     },
     drawJsonModel () {
       this.visualizer.drawJsonModel(
-        this.modelFile, this.currentAlertRow, this.nestReverse, this.nestDepth
+        this.modelFile,
+        this.currentAlertRow,
+        this.nestReverse,
+        this.nestDepth,
+        null,
+        this.autoFitting
       )
     },
     resetGraph () {
@@ -131,6 +136,9 @@ export default {
         this.visualizer = new TopoGraphVisualizer()
       } else if (visualizerName === 'Nested') {
         this.visualizer = new NestedGraphVisualizer(svgWidth, svgHeight)
+        this.visualizer.setUISideNodeClickHook(d => {
+          console.log('[nest] drill-down host: ', d.path) // TODO: sync alert-host input
+        })
       } else if (visualizerName === 'Dependency2') {
         this.visualizer = new Dep2GraphVisualizer(svgWidth, svgHeight)
       } else {

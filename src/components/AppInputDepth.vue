@@ -1,6 +1,6 @@
 <template>
   <div id="input-depth">
-    <span class="input-label">Depth </span>
+    <span class="input-label">Base depth</span>
     <el-input-number
       v-model="depth"
       controls-position="right"
