@@ -63,6 +63,7 @@ def register_target_layer2(nws)
           attribute(trunk_vlan_ab)
           support %w[target-L1 R1 Fa2]
         end
+        support %w[target-L1 R1]
         support %w[target-L1.5 R1]
       end
 
@@ -91,6 +92,7 @@ def register_target_layer2(nws)
           attribute(trunk_vlan_ab)
           support %w[target-L1 R2 Fa2]
         end
+        support %w[target-L1 R2]
         support %w[target-L1.5 R2]
       end
 

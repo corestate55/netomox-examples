@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/corestate55/netomox
-  revision: 3188d16330fc4b3b7070ca7a3b50519256d9e519
+  revision: 65361e1afec47f51af17386022af37ef73931f8a
   branch: develop
   specs:
     netomox (0.1.0)
@@ -12,7 +12,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     ast (2.4.0)
-    excon (0.65.0)
+    excon (0.66.0)
     highline (2.0.2)
     jaro_winkler (1.5.3)
     json (2.2.0)
@@ -26,11 +26,11 @@ GEM
       rubyzip (>= 1.0.0)
     os (1.0.1)
     parallel (1.17.0)
-    parser (2.6.3.0)
+    parser (2.6.4.0)
       ast (~> 2.4.0)
     rainbow (3.0.0)
     rake (12.3.3)
-    rubocop (0.73.0)
+    rubocop (0.74.0)
       jaro_winkler (~> 1.5.1)
       parallel (~> 1.10)
       parser (>= 2.6)
@@ -52,4 +52,4 @@ DEPENDENCIES
   rubocop (>= 0.68.1)
 
 BUNDLED WITH
-   1.17.3
+   2.0.2
