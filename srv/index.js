@@ -1,9 +1,11 @@
-import express from 'express';
-import TopologyDataAPI from '../netoviz/srv/graph-api/topology-data-api'
+import express from 'express'
+import TopologyDataAPI from '../netoviz/server/graph-api/topology-data-api'
 import TargetWatcher from './target-watcher'
 
 const port = process.env.PORT || 3000 // process.env.PORT for Heroku
-const topoDataAPI = new TopologyDataAPI(process.env.NODE_ENV)
+const topoDataAPI = new TopologyDataAPI(process.env.NODE_ENV,
+  'dist', 'public'
+)
 const targetWatcher = new TargetWatcher('./srv/target-watcher.json')
 
 export default (app, http) => {
@@ -28,7 +30,7 @@ export default (app, http) => {
     res.send(targetWatcher.getTimeStamp())
   })
 
-  app.get('/graph/:graphName/:jsonName', async (req, res) => {
+  app.get('/api/graph/:graphName/:jsonName', async (req, res) => {
     res.type('json')
     res.send(await topoDataAPI.getGraphData(req))
   })

@@ -26,16 +26,16 @@ import { mapGetters } from 'vuex'
 import ListAppConfig from './ListAppConfig'
 import ListModelFileInfo from './ListModelFileInfo'
 import ListWatchConfig from './ListWatcherConfig'
-import TopoGraphVisualizer from '../../netoviz/src/graph/topology/visualizer'
-import DepGraphVisualizer from '../../netoviz/src/graph/dependency/visualizer'
-import Dep2GraphVisualizer from '../../netoviz/src/graph/dependency2/visualizer'
-import NestedGraphVisualizer from '../../netoviz/src/graph/nested/visualizer'
+import TopoGraphVisualizer from '../../netoviz/lib/graph/topology/visualizer'
+import DepGraphVisualizer from '../../netoviz/lib/graph/dependency/visualizer'
+import Dep2GraphVisualizer from '../../netoviz/lib/graph/dependency2/visualizer'
+import NestedGraphVisualizer from '../../netoviz/lib/graph/nested/visualizer'
 // import '../../netoviz/src/css/topology.scss' // TODO: not work, use alternative scss
+import '../../netoviz/lib/style/dependency.scss'
+import '../../netoviz/lib/style/nested.scss'
+import '../../netoviz/lib/style/tooltip.scss'
 import '../css/topo-graph.scss' // alternative
-import '../../netoviz/src/css/dependency.scss'
-import '../../netoviz/src/css/nested.scss'
 import '../css/dep-graph.scss'
-import '../../netoviz/src/css/tooltip.scss'
 
 export default {
   name: 'VisualizerControl',
@@ -113,14 +113,22 @@ export default {
         this.oldTimestampInfo.mtimeMs < this.currentTimestampInfo.mtimeMs
     },
     drawJsonModel () {
-      this.visualizer.drawJsonModel(
-        this.modelFile,
-        this.currentAlertRow,
-        this.nestReverse,
-        this.nestDepth,
-        null,
-        this.autoFitting
-      )
+      if (this.visualizerName === 'Topology') {
+        this.visualizer.drawJsonModel(
+          this.modelFile,
+          this.currentAlertRow,
+          () => {} // callback to get graph data
+        )
+      } else {
+        this.visualizer.drawJsonModel(
+          this.modelFile,
+          this.currentAlertRow,
+          this.nestReverse,
+          this.nestDepth,
+          null,
+          this.autoFitting
+        )
+      }
     },
     resetGraph () {
       this.drawJsonModel()

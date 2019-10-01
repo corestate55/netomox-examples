@@ -1,3 +1,5 @@
+const path = require('path')
+
 module.exports = {
   pluginOptions: {
     express: {
@@ -8,6 +10,13 @@ module.exports = {
   devServer: {
     watchOptions: {
       ignored: [/model_defs/, /public\/model/]
+    }
+  },
+  configureWebpack: {
+    resolve: {
+      alias: {
+        '~': path.resolve(__dirname, 'netoviz')
+      }
     }
   }
 }
