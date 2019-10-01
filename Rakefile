@@ -1,5 +1,11 @@
 # frozen_string_literal: true
 
+# Usage:
+#   `bundle exec rake [TARGET=./model_defs/hoge.rb]`
+# Use `TARGET` env-var to specify a target model-def script.
+# without `TARGET`, run tasks for all scripts in `model_defs` directory.
+
+require 'rake'
 require 'rake/clean'
 
 YANG_DIR = './yang'
@@ -13,13 +19,21 @@ YANG = %W[
 ].freeze
 JSON_SCHEMA = "#{MODEL_DIR}/topol23.jsonschema"
 JTOX = "#{MODEL_DIR}/topol23.jtox"
-TARGET_RB = FileList["#{MODEL_DEF_DIR}/*.rb"]
-TARGET_JSON = FileList.new do |f|
-  f.include("#{MODEL_DIR}/target*.json")
-  f.include("#{MODEL_DIR}/bf_trial.json")
-  f.exclude("#{MODEL_DIR}/*.orig.json")
-  f.exclude("#{MODEL_DIR}/*-layout.json")
-end
+TARGET_RB = if ENV['TARGET'].nil?
+              FileList["#{MODEL_DEF_DIR}/*.rb"]
+            else
+              [ENV['TARGET']]
+            end
+TARGET_JSON = if ENV['TARGET'].nil?
+                FileList.new do |f|
+                  f.include("#{MODEL_DIR}/target*.json")
+                  f.include("#{MODEL_DIR}/bf_trial.json")
+                  f.exclude("#{MODEL_DIR}/*.orig.json")
+                  f.exclude("#{MODEL_DIR}/*-layout.json")
+                end
+              else
+                ["#{MODEL_DIR}/#{File.basename(ENV['TARGET']).ext('json')}"]
+              end
 
 task default: %i[rb2json model_check validate_json json2xml]
 
