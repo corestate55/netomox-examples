@@ -7,10 +7,12 @@
 
 require 'rake'
 require 'rake/clean'
+require 'json'
 
 YANG_DIR = './yang'
 MODEL_DIR = './netoviz/static/model'
 MODEL_DEF_DIR = './model_defs'
+MODEL_LAYOUT_DIR = "#{MODEL_DEF_DIR}/layout"
 YANG = %W[
   #{YANG_DIR}/ietf-l2-topology@2018-06-29.yang
   #{YANG_DIR}/ietf-l3-unicast-topology@2018-02-26.yang
@@ -24,18 +26,11 @@ TARGET_RB = if ENV['TARGET'].nil?
             else
               [ENV['TARGET']]
             end
-TARGET_JSON = if ENV['TARGET'].nil?
-                FileList.new do |f|
-                  f.include("#{MODEL_DIR}/target*.json")
-                  f.include("#{MODEL_DIR}/bf_trial.json")
-                  f.exclude("#{MODEL_DIR}/*.orig.json")
-                  f.exclude("#{MODEL_DIR}/*-layout.json")
-                end
-              else
-                ["#{MODEL_DIR}/#{File.basename(ENV['TARGET']).ext('json')}"]
-              end
+TARGET_JSON = TARGET_RB.map do |rb|
+  "#{MODEL_DIR}/#{File.basename(rb).ext('json')}"
+end
 
-task default: %i[rb2json model_check validate_json json2xml]
+task default: %i[rb2json model_check validate_json json2xml install_layout]
 
 desc 'make json schema file from yang'
 task :jsonschema do
@@ -89,6 +84,10 @@ task json2xml: %i[jtox] do
   TARGET_JSON.each do |json|
     xml = json.ext('xml')
     puts "## make xml:#{xml}"
+    if File.basename(json) === 'diff_test.json'
+      puts "### skip (it include diff-state)"
+      next
+    end
     sh "json2xml #{JTOX} #{json} | xmllint --output #{xml} --format -"
   end
 end
@@ -104,6 +103,30 @@ desc 'make diff-viewer test data from test data defs'
 task :testgen do
   TEST_DEF_RB.each do |rb|
     sh "bundle exec ruby #{rb}"
+  end
+end
+
+desc 'install layout file'
+task :install_layout do
+  puts '# install layout file'
+  TARGET_JSON.each do |json|
+    to_dir = File.dirname(json)
+    base = File.basename(json).ext('')
+    layout_json = "#{MODEL_LAYOUT_DIR}/#{base}-layout.json"
+    sh "cp #{layout_json} #{to_dir}" if File.exist?(layout_json)
+  end
+end
+
+desc 'make index file'
+task :make_index do
+  descrs = TARGET_RB.to_ary.map do |rb|
+    {
+      file: File.basename(rb).ext('json'),
+      label: `bundle exec ruby #{rb} -d`.chomp!
+    }
+  end
+  File.open("#{MODEL_DIR}/_index.json", 'w') do |f|
+    f.write(JSON.pretty_generate(descrs))
   end
 end
 

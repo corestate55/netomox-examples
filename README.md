@@ -62,6 +62,7 @@ There are several rules for scripts below:
   * outputs data to STDOUT as JSON data.
     It saved as same basename json file in netoviz script directory.
     (`netoviz/static/model/foo.json`, see [Rakefile](./Rakefile))
+  * outputs description string with `-d` option. (It used to make index file.)
 
 Additional info:
 
@@ -89,3 +90,18 @@ It can watch files and exec data generate command automatically when a file edit
 # watch ./model_defs/foo.rb and files it requires.
 bundle exec guard -g foo
 ```
+
+## Edit layout data
+`model_defs/layout/foo-layout.json` is layout file of `model_defs/layout/foo.rb`
+(it make topology data as `foo.json`).
+
+NOTICE:
+* layout files are not watched by `guard` (currently).
+* `rake` install corresponding layout file when topology data (json) is generated from model def script.
+
+## Generate Netoviz index
+```bash
+bundle exec rake make_idnex
+```
+`make_index` rake task generate index file for netoviz. (It makes `netoviz/static/model/_index.json` directly.)
+If a model def script is added in `model_defs/`, exec 'rake make_index' to generate new index.

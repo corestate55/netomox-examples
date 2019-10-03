@@ -2,16 +2,22 @@
 
 require 'json'
 require 'netomox'
+require 'optparse'
 require_relative 'bf_trial/layer_bgp'
 require_relative 'bf_trial/layer_ospf'
 require_relative 'bf_trial/layer_l3'
 
 # usage:
-#   bundle exec ruby THIS.rb [bgp|ospf|l3]
+#   bundle exec ruby THIS.rb --debug=[bgp|ospf|l3]
 # with bundle exec, ARGV[0] is not THIS script name.
 
-debug = nil
-debug = ARGV[0].downcase.to_sym if ARGV[0]
+opts = ARGV.getopts('d', 'debug:')
+if opts['d']
+  puts 'batfish trial'
+  exit 0
+end
+
+debug = opts['debug'] ? opts['debug'].intern : nil
 
 if debug == :bgp
   layer_bgp = BGPTopologyConverter.new(debug: true)

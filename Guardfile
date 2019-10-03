@@ -1,3 +1,4 @@
+# top-level scripts
 top_files = Pathname.glob('./model_defs/*.rb')
 
 top_files.each do |top_file|
@@ -11,7 +12,11 @@ top_files.each do |top_file|
         m =~ /require_relative (.*)$/
         "./model_defs/#{$1.gsub!(/['"]/,'')}.rb"
       end
+
+      # add top-level script
       required_files.push(top_file)
+      # TODO: add layout file to watch list
+
       # puts "Watch files = #{required_files}"
       required_files.each do |f|
         watch f do
