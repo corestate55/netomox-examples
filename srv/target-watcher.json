@@ -1,9 +1,0 @@
-{
-  "targetName": "target3b",
-  "sourceFile": "model_defs/%targetName%.rb",
-  "interval": 1000,
-  "outputDir": "public/model",
-  "outputFile": "%outputDir%/%targetName%.json",
-  "makeJsonCommand": "bundle exec ruby %sourceFile% > %outputFile%",
-  "verifyJsonCommand": "bundle exec netomox check %outputFile%"
-}
