@@ -9,7 +9,7 @@ require 'rake'
 require 'rake/clean'
 
 YANG_DIR = './yang'
-MODEL_DIR = './public/model'
+MODEL_DIR = './netoviz/static/model'
 MODEL_DEF_DIR = './model_defs'
 YANG = %W[
   #{YANG_DIR}/ietf-l2-topology@2018-06-29.yang
@@ -17,8 +17,8 @@ YANG = %W[
   #{YANG_DIR}/ietf-network-topology@2018-02-26.yang
   #{YANG_DIR}/ietf-network@2018-02-26.yang
 ].freeze
-JSON_SCHEMA = "#{MODEL_DIR}/topol23.jsonschema"
-JTOX = "#{MODEL_DIR}/topol23.jtox"
+JSON_SCHEMA = "#{YANG_DIR}/topol23.jsonschema"
+JTOX = "#{YANG_DIR}/topol23.jtox"
 TARGET_RB = if ENV['TARGET'].nil?
               FileList["#{MODEL_DEF_DIR}/*.rb"]
             else
