@@ -84,8 +84,8 @@ task json2xml: %i[jtox] do
   TARGET_JSON.each do |json|
     xml = json.ext('xml')
     puts "## make xml:#{xml}"
-    if File.basename(json) === 'diff_test.json'
-      puts "### skip (it include diff-state)"
+    if File.basename(json) == 'diff_test.json'
+      puts '### skip (it include diff-state)'
       next
     end
     sh "json2xml #{JTOX} #{json} | xmllint --output #{xml} --format -"

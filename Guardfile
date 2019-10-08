@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # top-level scripts
 top_files = Pathname.glob('./model_defs/*.rb')
 
@@ -7,10 +9,10 @@ top_files.each do |top_file|
   group bn.intern do
     guard :shell do
       required_files = File.readlines(top_file)
-                         .grep(/require_relative/)
-                         .map do |m|
+                           .grep(/require_relative/)
+                           .map do |m|
         m =~ /require_relative (.*)$/
-        "./model_defs/#{$1.gsub!(/['"]/,'')}.rb"
+        "./model_defs/#{Regexp.last_match(1).gsub!(/['"]/, '')}.rb"
       end
 
       # add top-level script
@@ -26,5 +28,3 @@ top_files.each do |top_file|
     end
   end
 end
-
-
