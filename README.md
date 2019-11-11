@@ -88,7 +88,7 @@ It can watch files and exec data generate command automatically when a file edit
 
 ```bash
 # watch ./model_defs/foo.rb and files it requires.
-bundle exec guard -g foo
+bundle exec guard -g ./model_defs/hoge.rb
 ```
 
 ## Edit layout data

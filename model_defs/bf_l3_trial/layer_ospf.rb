@@ -154,6 +154,7 @@ class OSPFTopologyConverter < TopologyLayerBase
     end
   end
 
+  # rubocop:disable Security/Eval
   def get_area_interface_from(row)
     if row.nil?
       [-1, -1, []] # ospf area does not exists
@@ -164,6 +165,7 @@ class OSPFTopologyConverter < TopologyLayerBase
       [row[:area], row[:process_id], if_info]
     end
   end
+  # rubocop:enable Security/Eval
 
   def make_as_area_row(asn, area, node, proc_id, interfaces)
     {

@@ -95,9 +95,11 @@ class Layer3TopologyConverter < TopologyLayerBase
     /(.+)\[(.+)\]/.match(node_interface).captures
   end
 
+  # rubocop:disable Security/Eval
   def make_l3_link_info(node_interface, ips)
     node, tp = separate_node_interface(node_interface)
     ips = eval(ips) # ip list
     { node: node, interface: tp, ips: ips }
   end
+  # rubocop:enable Security/Eval
 end

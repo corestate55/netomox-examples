@@ -65,7 +65,8 @@ task :model_check do
   puts '# check model consistency'
   TARGET_JSON.each do |json|
     puts "# check model json:#{json}"
-    sh "bundle exec netomox check #{json}"
+    filter = 'jq \'.[].messages[] | select(.severity=="error")\''
+    sh "bundle exec netomox check #{json} | #{filter}"
   end
 end
 

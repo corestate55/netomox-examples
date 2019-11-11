@@ -3,9 +3,9 @@
 require 'json'
 require 'netomox'
 require 'optparse'
-require_relative 'bf_trial/layer_bgp'
-require_relative 'bf_trial/layer_ospf'
-require_relative 'bf_trial/layer_l3'
+require_relative 'bf_l3_trial/layer_bgp'
+require_relative 'bf_l3_trial/layer_ospf'
+require_relative 'bf_l3_trial/layer_l3'
 
 # usage:
 #   bundle exec ruby THIS.rb --debug=[bgp|ospf|l3]
@@ -13,7 +13,7 @@ require_relative 'bf_trial/layer_l3'
 
 opts = ARGV.getopts('d', 'debug:')
 if opts['d']
-  puts 'batfish trial'
+  puts 'batfish trial (L3)'
   exit 0
 end
 
@@ -36,8 +36,9 @@ exit 0 unless debug.nil?
 
 def shortening_interface_name(str)
   str
-    .gsub(/GigabitEthernet/, 'Gi')
+    .gsub!(/GigabitEthernet/, 'Gi')
     .gsub!(/Loopback/, 'Lo')
+  str
 end
 
 def sort_node_tp!(nws)
@@ -55,4 +56,5 @@ layer_bgp.make_topology(nws)
 layer_ospf.make_topology(nws)
 layer_l3.make_topology(nws)
 sort_node_tp!(nws)
-puts shortening_interface_name(JSON.pretty_generate(nws.topo_data))
+json_str = JSON.pretty_generate(nws.topo_data)
+puts shortening_interface_name(json_str)

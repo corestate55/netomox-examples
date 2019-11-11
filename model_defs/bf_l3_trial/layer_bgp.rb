@@ -55,6 +55,7 @@ class BGPTopologyConverter < TopologyLayerBase
     end
   end
 
+  # rubocop:disable Security/Eval
   def ips_facing_neighbors(node, neighbors_list)
     neighbors = eval(neighbors_list)
     neighbors
@@ -62,6 +63,7 @@ class BGPTopologyConverter < TopologyLayerBase
       .delete_if(&:nil?)
       .map { |edge| make_bgp_proc_tp(node, edge) }
   end
+  # rubocop:enable Security/Eval
 
   # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
   def make_bgp_proc_layer_nodes(nws)
