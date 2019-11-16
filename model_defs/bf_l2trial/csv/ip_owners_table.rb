@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require 'forwardable'
-require_relative './table_base'
+require_relative 'table_base'
 
 # row of ip-owners table
-class IPOwnersTableRecord
+class IPOwnersTableRecord < TableRecordBase
   attr_accessor :node, :vrf, :interface, :ip, :mask, :active
 
   def initialize(record)

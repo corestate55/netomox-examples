@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require 'forwardable'
-require_relative './table_base'
+require_relative 'table_base'
 
 # row of layer1-edges table
-class EdgesLayer1TableRecord
+class EdgesLayer1TableRecord < TableRecordBase
   attr_accessor :src, :dst
 
   def initialize(record)

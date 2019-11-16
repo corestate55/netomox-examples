@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require 'forwardable'
-require_relative './table_base'
+require_relative 'table_base'
 
 # row of node-properties table
-class NodePropsTableRecord
+class NodePropsTableRecord < TableRecordBase
   attr_accessor :node, :device_type, :interfaces, :vrfs
 
   def initialize(record)

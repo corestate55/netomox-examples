@@ -2,16 +2,24 @@
 
 require 'csv'
 
-# Base class of csv wrapper
+# Base class for csv-wrapper
 class TableBase
   def initialize(target, table_file)
-    csv_dir = "model_defs/bf_l2_trial/csv/#{target}"
+    csv_dir = "model_defs/bf_l2trial/csv/#{target}"
     @orig_table = CSV.table("#{csv_dir}/#{table_file}")
   end
 end
 
+# Base class for record of csv-wrapper
+class TableRecordBase
+  # get multiple method-results
+  def values(attrs)
+    attrs.map { |attr| send(attr) }
+  end
+end
+
 # Base class of edges-table endpoint
-class EdgeBase
+class EdgeBase < TableRecordBase
   attr_accessor :node, :interface
 
   def self.generate(node, interface)

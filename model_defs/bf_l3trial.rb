@@ -3,9 +3,9 @@
 require 'json'
 require 'netomox'
 require 'optparse'
-require_relative 'bf_l3_trial/layer_bgp'
-require_relative 'bf_l3_trial/layer_ospf'
-require_relative 'bf_l3_trial/layer_l3'
+require_relative 'bf_l3trial/layer_bgp'
+require_relative 'bf_l3trial/layer_ospf'
+require_relative 'bf_l3trial/layer_l3'
 
 # usage:
 #   bundle exec ruby THIS.rb --debug=[bgp|ospf|l3]

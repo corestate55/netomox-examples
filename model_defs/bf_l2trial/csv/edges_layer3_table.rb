@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'forwardable'
-require_relative './table_base'
+require_relative 'table_base'
 
 # endpoint of layer3-edge
 class EdgeLayer3 < EdgeBase
@@ -26,7 +26,7 @@ class EdgeLayer3 < EdgeBase
 end
 
 # row of layer3-edges table
-class EdgesLayer3TableRecord
+class EdgesLayer3TableRecord < TableRecordBase
   attr_accessor :src, :dst
 
   def initialize(record)

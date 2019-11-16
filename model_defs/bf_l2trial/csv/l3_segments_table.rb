@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'forwardable'
+require_relative 'table_base'
 
 # nodes in L3 segment
 class L3Node < EdgeBase
@@ -32,7 +33,7 @@ class L3Segment
 
   def dump
     @nodes.each do |node|
-      warn "  # node: #{node.to_s}"
+      warn "  # node: #{node}"
     end
   end
 

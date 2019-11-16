@@ -1,0 +1,9 @@
+version: "3"
+services:
+  batfish:
+    image: "batfish/allinone"
+    container_name: "batfish"
+    restart: "always"
+    ports:
+      - "9996:9996"
+      - "9997:9997"

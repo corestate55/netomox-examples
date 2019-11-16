@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require 'json'
-require 'netomox'
-require_relative 'layer3'
-require_relative 'layer2'
-require_relative 'layer1'
+require 'pry'
+require_relative 'layer3p'
+require_relative 'layer2p'
+require_relative 'layer1p'
 
 def shortening_interface_name(str)
   str
@@ -15,12 +15,17 @@ end
 
 def generate_json(target)
   nws = Netomox::DSL::Networks.new
-  register_bfl2_layer3(nws, target)
-  register_bfl2_layer2(nws, target)
-  register_bfl2_layer1(nws, target)
+  layers = [
+    L3DataBuilder.new(target),
+    L2DataBuilder.new(target),
+    L1DataBuilder.new(target)
+  ]
+  nws.networks = layers.map(&:interpret).map(&:networks).flatten
+  # binding.pry # debug
 
   json_str = JSON.pretty_generate(nws.topo_data)
   shortening_interface_name(json_str)
 end
 
+## TEST
 # puts generate_json('sample3')

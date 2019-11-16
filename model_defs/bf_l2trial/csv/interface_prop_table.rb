@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require 'forwardable'
-require_relative './table_base'
+require_relative 'table_base'
 
 # row of interface-properties table
-class InterfacePropertiesTableRecord
+class InterfacePropertiesTableRecord < TableRecordBase
   attr_accessor :node, :interface, :vrf, :mtu, :access_vlan, :allowed_vlans,
                 :switchport, :switchport_mode, :switchport_encap
 

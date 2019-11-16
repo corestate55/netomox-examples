@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require 'forwardable'
-require_relative './table_base'
+require_relative 'table_base'
 
 # row of switch-vlan-properties table
-class SwitchVlanPropsTableRecord
+class SwitchVlanPropsTableRecord < TableRecordBase
   attr_accessor :node, :vlan_id, :interfaces
 
   def initialize(record)

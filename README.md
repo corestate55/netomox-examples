@@ -66,7 +66,8 @@ There are several rules for scripts below:
 
 Additional info:
 
-* [batfish trial](./model_defs/bf_trial.md): A trial to generate topology data using batfish.
+* [batfish trial (L3)](./model_defs/bf_l3trial/info.md): A trial to generate topology data using batfish (for L3 network)
+* [batfish trial (L2)](./model_defs/bf_l2trial/info.md): A trial for L2 Network
 
 ### Topology data generation
 

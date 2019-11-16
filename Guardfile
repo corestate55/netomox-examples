@@ -16,7 +16,7 @@ opts = ARGV.getopts('g:')
 target_file = opts['g']
 base_name = File.basename(target_file, '.rb')
 command_str = "bundle exec rake TARGET=#{target_file}"
-dir_name = base_name =~ /bfl2_s\d/ ? 'bf_l2_trial' : base_name # exception rule
+dir_name = base_name =~ /bf_l2s\d/ ? 'bf_l2trial' : base_name # exception rule
 
 puts "# top_file: #{target_file}"
 puts "# base_name: #{base_name}"
