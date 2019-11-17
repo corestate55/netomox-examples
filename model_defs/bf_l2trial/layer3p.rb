@@ -31,11 +31,8 @@ class L3DataBuilder < DataBuilderBase
     link_group = {}
     @l3_edges.each do |edge|
       src, dst = edge.values(%i[src dst]).map(&:to_s)
-      if link_group[src]
-        link_group[src].push(dst)
-      else
-        link_group[src] = [dst]
-      end
+      link_group[src] = [] unless link_group[src]
+      link_group[src].push(dst)
     end
     link_group.keys.map { |k| Set.new([k, link_group[k]].flatten) }.uniq
   end
