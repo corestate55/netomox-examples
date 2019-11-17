@@ -51,3 +51,8 @@ Convert data (sample3-5).
 ```bash
 hagiwara@dev01:~/nwmodel/netomox-examples$ for cnt in `seq 3 5`; do bundle exec rake TARGET=./model_defs/bf_l2s${cnt}.rb; done
 ```
+
+Debug print: use `--debug layer(1-3)` option
+```bash
+hagiwara@dev01:~/nwmodel/netomox-examples$ bundle exec ruby ./model_defs/bf_l2s3.rb --debug L1
+```

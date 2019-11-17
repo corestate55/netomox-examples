@@ -13,6 +13,18 @@ def shortening_interface_name(str)
   str
 end
 
+def dump(target, layer)
+  nws = case layer
+        when /l(?:ayer)?1/i
+          L1DataBuilder.new(target)
+        when /l(?:ayer)?2/i
+          L2DataBuilder.new(target)
+        when /l(?:ayer)?3/i
+          L3DataBuilder.new(target)
+        end
+  nws.dump
+end
+
 def generate_json(target)
   nws = Netomox::DSL::Networks.new
   layers = [

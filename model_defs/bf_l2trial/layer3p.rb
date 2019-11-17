@@ -158,7 +158,7 @@ class L3DataBuilder < DataBuilderBase
 
   def make_l3node_tps(node_name, ip_owner)
     ptp = PNode.new(ip_owner.ip)
-    ptp.attribute = {ip_addrs: [ip_owner.ip]}
+    ptp.attribute = { ip_addrs: [ip_owner.ip] }
     ptp.supports = [%W[layer2 #{node_name} #{ip_owner.interface}]]
     [ptp]
   end
