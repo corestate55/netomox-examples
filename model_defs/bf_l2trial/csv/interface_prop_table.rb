@@ -48,8 +48,30 @@ class InterfacePropertiesTableRecord < TableRecordBase
 
   private
 
+  def vlan_range_to_array(range_str)
+    if range_str =~ /(\d+)\-(\d+)/
+      md = Regexp.last_match
+      return (md[1].to_i..md[2].to_i).to_a
+    end
+
+    range_str.to_i
+  end
+
   def parse_allowed_vlans(vlans_str)
-    vlans_str ? vlans_str.split(',').map(&:to_i) : [] # string to array
+    # string to array
+    case vlans_str
+    when /^\d+$/
+      # single number
+      [vlans_str.to_i]
+    when /^\d+\-\d+$/
+      # single range
+      vlan_range_to_array(vlans_str)
+    when /,/
+      # multiple numbers and ranges
+      vlans_str.split(',').map { |str| vlan_range_to_array(str) }.flatten
+    else
+      []
+    end
   end
 end
 
