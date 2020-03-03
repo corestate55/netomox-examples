@@ -1,14 +1,14 @@
-,Node,VRF,Router_ID,Route_Reflector,Multipath_Match_Mode,Multipath_EBGP,Multipath_IBGP,Neighbors,Tie_Breaker
-0,as1border1,default,1.1.1.1,False,EXACT_PATH,True,True,"['1.10.1.1/32', '3.2.2.2/32', '5.6.7.8/32', '10.12.11.2/32']",ARRIVAL_ORDER
-1,as2border1,default,2.1.1.1,False,EXACT_PATH,True,True,"['2.1.2.1/32', '2.1.2.2/32', '10.12.11.1/32']",ARRIVAL_ORDER
-2,as2core2,default,2.1.2.2,True,EXACT_PATH,True,True,"['2.1.1.1/32', '2.1.1.2/32', '2.1.3.1/32', '2.1.3.2/32']",ARRIVAL_ORDER
-3,as3border1,default,3.1.1.1,False,EXACT_PATH,True,True,"['3.10.1.1/32', '10.23.21.2/32']",ARRIVAL_ORDER
-4,as2dist1,default,2.1.3.1,False,EXACT_PATH,True,True,"['2.1.2.1/32', '2.1.2.2/32', '2.34.101.4/32']",ARRIVAL_ORDER
-5,as3border2,default,3.2.2.2,False,EXACT_PATH,True,True,"['3.10.1.1/32', '10.13.22.1/32']",ARRIVAL_ORDER
-6,as3core1,default,3.10.1.1,True,EXACT_PATH,True,True,"['3.1.1.1/32', '3.2.2.2/32']",ARRIVAL_ORDER
-7,as2dist2,default,2.1.3.2,False,EXACT_PATH,True,True,"['2.1.2.1/32', '2.1.2.2/32', '2.34.201.4/32']",ARRIVAL_ORDER
-8,as1border2,default,1.2.2.2,False,EXACT_PATH,True,True,"['1.10.1.1/32', '10.13.22.3/32', '10.14.22.4/32']",ARRIVAL_ORDER
-9,as2border2,default,2.1.1.2,False,EXACT_PATH,True,True,"['2.1.2.1/32', '2.1.2.2/32', '10.23.21.3/32']",ARRIVAL_ORDER
-10,as2dept1,default,2.1.4.1,False,EXACT_PATH,True,True,"['2.34.101.3/32', '2.34.201.3/32']",ARRIVAL_ORDER
-11,as2core1,default,2.1.2.1,True,EXACT_PATH,True,True,"['2.1.1.1/32', '2.1.1.2/32', '2.1.3.1/32', '2.1.3.2/32']",ARRIVAL_ORDER
-12,as1core1,default,1.10.1.1,True,EXACT_PATH,True,True,"['1.1.1.1/32', '1.2.2.2/32']",ARRIVAL_ORDER
+,Node,VRF,Router_ID,Multipath_EBGP,Multipath_IBGP,Multipath_Match_Mode,Neighbors,Route_Reflector,Tie_Breaker
+0,as1border1,default,1.1.1.1,True,True,EXACT_PATH,"['1.10.1.1/32', '3.2.2.2/32', '5.6.7.8/32', '10.12.11.2/32']",False,ARRIVAL_ORDER
+1,as2border1,default,2.1.1.1,True,True,EXACT_PATH,"['2.1.2.1/32', '2.1.2.2/32', '10.12.11.1/32']",False,ARRIVAL_ORDER
+2,as2core2,default,2.1.2.2,True,True,EXACT_PATH,"['2.1.1.1/32', '2.1.1.2/32', '2.1.3.1/32', '2.1.3.2/32']",True,ARRIVAL_ORDER
+3,as3border1,default,3.1.1.1,True,True,EXACT_PATH,"['3.10.1.1/32', '10.23.21.2/32']",False,ARRIVAL_ORDER
+4,as2dist1,default,2.1.3.1,True,True,EXACT_PATH,"['2.1.2.1/32', '2.1.2.2/32', '2.34.101.4/32']",False,ARRIVAL_ORDER
+5,as3border2,default,3.2.2.2,True,True,EXACT_PATH,"['3.10.1.1/32', '10.13.22.1/32']",False,ARRIVAL_ORDER
+6,as3core1,default,3.10.1.1,True,True,EXACT_PATH,"['3.1.1.1/32', '3.2.2.2/32']",True,ARRIVAL_ORDER
+7,as2dist2,default,2.1.3.2,True,True,EXACT_PATH,"['2.1.2.1/32', '2.1.2.2/32', '2.34.201.4/32']",False,ARRIVAL_ORDER
+8,as1border2,default,1.2.2.2,True,True,EXACT_PATH,"['1.10.1.1/32', '10.13.22.3/32', '10.14.22.4/32']",False,ARRIVAL_ORDER
+9,as2border2,default,2.1.1.2,True,True,EXACT_PATH,"['2.1.2.1/32', '2.1.2.2/32', '10.23.21.3/32']",False,ARRIVAL_ORDER
+10,as2dept1,default,2.1.4.1,True,True,EXACT_PATH,"['2.34.101.3/32', '2.34.201.3/32']",False,ARRIVAL_ORDER
+11,as2core1,default,2.1.2.1,True,True,EXACT_PATH,"['2.1.1.1/32', '2.1.1.2/32', '2.1.3.1/32', '2.1.3.2/32']",True,ARRIVAL_ORDER
+12,as1core1,default,1.10.1.1,True,True,EXACT_PATH,"['1.1.1.1/32', '1.2.2.2/32']",True,ARRIVAL_ORDER

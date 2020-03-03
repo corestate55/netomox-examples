@@ -11,7 +11,7 @@ if __name__ == '__main__':
     # load question
     load_questions()
     # init snapshot
-    bf_init_snapshot(snapshot_dir, name=snapshot_name)
+    bf_init_snapshot(snapshot_dir, name=snapshot_name, overwrite = True)
     # query
     queries = {
         'ip_owners': lambda: bfq.ipOwners(),
@@ -21,9 +21,10 @@ if __name__ == '__main__':
         'edges_layer3': lambda: bfq.edges(edgeType='layer3'),
         'config_bgp_proc': lambda: bfq.bgpProcessConfiguration(),
         'config_ospf_area': lambda: bfq.ospfAreaConfiguration(),
+        'config_bgp_peer': lambda: bfq.bgpPeerConfiguration(),
     }
     # exec query
     for query in queries:
         print("# Exec Query = %s" % query)
-        with open(path.join('./', csv_dir, query + '.csv'), 'w') as outfile:
+        with open(path.join('', csv_dir, query + '.csv'), 'w') as outfile:
             outfile.write(queries[query]().answer().frame().to_csv())
