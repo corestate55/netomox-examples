@@ -100,7 +100,8 @@ class L2DataBuilder < DataBuilderBase
       src_prop.access_vlan != dst_prop.access_vlan
   end
 
-  def warning_vlan_mapping(src_node, src_interface, src_if_prop, dst_node, dst_if_prop)
+  def warning_vlan_mapping(src_node, src_interface, src_if_prop,
+                           dst_node, dst_if_prop)
     src_str = "#{src_node}[#{src_interface}]"
     dst_str = "#{dst_node.node}[#{dst_node.interface}]"
     warn "WARNING: #{src_str} => #{dst_str} : vlan mismatch?"
@@ -121,7 +122,8 @@ class L2DataBuilder < DataBuilderBase
       dst_if_prop.access_vlan
     else
       # L3 connection? or ERROR
-      warning_vlan_mapping(src_node, src_interface, src_if_prop, dst, dst_if_prop)
+      warning_vlan_mapping(src_node, src_interface,
+                           src_if_prop, dst, dst_if_prop)
       src_vlan_id # OK?
     end
   end

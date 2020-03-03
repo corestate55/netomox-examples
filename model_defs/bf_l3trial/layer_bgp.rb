@@ -11,7 +11,7 @@ class BGPTopologyConverter < TopologyLayerBase
     super(opts)
     @edges_bgp_table = read_table('edges_bgp.csv')
     @config_bgp_proc_table = read_table('config_bgp_proc.csv')
-    #@config_ospf_area_table = read_table('config_ospf_area.csv')
+    # @config_ospf_area_table = read_table('config_ospf_area.csv')
     @ip_owners_table = read_table('ip_owners.csv')
     make_tables
   end
@@ -78,21 +78,20 @@ class BGPTopologyConverter < TopologyLayerBase
           lo_count = -1
           ebgp_count = -1
           tps.each do |tp|
-            # NOTICE: for IGP, loopback interface connects multiple edges...
+            name_count = tps
+                         .map { |tmp_tp| tmp_tp[:interface] == tp[:interface] }
+                         .count { |value| value == true }
             tp_name = if tp[:interface] =~ /(Loopback|lo)/i
+                        # NOTICE: Loopback address is used multiple
+                        # in bgp-proc neighbors (iBGP bgp-proc edges).
                         lo_count += 1
                         lo_count.positive? ? "#{tp[:ip]}:#{lo_count}" : tp[:ip]
-                      elsif ebgp_count + 2 == tps.map { |tmptp| tmptp[:interface] == tp[:interface]}.count{|value| value == true} and ebgp_count != -1
+                      elsif ebgp_count + 2 == name_count && ebgp_count != -1
                         ebgp_count = -1
-                        max_count = tps.map { |tmptp| tmptp[:interface] == tp[:interface]}.count{|value| value == true}
-                        tp[:ip] = "#{tp[:ip]}:#{max_count-1}"
-                      elsif tps.map { |tmptp| tmptp[:interface] == tp[:interface]}.count{|value| value == true} > 1
-                        if ebgp_count + 1 < tps.map { |tmptp| tmptp[:interface] == tp[:interface]}.count{|value| value == true}
-                              ebgp_count += 1
-                              ebgp_count.positive? ? "#{tp[:ip]}:#{ebgp_count}" : tp[:ip]
-                        else
-                              tp[:ip]
-                        end
+                        tp[:ip] = "#{tp[:ip]}:#{name_count - 1}"
+                      elsif name_count > 1 && ebgp_count + 1 < name_count
+                        ebgp_count += 1
+                        ebgp_count.positive? ? "#{tp[:ip]}:#{ebgp_count}" : tp[:ip]
                       else
                         tp[:ip]
                       end
@@ -192,7 +191,7 @@ class BGPTopologyConverter < TopologyLayerBase
     @as_numbers.each do |asn|
       tps = interfaces_inter_as(asn)
       debug "### check: AS:#{asn}, tps:", tps
-      areas = @areas_in_as[asn]
+      # areas = @areas_in_as[asn] # TODO: ospf
       router_ids = router_ids_in_as(asn)
 
       nws.network('bgp').register do
@@ -205,10 +204,11 @@ class BGPTopologyConverter < TopologyLayerBase
               attribute(ip_addrs: [tp[:interface]])
             end
           end
+          # TODO: ospf
           ## support-node to ospf layer
-          #areas.each do |area|
+          # areas.each do |area|
           #  support 'ospf', "as#{asn}-area#{area}"
-          #end
+          # end
           # support-node to bgp-proc layer
           router_ids.each do |router_id|
             support 'bgp-proc', router_id
@@ -281,8 +281,6 @@ class BGPTopologyConverter < TopologyLayerBase
       .find_all { |row| row[:as_number] == asn }
       .map { |row| row[:node] }
       .sort.uniq
-#           .map { |row| row[:node].to_s }
-#      .sort.uniq
   end
 
   def make_nodes_in_as
@@ -295,18 +293,20 @@ class BGPTopologyConverter < TopologyLayerBase
 
   def find_areas(nodes)
     areas = nodes.map do |node|
-      #@config_ospf_area_table
-      #  .find_all { |row| row[:node] == node }
-      #  .map { |row| row[:area] }
+      # TODO
+      # @config_ospf_area_table
+      #   .find_all { |row| row[:node] == node }
+      #   .map { |row| row[:area] }
     end
     areas.flatten.sort.uniq
   end
 
   def make_areas_in_as
     areas_in_as = {}
-    #@nodes_in_as.each_pair do |asn, nodes|
-    #  areas_in_as[asn] = find_areas(nodes)
-    #end
+    # TODO
+    # @nodes_in_as.each_pair do |asn, nodes|
+    #   areas_in_as[asn] = find_areas(nodes)
+    # end
     areas_in_as
   end
 end

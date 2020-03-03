@@ -17,20 +17,22 @@ def print_nws(nws)
   puts shortening_interface_name(json_str)
 end
 
+# rubocop:disable Metrics/MethodLength
 def dump(target, layer)
   layer_p = case layer
-        when /l(?:ayer)?1/i
-          L1DataBuilder.new(target)
-        when /l(?:ayer)?2/i
-          L2DataBuilder.new(target)
-        when /l(?:ayer)?3/i
-          L3DataBuilder.new(target)
-        end
+            when /l(?:ayer)?1/i
+              L1DataBuilder.new(target)
+            when /l(?:ayer)?2/i
+              L2DataBuilder.new(target)
+            when /l(?:ayer)?3/i
+              L3DataBuilder.new(target)
+            end
   layer_p.dump
   nws = Netomox::DSL::Networks.new
   nws.networks = layer_p.interpret.networks
   print_nws(nws)
 end
+# rubocop:enable Metrics/MethodLength
 
 def generate_json(target)
   nws = Netomox::DSL::Networks.new
