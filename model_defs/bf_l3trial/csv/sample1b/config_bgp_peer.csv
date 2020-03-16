@@ -1,0 +1,16 @@
+,Node,VRF,Local_AS,Local_IP,Local_Interface,Confederation,Remote_AS,Remote_IP,Route_Reflector_Client,Cluster_ID,Peer_Group,Import_Policy,Export_Policy,Send_Community,Is_Passive
+0,border12,default,65531,10.0.0.5,,,65531,10.0.0.3,False,,,[],[],False,False
+1,core01,default,65531,10.0.0.2,,,65531,10.0.0.4,True,10.0.0.2,,[],[],False,False
+2,border21,default,65532,10.0.1.10,,,65531,10.0.1.9,False,,,[],[],False,False
+3,core02,default,65531,10.0.0.3,,,65531,10.0.0.5,True,10.0.0.3,,[],[],False,False
+4,border01,default,65531,10.0.0.18,,,65533,10.0.0.17,False,,,[],[],False,False
+5,border12,default,65531,10.0.0.46,,,65534,10.0.0.45,False,,,[],[],False,False
+6,core01,default,65531,10.0.0.2,,,65531,10.0.0.3,False,,,[],[],False,False
+7,border01,default,65531,10.0.0.1,,,65531,10.0.0.3,False,,,[],[],False,False
+8,core02,default,65531,10.0.0.3,,,65531,10.0.0.1,False,,,[],[],False,False
+9,core01,default,65531,10.0.0.2,,,65531,10.0.0.1,False,,,[],[],False,False
+10,core02,default,65531,10.0.0.3,,,65531,10.0.0.2,False,,,[],[],False,False
+11,border01,default,65531,10.0.0.1,,,65531,10.0.0.2,False,,,[],[],False,False
+12,border11,default,65531,10.0.1.9,,,65532,10.0.1.10,False,,,[],[],False,False
+13,border11,default,65531,10.0.0.4,,,65531,10.0.0.2,False,,,[],[],False,False
+14,border21,default,65532,10.0.1.14,,,65534,10.0.1.13,False,,,[],[],False,False

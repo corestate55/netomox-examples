@@ -1,13 +1,20 @@
+import argparse
 import pandas as pd
+from os import path
 
-csv_dir = './csv'
-edges_bgp = pd.read_csv("%s/edges_bgp.csv" % csv_dir)
-config_bgp_peer = pd.read_csv("%s/config_bgp_peer.csv" % csv_dir)
+parser = argparse.ArgumentParser()
+parser.add_argument('csv_dir', help='Path of batfish csv directory.')
+parser.add_argument('-d', '--debug', help='Enable debug print.')
+args = parser.parse_args()
+
+csv_dir = args.csv_dir
+edges_bgp = pd.read_csv(path.join(csv_dir, 'edges_bgp.csv'))
+config_bgp_peer = pd.read_csv(path.join(csv_dir, 'config_bgp_peer.csv'))
 # remove records that has 'NaN' value at columns as `subset`.
 config_bgp_peer = config_bgp_peer.dropna(subset=['Local_IP'])
-config_bgp_proc = pd.read_csv("%s/config_bgp_proc.csv" % csv_dir)
-edges_layer3 = pd.read_csv("%s/edges_layer3.csv" % csv_dir)
-ip_owners = pd.read_csv("%s/ip_owners.csv" % csv_dir)
+config_bgp_proc = pd.read_csv(path.join(csv_dir, 'config_bgp_proc.csv'))
+edges_layer3 = pd.read_csv(path.join(csv_dir, 'edges_layer3.csv'))
+ip_owners = pd.read_csv(path.join(csv_dir, 'ip_owners.csv'))
 
 
 def make_bgp_proc_record(index, node, router_id, remote_ip):
@@ -192,14 +199,15 @@ for i, bgp_peer in enumerate(config_bgp_peer['Remote_IP']):
 
 
 # debug
-print(config_bgp_proc)
-print(edges_bgp)
-print(edges_layer3)
-print(ip_owners)
+if args.debug:
+    print(config_bgp_proc)
+    print(edges_bgp)
+    print(edges_layer3)
+    print(ip_owners)
 
 # save data as csv
 csv_post = '_ep'  # complemented ebgp-peer
-config_bgp_proc.to_csv("%s/config_bgp_proc%s.csv" % (csv_dir, csv_post))
-edges_bgp.to_csv("%s/edges_bgp%s.csv" % (csv_dir, csv_post))
-edges_layer3.to_csv("%s/edges_layer3%s.csv" % (csv_dir, csv_post))
-ip_owners.to_csv("%s/ip_owners%s.csv" % (csv_dir, csv_post))
+config_bgp_proc.to_csv(path.join(csv_dir, "config_bgp_proc%s.csv" % csv_post))
+edges_bgp.to_csv(path.join(csv_dir, "edges_bgp%s.csv" % csv_post))
+edges_layer3.to_csv(path.join(csv_dir, "edges_layer3%s.csv" % csv_post))
+ip_owners.to_csv(path.join(csv_dir, "ip_owners%s.csv" % csv_post))

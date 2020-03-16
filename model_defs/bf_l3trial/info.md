@@ -3,11 +3,13 @@
 ## Reference
 
 batfish
+
 * [batfish](https://www.batfish.org/)
 * [pybatfish/jupyter\_notebooks/networks at master · batfish/pybatfish · GitHub](https://github.com/batfish/pybatfish/tree/master/jupyter_notebooks/networks)
   * sample configurations
 
 blog
+
 * [Batfish Advent Calendar 2018 \- Qiita](https://qiita.com/advent-calendar/2018/batfish)
   * [BatfishのQuestion一覧と概要説明 - Qiita](https://qiita.com/tech_kitara/items/be71005ad7b5091d25a4)
 * [ネットワークコンフィグ検証ツールBatfish使ってみた](https://ccieojisan.net/post-1803/)
@@ -18,16 +20,18 @@ blog
 
 ### Environment I use
 
+2020-Mar
+
 ```bash
-hagiwara@dev01:~$ lsb_release -a
+hagiwara@dev01:~/nwmodel/netomox-examples$ lsb_release -a
 No LSB modules are available.
 Distributor ID: Ubuntu
-Description:    Ubuntu 18.10
-Release:        18.10
-Codename:       cosmic
-hagiwara@dev01:~$ uname -a
-Linux dev01 4.18.0-18-generic #19-Ubuntu SMP Tue Apr 2 18:13:16 UTC 2019 x86_64 x86_64 x86_64 GNU/Linux
-hagiwara@dev01:~$ 
+Description:    Ubuntu 19.10
+Release:        19.10
+Codename:       eoan
+hagiwara@dev01:~/nwmodel/netomox-examples$ uname -a
+Linux dev01 5.3.0-42-generic #34-Ubuntu SMP Fri Feb 28 05:49:40 UTC 2020 x86_64 x86_64 x86_64 GNU/Linux
+hagiwara@dev01:~/nwmodel/netomox-examples$ 
 ```
 
 ### Batfish container
@@ -35,35 +39,45 @@ hagiwara@dev01:~$
 Install docker at first.
 
 Download and run batfish (all-in-one) container. (tcp/8888 for jupyter notebook if you need.)
+
 ```bash
 hagiwara@dev01:~$ sudo docker pull batfish/allinone
-hagiwara@dev01:~$ sudo docker image ls
+hagiwara@dev01:~$ docker image ls
 REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
-batfish/allinone    latest              7284bc8aa066        9 days ago          957MB
-hagiwara@dev01:~$ sudo docker run -p 8888:8888 -p 9997:9997 -p 9996:9996 batfish/allinone
+batfish/allinone    latest              4687b954c765        3 weeks ago         1.02GB
+hagiwara@dev01:~$ docker ps
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS                                        NAMES
+5af6abe4aba6        batfish/allinone    "./wrapper.sh"      7 hours ago         Up 2 hours
+          8888/tcp, 0.0.0.0:9996-9997->9996-9997/tcp   batfish
+hagiwara@dev01:~$ 
 ```
 
-### python env and pybatfish
-setup venv for python3.
+### Setup python env and pybatfish
+
+Setup venv for python3.
+
 ```bash
 hagiwara@dev01:~/batfish$ sudo apt install python3-venv
 hagiwara@dev01:~/batfish$ python3 -m venv bf-venv
 hagiwara@dev01:~/batfish$ . bf-venv/bin/activate
-(bf-venv) hagiwara@dev01:~/batfish$ python --version
-Python 3.6.8
-(bf-venv) hagiwara@dev01:~/batfish$ pip --version
-pip 9.0.1 from /home/hagiwara/batfish/bf-venv/lib/python3.6/site-packages (python 3.6)
-(bf-venv) hagiwara@dev01:~/batfish$
+(bf-venv) hagiwara@dev01:~/batfish/batfish-test-topology$ python --version
+Python 3.7.5
+(bf-venv) hagiwara@dev01:~/batfish/batfish-test-topology$ pip --version
+pip 20.0.2 from /home/hagiwara/batfish/bf-venv/lib/python3.7/site-packages/pip (python 3.7)
+(bf-venv) hagiwara@dev01:~/batfish/batfish-test-topology$ 
 ```
 
-install pybatfish
+Install pybatfish (See: [pybatfish on github](https://github.com/batfish/pybatfish#install-pybatfish))
+
 ```bash
 (bf-venv) hagiwara@dev01:~/batfish$ pip install wheel
 (bf-venv) hagiwara@dev01:~/batfish$ python3 -m pip install --upgrade git+https://github.com/batfish/pybatfish.git                                               
 ```
 
-### scripts
+### Clone sample (batfish example)
+
 Setup configs (use [sample config s in batfish](https://github.com/batfish/pybatfish/tree/master/jupyter_notebooks/networks)).
+
 ```bash
 hagiwara@dev01:~/batfish$ git clone https://github.com/batfish/pybatfish.git
 hagiwara@dev01:~/batfish$ ls pybatfish/jupyter_notebooks/networks/example      
@@ -71,25 +85,43 @@ configs  example-network.png  hosts  iptables
 hagiwara@dev01:~/batfish
 ```
 
-Exec [bf_make_edge_info_tables.py](./bf_make_edge_info_tables.py) and save data to csv file.
-It initialize snapshot for batfish using configurations in `snapshot_dir`.
-Then, it throws several queries and save results as csv files.
+### Clone sample (batfish l3-trial)
+
+See samples repository: [netomox\-examples](https://github.com/corestate55/netomox-examples)
 
 ```bash
-(bf-venv) hagiwara@dev01:~/batfish$ python bf_make_edge_info_tables.py
+hagiwara@dev01:~/batfish$ git clone https://github.com/corestate55/batfish-test-topology.git
+hagiwara@dev01:~/batfish$ cd batfish-test-topology/
+hagiwara@dev01:~/batfish/batfish-test-topology$ ls
+README.md  docker-compose.yml  l2  l3  setup_bfq.py
+hagiwara@dev01:~/batfish/batfish-test-topology$ 
 ```
 
-## convert data from batfish to topology
+### Exec batfish queries
+
+Exec batfish queries and save its answers as csv files. (exec once when config files are updated.)
+
+```bash
+hagiwara@dev01:~/nwmodel/netomox-examples/model_defs/bf_l3trial$ ./make_csv.sh -c
+```
+
+## Convert query data to topology
+
 Convert data
+
 ```bash
-hagiwara@dev01:~/nwmodel/netomox-examples/batfish$ bundle exec ruby bf_topology.rb > ../public/model/bf_trial.json
+hagiwara@dev01:~/nwmodel/netomox-examples$ bundle exec rake TARGET=./model_defs/bf_l3ex.rb
 ```
+
 For debugging (each layer)
+
 ```bash
-bundle exec ruby bf_topology.rb [bgp|ospf|l3] 
+# ruby model_defs/bf_l3ex.rb --debug=[bgp|ospf|l3]
+hagiwara@dev01:~/nwmodel/netomox-examples$ bundle exec ruby model_defs/bf_l3ex.rb --debug=ospf
 ```
 
 Check data file
+
 ```bash
 hagiwara@dev01:~/nwmodel/netomox-examples/batfish$ bundle exec netomox check ../public/model/bf_trial.json
 ```

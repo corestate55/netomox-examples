@@ -1,0 +1,10 @@
+,Node,VRF,Process_ID,Area,Area_Type,Active_Interfaces,Passive_Interfaces
+0,core02,default,1,0,NONE,['FastEthernet0/0'],[]
+1,border11,default,1,10,NONE,"['FastEthernet0/0', 'FastEthernet1/0']",[]
+2,core01,default,1,100,NONE,['FastEthernet1/0'],[]
+3,core01,default,1,0,NONE,['FastEthernet0/0'],[]
+4,border12,default,1,10,NONE,"['FastEthernet0/0', 'FastEthernet1/0']",[]
+5,core02,default,1,10,NONE,['FastEthernet1/1'],[]
+6,border01,default,1,100,NONE,"['FastEthernet1/0', 'FastEthernet1/1']",[]
+7,core02,default,1,100,NONE,['FastEthernet1/0'],[]
+8,core01,default,1,10,NONE,['FastEthernet1/1'],[]

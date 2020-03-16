@@ -1,0 +1,13 @@
+,Interface,Remote_Interface
+0,border01[FastEthernet1/0],core01[FastEthernet1/0]
+1,core01[FastEthernet1/0],border01[FastEthernet1/0]
+2,border01[FastEthernet1/1],core02[FastEthernet1/0]
+3,core02[FastEthernet1/0],border01[FastEthernet1/1]
+4,border11[FastEthernet0/0],border12[FastEthernet0/0]
+5,border12[FastEthernet0/0],border11[FastEthernet0/0]
+6,border11[FastEthernet1/0],core01[FastEthernet1/1]
+7,core01[FastEthernet1/1],border11[FastEthernet1/0]
+8,border12[FastEthernet1/0],core02[FastEthernet1/1]
+9,core02[FastEthernet1/1],border12[FastEthernet1/0]
+10,core01[FastEthernet0/0],core02[FastEthernet0/0]
+11,core02[FastEthernet0/0],core01[FastEthernet0/0]

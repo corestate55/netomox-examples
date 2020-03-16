@@ -1,0 +1,27 @@
+,Active,IP,Interface,Mask,Node,Unnamed: 0,VRF,index
+0,True,10.0.0.3,Loopback0,32,core02,0.0,default,
+1,True,10.0.0.30,FastEthernet0/0,30,core02,1.0,default,
+2,True,10.0.1.10,FastEthernet1/1,30,border21,2.0,default,
+3,True,10.0.1.0,Loopback0,32,border21,3.0,default,
+4,True,10.0.0.1,Loopback0,32,border01,4.0,default,
+5,True,10.0.0.33,FastEthernet1/1,30,core01,5.0,default,
+6,True,10.0.1.9,FastEthernet1/1,30,border11,6.0,default,
+7,True,10.0.0.26,FastEthernet1/0,30,core02,7.0,default,
+8,True,10.0.0.5,Loopback0,32,border12,8.0,default,
+9,True,10.0.0.21,FastEthernet1/0,30,border01,9.0,default,
+10,True,10.0.0.29,FastEthernet0/0,30,core01,10.0,default,
+11,True,10.0.0.34,FastEthernet1/0,30,border11,11.0,default,
+12,True,10.0.0.4,Loopback0,32,border11,12.0,default,
+13,True,10.0.0.42,FastEthernet0/0,30,border12,13.0,default,
+14,True,10.0.1.14,FastEthernet1/0,30,border21,14.0,default,
+15,True,10.0.0.22,FastEthernet1/0,30,core01,15.0,default,
+16,True,10.0.0.2,Loopback0,32,core01,16.0,default,
+17,True,10.0.0.38,FastEthernet1/0,30,border12,17.0,default,
+18,True,10.0.0.18,FastEthernet0/0,30,border01,18.0,default,
+19,True,10.0.0.41,FastEthernet0/0,30,border11,19.0,default,
+20,True,10.0.0.46,FastEthernet1/1,30,border12,20.0,default,
+21,True,10.0.0.25,FastEthernet1/1,30,border01,21.0,default,
+22,True,10.0.0.37,FastEthernet1/1,30,core02,22.0,default,
+23,True,10.0.0.17,10.0.0.17,30,65533_10.0.0.17,,default,23.0
+24,True,10.0.0.45,10.0.0.45,30,65534_10.0.0.45,,default,24.0
+25,True,10.0.1.13,10.0.1.13,30,65534_10.0.1.13,,default,25.0

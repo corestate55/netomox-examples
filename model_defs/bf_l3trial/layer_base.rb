@@ -5,16 +5,16 @@ require 'netomox'
 
 # base class of layer topology converter
 class TopologyLayerBase
-  def initialize(debug: false, csv_dir: 'model_defs/bf_l3trial/csv')
+  def initialize(debug: false, csv_dir: '')
     @csv_dir = csv_dir # default: bundle exec ruby model_defs/bf_trial.rb
     @use_debug = debug
     @routes_table = read_table('routes.csv')
   end
 
-  def puts_json
+  def to_json(*_args)
     nws = Netomox::DSL::Networks.new
     make_topology(nws)
-    puts JSON.pretty_generate(nws.topo_data)
+    JSON.pretty_generate(nws.topo_data)
   end
 
   protected
