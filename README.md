@@ -2,32 +2,40 @@
 
 RFC8345-based network topology data and helper tool for its development.
 
-## Project setup (Viewer)
+## Project setup (Submodules)
 
-### Initial setup for netoviz
+### Initial setup
 
-Clone and install [netoviz](https://github.com/corestate55/netoviz) (as submodule) at first,
-because `Rakefile` saves topology datafiles to `netoviz/static/model` directory.
+Clone and install submodules at first.
+
+* [netoviz](https://github.com/corestate55/netoviz)
+  * `rake` generates and saves topology data files to `netoviz/static/model` directory.
+* [batfish-test-topology](https://github.com/corestate55/batfish-test-topology)
+  * Sample configs for batfish testing.
 
 ```bash
 git submodule update --init --recursive
 ```
 
-Install its packages.
+### Install netoviz packages
 
 ```bash
 cd netoviz/
 npm install
 ```
 
-### Update netoviz
+### Update submodules
 
-Update repository
+Update submodule repositories. (each submodules uses develop branch as default.)
+
 ```bash
 git submodule foreach git pull origin develop
 ```
 
-and exec `npm install` if necessary.
+* Exec `npm install` if necessary (updating `netoviz`).
+* Update CSV data files (updating `model_defs/batfish_test_topology`)
+  * Exec `python exec_l2queries.py` in `model_defs/bf_l2trial`. See: [Batfish L2 trial doc](model_defs/bf_l2trial/info.md).
+  * Exec `bash make_csv.sh` in `model_defs/bf_l3trial`. See: [Batfish L3 trial doc](model_defs/bf_l3trial/info.md)
 
 ### Run netoviz
 
@@ -35,6 +43,7 @@ Run viewer app.
 (development mode, see [netoviz README](https://github.com/corestate55/netoviz) more detail.)
 
 ```bash
+cd netoviz/
 npm run dev
 ```
 
@@ -59,10 +68,10 @@ There are several rules for scripts below:
 * `./model_defs/foo.rb`
   * requires scripts which defines sub-topology data from under 1-depth subdirectories
     (like `./model_defs/bar/baz.rb`, see [Guardfile](./Guardfile))
-  * outputs data to STDOUT as JSON data.
+  * outputs data to `STDOUT` as JSON data (string).
     It saved as same basename json file in netoviz script directory.
     (`netoviz/static/model/foo.json`, see [Rakefile](./Rakefile))
-  * outputs description string with `-d` option. (It used to make index file.)
+  * outputs description string with `-d` option. (It used to index file: rake `make_index` target.)
 
 Additional info:
 

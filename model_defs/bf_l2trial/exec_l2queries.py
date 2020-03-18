@@ -26,7 +26,7 @@ def exec_query(snapshot_dir, snapshot_name, csv_dir):
 
 
 def dir_info(name):
-    base_dir = path.expanduser('~/batfish/batfish-l2-topology-test')
+    base_dir = path.expanduser('../batfish-test-topology/l2')
     return {
         'name': name,
         'dir': path.join(base_dir, name),

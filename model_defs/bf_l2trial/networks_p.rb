@@ -12,9 +12,9 @@ def shortening_interface_name(str)
   str
 end
 
-def print_nws(nws)
+def to_json(nws)
   json_str = JSON.pretty_generate(nws.topo_data)
-  puts shortening_interface_name(json_str)
+  shortening_interface_name(json_str)
 end
 
 # rubocop:disable Metrics/MethodLength
@@ -43,7 +43,7 @@ def generate_json(target)
   ]
   nws.networks = layers.map(&:interpret).map(&:networks).flatten
   # binding.pry # debug
-  print_nws(nws)
+  to_json(nws)
 end
 
 ## TEST

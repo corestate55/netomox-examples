@@ -44,7 +44,7 @@ if __name__ == '__main__':
         },
         {
             'name': 'sample1b',
-            'base_dir': '~/batfish/batfish-test-topology/l3'
+            'base_dir': '../batfish-test-topology/l3'
         }
     ]
     configs = map(lambda conf: dir_info(conf), dir_configs)
