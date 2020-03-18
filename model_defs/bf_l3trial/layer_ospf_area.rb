@@ -58,12 +58,17 @@ class OSPFAreaTopologyConverter < OSPFTopologyConverterBase
     end
   end
 
+  # name of ospf-are node in ospf-area layer
+  def area_node_name(asn, area)
+    "as#{asn}-area#{area}"
+  end
+
   def area_link_data(area_node_pair, interface, area_tp_count)
     {
       as: area_node_pair[:as],
       node: area_node_pair[:node],
       node_tp: interface[:interface],
-      area: "as#{area_node_pair[:as]}-area#{area_node_pair[:area]}",
+      area: area_node_name(area_node_pair[:as], area_node_pair[:area]),
       area_tp: "p#{area_tp_count}"
     }
   end
@@ -94,8 +99,9 @@ class OSPFAreaTopologyConverter < OSPFTopologyConverterBase
         debug "## asn, area = #{asn}, #{area}"
         debug support_nodes
 
+        node_name = area_node_name(asn, area)
         nws.network('ospf-area').register do
-          node "as#{asn}-area#{area}" do
+          node node_name do
             # support node
             support_nodes.each do |support_node|
               support 'ospf-proc', support_node
@@ -115,7 +121,9 @@ class OSPFAreaTopologyConverter < OSPFTopologyConverterBase
 
       nws.network('ospf-area').register do
         node link[:node] do
-          term_point link[:node_tp]
+          term_point link[:node_tp] do
+            support 'ospf-proc', link[:node], link[:node_tp]
+          end
           # avoid duplicate support-node
           key = "#{link[:as]}-#{link[:node]}"
           support_count[key] = support_count[key] || 0

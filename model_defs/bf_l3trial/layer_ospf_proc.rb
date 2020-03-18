@@ -2,8 +2,6 @@
 
 require 'netomox'
 require_relative 'layer_ospf_base'
-
-# rubocop:disable Metrics/ClassLength
 # ospf-proc layer topology converter
 class OSPFProcTopologyConverter < OSPFTopologyConverterBase
   def initialize(opts = {})
@@ -32,28 +30,20 @@ class OSPFProcTopologyConverter < OSPFTopologyConverterBase
     as_area_row[:interfaces].map { |if_info| if_info[:interface] }
   end
 
-  # rubocop:disable Metrics/MethodLength
+  def tp_info(asn, area, node, interface)
+    { as: asn, area: area, node: node, interface: interface }
+  end
+
   def make_tp_info_from(node, term_point)
     found_row = @as_area_table.find do |row|
       row[:node] == node && interface_names(row).include?(term_point)
     end
     if found_row
-      {
-        as: found_row[:as],
-        area: found_row[:area],
-        node: node,
-        interface: term_point
-      }
+      tp_info(found_row[:as], found_row[:area], node, term_point)
     else
-      {
-        as: -1,
-        area: -1,
-        node: node,
-        interface: term_point
-      }
+      tp_info(-1, -1, node, term_point)
     end
   end
-  # rubocop:enable Metrics/MethodLength
 
   def make_ospf_link_info(node_interface)
     node, tp = separate_node_interface(node_interface)
@@ -131,4 +121,3 @@ class OSPFProcTopologyConverter < OSPFTopologyConverterBase
     make_ospf_proc_layer_links(nws)
   end
 end
-# rubocop:enable Metrics/ClassLength
