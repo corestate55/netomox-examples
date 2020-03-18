@@ -4,7 +4,7 @@ require 'optparse'
 require_relative 'bf_l3trial/networks'
 
 # usage:
-#   bundle exec ruby THIS.rb --debug=[bgp|ospf|l3]
+#   bundle exec ruby THIS.rb --debug=[bgp_as|bgp_proc|ospf_area|ospf_proc|l3]
 # with bundle exec, ARGV[0] is not THIS script name.
 
 opts = ARGV.getopts('d', 'debug:')

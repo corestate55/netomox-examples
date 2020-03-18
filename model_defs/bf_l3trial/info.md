@@ -116,8 +116,8 @@ hagiwara@dev01:~/nwmodel/netomox-examples$ bundle exec rake TARGET=./model_defs/
 For debugging (each layer)
 
 ```bash
-# ruby model_defs/bf_l3ex.rb --debug=[bgp|ospf|l3]
-hagiwara@dev01:~/nwmodel/netomox-examples$ bundle exec ruby model_defs/bf_l3ex.rb --debug=ospf
+# ruby model_defs/bf_l3ex.rb --debug=[bgp_as|bgp_proc|ospf_area|ospf_proc|l3]
+hagiwara@dev01:~/nwmodel/netomox-examples$ bundle exec ruby model_defs/bf_l3ex.rb --debug=bgp_as
 ```
 
 Check data file
