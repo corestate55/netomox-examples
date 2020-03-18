@@ -3,6 +3,7 @@
 require 'netomox'
 require_relative 'layer_bgp_base'
 
+# rubocop:disable Metrics/ClassLength
 # bgp-as layer topology converter
 class BGPASTopologyConverter < BGPTopologyConverterBase
   def initialize(opts = {})
@@ -12,7 +13,7 @@ class BGPASTopologyConverter < BGPTopologyConverterBase
   end
 
   def make_topology(nws)
-    make_bgp_layer(nws)
+    make_bgp_as_layer(nws)
   end
 
   private
@@ -32,6 +33,28 @@ class BGPASTopologyConverter < BGPTopologyConverterBase
         .map { |row| row[:area] }
     end
     areas.flatten.sort.uniq
+  end
+
+  def area_border_data(asn, node)
+    # NOTICE: node name is UNIQUE in WHOLE AS.
+    {
+      asn: asn,
+      node: node,
+      areas: @config_ospf_area_table
+        .find_all { |r| r[:node] == node }
+        .map { |r| r[:area] }
+        .sort
+    }
+  end
+
+  def inter_area_routers(asn)
+    routers = []
+    nodes = @nodes_in_as[asn]
+    nodes.each do |node|
+      area_borders = area_border_data(asn, node)
+      routers.push(area_borders)
+    end
+    routers.filter { |r| r[:areas].length > 1 }
   end
 
   def make_areas_in_as
@@ -77,14 +100,17 @@ class BGPASTopologyConverter < BGPTopologyConverterBase
   end
 
   # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
-  def make_bgp_layer_nodes(nws)
+  def make_bgp_as_layer_nodes(nws)
     @as_numbers.each do |asn|
       tps = interfaces_inter_as(asn)
       debug "### check: AS:#{asn}, tps:", tps
+      inter_routers = inter_area_routers(asn)
+      debug '### inter_area_routers: ', inter_routers
+
       areas = @areas_in_as[asn]
       router_ids = router_ids_in_as(asn)
 
-      nws.network('bgp').register do
+      nws.network('bgp-as').register do
         # AS as node
         node "as#{asn}" do
           # interface of inter-AS link and its support-tp
@@ -96,7 +122,10 @@ class BGPASTopologyConverter < BGPTopologyConverterBase
           end
           # support-node to ospf layer
           areas.each do |area|
-            support 'ospf', "as#{asn}-area#{area}"
+            support 'ospf-area', "as#{asn}-area#{area}" # ospf area
+          end
+          inter_routers.each do |router|
+            support 'ospf-area', router[:node] # inter-area-router
           end
           # support-node to bgp-proc layer
           router_ids.each do |router_id|
@@ -108,19 +137,20 @@ class BGPASTopologyConverter < BGPTopologyConverterBase
   end
   # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
-  def make_bgp_layer_links(nws)
+  def make_bgp_as_layer_links(nws)
     @links_inter_as.each do |link_row|
       src = link_row[:source]
       dst = link_row[:destination]
-      nws.network('bgp').register do
+      nws.network('bgp-as').register do
         link "as#{src[:as]}", src[:interface], "as#{dst[:as]}", dst[:interface]
       end
     end
   end
 
-  def make_bgp_layer(nws)
-    nws.register { network 'bgp' }
-    make_bgp_layer_nodes(nws)
-    make_bgp_layer_links(nws)
+  def make_bgp_as_layer(nws)
+    nws.register { network 'bgp-as' }
+    make_bgp_as_layer_nodes(nws)
+    make_bgp_as_layer_links(nws)
   end
 end
+# rubocop:enable Metrics/ClassLength

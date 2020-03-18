@@ -49,62 +49,83 @@ class BGPProcTopologyConverter < BGPTopologyConverterBase
   end
   # rubocop:enable Security/Eval
 
+  def tp_name_count(term_points, term_point)
+    term_points
+      .map { |tp| tp[:interface] == term_point[:interface] }
+      .count { |value| value == true }
+  end
+
+  def select_tp_name(count, name)
+    count.positive? ? "#{name}:#{count}" : name
+  end
+
   # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
-  # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
-  def make_bgp_proc_layer_nodes(nws)
+  def make_tp_name(term_point, count_of)
+    if term_point[:interface] =~ /(Loopback|lo)/i
+      # NOTICE: Loopback address is used multiple
+      # in bgp-proc neighbors (iBGP bgp-proc edges).
+      count_of[:lo] += 1
+      select_tp_name(count_of[:lo], term_point[:ip])
+    elsif count_of[:ebgp] + 2 == count_of[:name] && count_of[:ebgp] != -1
+      count_of[:ebgp] = -1
+      term_point[:ip] = "#{term_point[:ip]}:#{count_of[:name] - 1}"
+    elsif count_of[:name] > 1 && count_of[:ebgp] + 1 < count_of[:name]
+      count_of[:ebgp] += 1
+      select_tp_name(count_of[:ebgp], term_point[:ip])
+    else
+      term_point[:ip]
+    end
+  end
+  # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
+
+  def bgp_proc_node_attribute(row)
+    {
+      name: row[:node],
+      router_id: row[:router_id],
+      prefixes: routes_of(row[:node], /.*bgp/),
+      flags: ['bgp-proc']
+    }
+  end
+
+  # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
+  def make_bgp_proc_layer_tps(nws)
     @config_bgp_proc_table.each do |row|
-      prefixes = routes_of(row[:node], /.*bgp/)
       tps = ips_facing_neighbors(row[:node], row[:neighbors])
       debug "### check node:#{row[:node]}, " \
             "neighbors:#{row[:neighbors]}, tps:", tps
 
-      nws.network('bgp-proc').register do
-        node row[:router_id] do
-          lo_count = -1
-          ebgp_count = -1
-          tps.each do |tp|
-            name_count = tps
-                         .map { |tmp_tp| tmp_tp[:interface] == tp[:interface] }
-                         .count { |value| value == true }
-            tp_name = if tp[:interface] =~ /(Loopback|lo)/i
-                        # NOTICE: Loopback address is used multiple
-                        # in bgp-proc neighbors (iBGP bgp-proc edges).
-                        lo_count += 1
-                        if lo_count.positive?
-                          "#{tp[:ip]}:#{lo_count}"
-                        else
-                          tp[:ip]
-                        end
-                      elsif ebgp_count + 2 == name_count && ebgp_count != -1
-                        ebgp_count = -1
-                        tp[:ip] = "#{tp[:ip]}:#{name_count - 1}"
-                      elsif name_count > 1 && ebgp_count + 1 < name_count
-                        ebgp_count += 1
-                        if ebgp_count.positive?
-                          "#{tp[:ip]}:#{ebgp_count}"
-                        else
-                          tp[:ip]
-                        end
-                      else
-                        tp[:ip]
-                      end
+      count_of = { lo: -1, ebgp: -1 }
+      tps.each do |tp|
+        count_of[:name] = tp_name_count(tps, tp)
+        tp_name = make_tp_name(tp, count_of)
+
+        nws.network('bgp-proc').register do
+          node(row[:router_id]).register do
             # p "### check1, tp_name:#{tp_name}"
             term_point tp_name do
               support 'layer3', row[:node], tp[:interface]
               attribute(ip_addrs: [tp[:ip]])
             end
           end
-          support 'layer3', row[:node]
-          attribute(name: row[:node],
-                    router_id: row[:router_id],
-                    prefixes: prefixes,
-                    flags: ['bgp-proc'])
         end
       end
     end
   end
   # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
-  # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+
+  def make_bgp_proc_layer_nodes(nws)
+    @config_bgp_proc_table.each do |row|
+      node_attr = bgp_proc_node_attribute(row)
+
+      nws.network('bgp-proc').register do
+        node row[:router_id] do
+          support 'layer3', row[:node]
+          attribute(node_attr)
+        end
+      end
+    end
+    make_bgp_proc_layer_tps(nws)
+  end
 
   def make_bgp_proc_link_param(node, ip)
     interface = find_interface(node, ip)

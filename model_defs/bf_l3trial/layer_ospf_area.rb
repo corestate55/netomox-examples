@@ -3,6 +3,7 @@
 require 'netomox'
 require_relative 'layer_ospf_base'
 
+# rubocop:disable Metrics/ClassLength
 # ospf-area layer topology converter
 class OSPFAreaTopologyConverter < OSPFTopologyConverterBase
   def initialize(opts = {})
@@ -49,32 +50,40 @@ class OSPFAreaTopologyConverter < OSPFTopologyConverterBase
       .sort.uniq
   end
 
-  # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
-  def make_ospf_area_links
-    # find router and its interface that connects multiple-area
-    target_rows = inter_area_nodes.map do |as_node_pair|
+  def area_node_connections
+    inter_area_nodes.map do |as_node_pair|
       @as_area_table.find_all do |r|
         r[:as] == as_node_pair[:as] && r[:node] == as_node_pair[:node]
       end
     end
+  end
+
+  def area_link_data(area_node_pair, interface, area_tp_count)
+    {
+      as: area_node_pair[:as],
+      node: area_node_pair[:node],
+      node_tp: interface[:interface],
+      area: "as#{area_node_pair[:as]}-area#{area_node_pair[:area]}",
+      area_tp: "p#{area_tp_count}"
+    }
+  end
+
+  # rubocop:disable Metrics/MethodLength
+  def make_ospf_area_links
+    # find router and its interface that connects multiple-area
+    area_node_pairs = area_node_connections
     count_area_tp = {}
-    links = target_rows.flatten.map do |row|
-      row[:interfaces].map do |interface|
-        area_key = "#{row[:as]}_#{row[:area]}"
+    links = area_node_pairs.flatten.map do |area_node_pair|
+      area_node_pair[:interfaces].map do |interface|
+        area_key = "#{area_node_pair[:as]}_#{area_node_pair[:area]}"
         count_area_tp[area_key] = count_area_tp[area_key] || 0
         count_area_tp[area_key] += 1
-        {
-          as: row[:as],
-          source: row[:node],
-          source_tp: interface[:interface],
-          destination: "as#{row[:as]}-area#{row[:area]}",
-          destination_tp: "p#{count_area_tp[area_key]}"
-        }
+        area_link_data(area_node_pair, interface, count_area_tp[area_key])
       end
     end
     links.flatten
   end
-  # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
+  # rubocop:enable Metrics/MethodLength
 
   # rubocop:disable Metrics/MethodLength
   def make_ospf_area_layer_nodes(nws)
@@ -82,9 +91,10 @@ class OSPFAreaTopologyConverter < OSPFTopologyConverterBase
       debug "# areas in #{asn} -- #{areas_in_as(asn)}"
       areas_in_as(asn).each do |area|
         support_nodes = nodes_in(asn, area)
-        debug "## asn,area = #{asn}, #{area}"
+        debug "## asn, area = #{asn}, #{area}"
         debug support_nodes
-        nws.network('ospf').register do
+
+        nws.network('ospf-area').register do
           node "as#{asn}-area#{area}" do
             # support node
             support_nodes.each do |support_node|
@@ -99,24 +109,32 @@ class OSPFAreaTopologyConverter < OSPFTopologyConverterBase
 
   # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
   def make_ospf_area_layer_links(nws)
+    support_count = {}
     @area_links.each do |link|
-      nws.network('ospf').register do
-        node link[:source] do
-          term_point link[:source_tp]
+      debug '# link: ', link
+
+      nws.network('ospf-area').register do
+        node link[:node] do
+          term_point link[:node_tp]
+          # avoid duplicate support-node
+          key = "#{link[:as]}-#{link[:node]}"
+          support_count[key] = support_count[key] || 0
+          support 'ospf-proc', link[:node] if support_count[key] < 1
+          support_count[key] += 1
         end
-        node link[:destination] do
-          term_point link[:destination_tp]
+        node link[:area] do
+          term_point link[:area_tp]
         end
-        bdlink link[:source], link[:source_tp],
-               link[:destination], link[:destination_tp]
+        bdlink link[:node], link[:node_tp], link[:area], link[:area_tp]
       end
     end
   end
   # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
   def make_ospf_area_layer(nws)
-    nws.register { network 'ospf' }
+    nws.register { network 'ospf-area' }
     make_ospf_area_layer_nodes(nws)
     make_ospf_area_layer_links(nws)
   end
 end
+# rubocop:enable Metrics/ClassLength

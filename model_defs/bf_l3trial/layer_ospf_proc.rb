@@ -3,6 +3,7 @@
 require 'netomox'
 require_relative 'layer_ospf_base'
 
+# rubocop:disable Metrics/ClassLength
 # ospf-proc layer topology converter
 class OSPFProcTopologyConverter < OSPFTopologyConverterBase
   def initialize(opts = {})
@@ -70,12 +71,23 @@ class OSPFProcTopologyConverter < OSPFTopologyConverterBase
     end
   end
 
+  def ospf_proc_node_attribute(row)
+    {
+      name: "process_#{row[:process_id]}",
+      prefixes: routes_of(row[:node], /ospf.*/),
+      flags: ['ospf-proc']
+    }
+  end
+
   # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
   def make_ospf_proc_layer_nodes(nws)
+    support_count = {}
     @as_area_table
       .select { |row| row[:area] >= 0 }
       .each do |row|
-      prefixes = routes_of(row[:node], /ospf.*/)
+      debug '# ospf_layer node: ', row
+
+      node_attr = ospf_proc_node_attribute(row)
       nws.network('ospf-proc').register do
         node row[:node] do
           # tp
@@ -85,13 +97,14 @@ class OSPFProcTopologyConverter < OSPFTopologyConverterBase
               attribute(ip_addrs: [tp[:ip]])
             end
           end
-          # support-node
-          support 'layer3', row[:node]
-          attribute(
-            name: "process_#{row[:process_id]}",
-            prefixes: prefixes,
-            flags: ['ospf-proc']
-          )
+          # avoid duplicate support-node
+          key = "#{row[:as]}-#{row[:node]}"
+          support_count[key] = support_count[key] || 0
+          if support_count[key] < 1
+            support 'layer3', row[:node]
+            attribute(node_attr)
+          end
+          support_count[key] += 1
         end
       end
     end
@@ -118,3 +131,4 @@ class OSPFProcTopologyConverter < OSPFTopologyConverterBase
     make_ospf_proc_layer_links(nws)
   end
 end
+# rubocop:enable Metrics/ClassLength

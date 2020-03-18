@@ -87,7 +87,7 @@ hagiwara@dev01:~/batfish
 
 ### Clone sample (batfish l3-trial)
 
-See samples repository: [netomox\-examples](https://github.com/corestate55/netomox-examples)
+See samples repository: [batfish\-test\-topology](https://github.com/corestate55/batfish-test-topology)
 
 ```bash
 hagiwara@dev01:~/batfish$ git clone https://github.com/corestate55/batfish-test-topology.git
