@@ -10,7 +10,8 @@ require_relative 'layer_l3'
 
 # common batfish-l3 topology(networks) class
 class BFL3Networks
-  def initialize(debug: false, csv_dir: '')
+  def initialize(target: '', debug: false, csv_dir: '')
+    @target = target
     @debug = debug
     @csv_dir = csv_dir
     @layer_table = {
@@ -26,7 +27,8 @@ class BFL3Networks
     layer_seq = %i[bgp_as bgp_proc ospf_area ospf_proc l3]
     nws = Netomox::DSL::Networks.new
     layer_seq.each do |layer|
-      layer = @layer_table[layer].new(csv_dir: @csv_dir)
+      opts = { target: @target, csv_dir: @csv_dir }
+      layer = @layer_table[layer].new(opts)
       layer.make_topology(nws)
     end
     sort_node_tp!(nws)
@@ -36,7 +38,8 @@ class BFL3Networks
 
   def debug_print
     if @layer_table[@debug]
-      layer = @layer_table[@debug].new(debug: true, csv_dir: @csv_dir)
+      opts = { target: @target, debug: true, csv_dir: @csv_dir }
+      layer = @layer_table[@debug].new(opts)
       puts layer.to_json
     else
       warn 'Invalid debug option'

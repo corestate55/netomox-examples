@@ -3,14 +3,16 @@
 require 'csv'
 require 'netomox'
 require_relative 'layer_base'
+require_relative 'csv/ip_owners_table'
+require_relative 'csv/edges_layer3_table'
 
 # layer topology converter for batfish layer3 network data
 class Layer3TopologyConverter < TopologyLayerBase
   def initialize(opts = {})
     super(opts)
-    @edges_layer3_table = read_table('edges_layer3.csv')
-    @ip_owners_table = read_table('ip_owners.csv')
-    make_tables
+
+    @edges_layer3_table = EdgesL3Table.new(@target)
+    @ip_owners_table = IPOwnersTable.new(@target)
   end
 
   def make_topology(nws)
@@ -19,17 +21,11 @@ class Layer3TopologyConverter < TopologyLayerBase
 
   private
 
-  def make_tables
-    @node_interfaces_table = make_node_interfaces_table
-    debug '# node_interfaces_table: ', @node_interfaces_table
-    @links = make_layer3_links
-    debug '# links: ', @links
-  end
-
   # rubocop:disable Metrics/MethodLength
   def make_layer3_layer_nodes(nws)
-    @node_interfaces_table.each_pair do |node, interfaces|
-      prefixes = routes_of(node, /^(?!.*(bgp|ospf)).+$/) # exclude bgp,ospf
+    @ip_owners_table.node_interfaces_table.each_pair do |node, interfaces|
+      # prefixes: exclude bgp,ospf (only connected)
+      prefixes = @routes_table.routes_of(node, /^(?!.*(bgp|ospf)).+$/)
       nws.network('layer3').register do
         node node do
           interfaces.each do |tp|
@@ -45,11 +41,11 @@ class Layer3TopologyConverter < TopologyLayerBase
   # rubocop:enable Metrics/MethodLength
 
   def make_layer3_layer_links(nws)
-    @links.each do |link_row|
-      src = link_row[:source]
-      dst = link_row[:destination]
+    @edges_layer3_table.links.each do |l3_link|
+      src = l3_link[:source]
+      dst = l3_link[:destination]
       nws.network('layer3').register do
-        link src[:node], src[:interface], dst[:node], dst[:interface]
+        link src.node, src.interface, dst.node, dst.interface
       end
     end
   end
@@ -63,43 +59,4 @@ class Layer3TopologyConverter < TopologyLayerBase
     make_layer3_layer_nodes(nws)
     make_layer3_layer_links(nws)
   end
-
-  def make_interface_info(interface, ip, mask)
-    { interface: interface, ip: ip, mask: mask }
-  end
-
-  def find_interfaces(node)
-    @ip_owners_table
-      .find_all { |row| row[:node] == node }
-      .map { |row| make_interface_info(row[:interface], row[:ip], row[:mask]) }
-  end
-
-  def make_node_interfaces_table
-    nodes = @ip_owners_table.map { |row| row[:node] }.sort.uniq
-    node_interfaces_table = {}
-    nodes.each do |node|
-      node_interfaces_table[node] = find_interfaces(node)
-    end
-    node_interfaces_table
-  end
-
-  def make_layer3_links
-    @edges_layer3_table.map do |row|
-      src = make_l3_link_info(row[:interface], row[:ips])
-      dst = make_l3_link_info(row[:remote_interface], row[:remote_ips])
-      { source: src, destination: dst }
-    end
-  end
-
-  def separate_node_interface(node_interface)
-    /(.+)\[(.+)\]/.match(node_interface).captures
-  end
-
-  # rubocop:disable Security/Eval
-  def make_l3_link_info(node_interface, ips)
-    node, tp = separate_node_interface(node_interface)
-    ips = eval(ips) # ip list
-    { node: node, interface: tp, ips: ips }
-  end
-  # rubocop:enable Security/Eval
 end

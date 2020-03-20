@@ -15,7 +15,7 @@ end
 
 debug = opts['debug'] ? opts['debug'].intern : nil
 csv_dir = 'model_defs/bf_l3trial/csv/sample1b'
-bf_nws = BFL3Networks.new(debug: debug, csv_dir: csv_dir)
+bf_nws = BFL3Networks.new(target: 'sample1b', debug: debug, csv_dir: csv_dir)
 
 if debug
   bf_nws.debug_print

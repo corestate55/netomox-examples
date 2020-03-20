@@ -2,12 +2,11 @@
 
 require 'netomox'
 require_relative 'layer_ospf_base'
-
-# rubocop:disable Metrics/ClassLength
 # ospf-area layer topology converter
 class OSPFAreaTopologyConverter < OSPFTopologyConverterBase
   def initialize(opts = {})
     super(opts)
+
     make_tables
   end
 
@@ -15,87 +14,28 @@ class OSPFAreaTopologyConverter < OSPFTopologyConverterBase
     make_ospf_area_layer(nws)
   end
 
-  private
+  protected
 
   def make_tables
     super
-    @area_links = make_ospf_area_links
+
+    @area_links = @as_area_table.make_ospf_area_links
     debug '# ospf_area_link: ', @area_links
   end
 
-  def inter_area_nodes
-    paths = @as_area_table.map { |r| "#{r[:as]}__#{r[:node]}" }
-    paths
-      .sort
-      .reject { |p| paths.index(p) == paths.rindex(p) }
-      .uniq
-      .map do |path|
-      path =~ /(.*)__(.*)/
-      { as: Regexp.last_match(1).to_i, node: Regexp.last_match(2) }
-    end
-  end
-
-  def nodes_in(asn, area)
-    @as_area_table
-      .find_all { |row| row[:as] == asn && row[:area] == area }
-      .map { |row| row[:node] }
-      .sort.uniq
-  end
-
-  def areas_in_as(asn)
-    @as_area_table
-      .find_all { |row| row[:as] == asn }
-      .map { |row| row[:area] }
-      .find_all { |area| area >= 0 } # area 0 MUST be backbone area.
-      .sort.uniq
-  end
-
-  def area_node_connections
-    inter_area_nodes.map do |as_node_pair|
-      @as_area_table.find_all do |r|
-        r[:as] == as_node_pair[:as] && r[:node] == as_node_pair[:node]
-      end
-    end
-  end
+  private
 
   # name of ospf-are node in ospf-area layer
   def area_node_name(asn, area)
     "as#{asn}-area#{area}"
   end
 
-  def area_link_data(area_node_pair, interface, area_tp_count)
-    {
-      as: area_node_pair[:as],
-      node: area_node_pair[:node],
-      node_tp: interface[:interface],
-      area: area_node_name(area_node_pair[:as], area_node_pair[:area]),
-      area_tp: "p#{area_tp_count}"
-    }
-  end
-
-  # rubocop:disable Metrics/MethodLength
-  def make_ospf_area_links
-    # find router and its interface that connects multiple-area
-    area_node_pairs = area_node_connections
-    count_area_tp = {}
-    links = area_node_pairs.flatten.map do |area_node_pair|
-      area_node_pair[:interfaces].map do |interface|
-        area_key = "#{area_node_pair[:as]}_#{area_node_pair[:area]}"
-        count_area_tp[area_key] = count_area_tp[area_key] || 0
-        count_area_tp[area_key] += 1
-        area_link_data(area_node_pair, interface, count_area_tp[area_key])
-      end
-    end
-    links.flatten
-  end
-  # rubocop:enable Metrics/MethodLength
-
   # rubocop:disable Metrics/MethodLength
   def make_ospf_area_layer_nodes(nws)
     @as_numbers.each do |asn|
-      debug "# areas in #{asn} -- #{areas_in_as(asn)}"
-      areas_in_as(asn).each do |area|
-        support_nodes = nodes_in(asn, area)
+      debug "# areas in #{asn} -- #{@as_area_table.areas_in_as(asn)}"
+      @as_area_table.areas_in_as(asn).each do |area|
+        support_nodes = @as_area_table.nodes_in(asn, area)
         debug "## asn, area = #{asn}, #{area}"
         debug support_nodes
 
@@ -145,4 +85,3 @@ class OSPFAreaTopologyConverter < OSPFTopologyConverterBase
     make_ospf_area_layer_links(nws)
   end
 end
-# rubocop:enable Metrics/ClassLength

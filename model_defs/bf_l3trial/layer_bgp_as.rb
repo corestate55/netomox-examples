@@ -2,13 +2,20 @@
 
 require 'netomox'
 require_relative 'layer_bgp_base'
+require_relative 'csv/config_bgp_proc_table'
+require_relative 'csv/config_ospf_area_table'
+require_relative 'csv/nodes_in_as_table'
+require_relative 'csv/areas_in_as_table'
+require_relative 'csv/links_inter_as_table'
 
-# rubocop:disable Metrics/ClassLength
 # bgp-as layer topology converter
 class BGPASTopologyConverter < BGPTopologyConverterBase
   def initialize(opts = {})
     super(opts)
-    @config_ospf_area_table = read_table('config_ospf_area.csv')
+
+    @config_bgp_proc_table = ConfigBGPProcTable.new(@target)
+    @config_ospf_area_table = ConfigOSPFAreaTable.new(@target)
+
     make_tables
   end
 
@@ -16,99 +23,52 @@ class BGPASTopologyConverter < BGPTopologyConverterBase
     make_bgp_as_layer(nws)
   end
 
-  private
+  protected
 
+  # rubocop:disable Metrics/MethodLength
   def make_tables
     super
-    @areas_in_as = make_areas_in_as
+
+    table_of = {
+      config_bgp_proc: @config_bgp_proc_table,
+      config_ospf_area: @config_ospf_area_table,
+      as_numbers: @as_numbers,
+      edges_bgp: @edges_bgp_table
+    }
+
+    @nodes_in_as = NodesInASTable.new(@target, table_of)
+    debug '# nodes_in_as: ', @nodes_in_as
+
+    table_of[:nodes_in_as] = @nodes_in_as
+    @areas_in_as = AreasInASTable.new(@target, table_of)
     debug '# areas_in_as: ', @areas_in_as
-    @links_inter_as = make_links_inter_as
+    @links_inter_as = LinksInterASTable.new(@target, table_of)
     debug '# links_inter_as: ', @links_inter_as
   end
+  # rubocop:enable Metrics/MethodLength
 
-  def find_areas(nodes)
-    areas = nodes.map do |node|
-      @config_ospf_area_table
-        .find_all { |row| row[:node] == node }
-        .map { |row| row[:area] }
-    end
-    areas.flatten.sort.uniq
-  end
-
-  def area_border_data(asn, node)
-    # NOTICE: node name is UNIQUE in WHOLE AS.
-    {
-      asn: asn,
-      node: node,
-      areas: @config_ospf_area_table
-        .find_all { |r| r[:node] == node }
-        .map { |r| r[:area] }
-        .sort
-    }
-  end
+  private
 
   def inter_area_routers(asn)
     routers = []
     nodes = @nodes_in_as[asn]
     nodes.each do |node|
-      area_borders = area_border_data(asn, node)
+      area_borders = @config_ospf_area_table.area_border_data(asn, node)
       routers.push(area_borders)
     end
     routers.filter { |r| r[:areas].length > 1 }
   end
 
-  def make_areas_in_as
-    areas_in_as = {}
-    @nodes_in_as.each_pair do |asn, nodes|
-      areas_in_as[asn] = find_areas(nodes)
-    end
-    areas_in_as
-  end
-
-  def make_as_link_tp(asn, node, interface)
-    {
-      as: asn, node: node, interface: interface,
-      router_id: find_router_id(node)
-    }
-  end
-
-  def make_as_link(link)
-    {
-      source: make_as_link_tp(
-        link[:as_number], link[:node], link[:ip]
-      ),
-      destination: make_as_link_tp(
-        link[:remote_as_number], link[:remote_node], link[:remote_ip]
-      )
-    }
-  end
-
-  def make_links_inter_as
-    @edges_bgp_table
-      .find_all { |row| row[:as_number] != row[:remote_as_number] }
-      .map { |link| make_as_link(link) }
-  end
-
-  def router_ids_in_as(asn)
-    @nodes_in_as[asn].map { |node| find_router_id(node) }
-  end
-
-  def interfaces_inter_as(asn)
-    @links_inter_as
-      .find_all { |link| link[:source][:as] == asn }
-      .map { |link| link[:source] }
-  end
-
   # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
   def make_bgp_as_layer_nodes(nws)
     @as_numbers.each do |asn|
-      tps = interfaces_inter_as(asn)
+      tps = @links_inter_as.interfaces_inter_as(asn)
       debug "### check: AS:#{asn}, tps:", tps
       inter_routers = inter_area_routers(asn)
       debug '### inter_area_routers: ', inter_routers
 
       areas = @areas_in_as[asn]
-      router_ids = router_ids_in_as(asn)
+      router_ids = @nodes_in_as.router_ids_in_as(asn)
 
       nws.network('bgp-as').register do
         # AS as node
@@ -153,4 +113,3 @@ class BGPASTopologyConverter < BGPTopologyConverterBase
     make_bgp_as_layer_links(nws)
   end
 end
-# rubocop:enable Metrics/ClassLength

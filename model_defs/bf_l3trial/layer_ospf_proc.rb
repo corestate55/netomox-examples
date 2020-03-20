@@ -2,11 +2,13 @@
 
 require 'netomox'
 require_relative 'layer_ospf_base'
+require_relative 'csv/edges_ospf_table'
+
 # ospf-proc layer topology converter
 class OSPFProcTopologyConverter < OSPFTopologyConverterBase
   def initialize(opts = {})
     super(opts)
-    @edges_ospf_table = read_table('edges_ospf.csv')
+
     make_tables
   end
 
@@ -14,57 +16,23 @@ class OSPFProcTopologyConverter < OSPFTopologyConverterBase
     make_ospf_proc_layer(nws)
   end
 
-  private
+  protected
 
   def make_tables
     super
-    @proc_links = make_ospf_proc_links
-    debug '# ospf_proc_link (edges): ', @proc_links
+
+    # @edges_ospf_table uses @as_area_table,
+    # put after super.make_tables (@as_area_table)
+    table_of = { as_area: @as_area_table }
+    @edges_ospf_table = EdgesOSPFTable.new(@target, table_of)
   end
 
-  def separate_node_interface(node_interface)
-    /(.+)\[(.+)\]/.match(node_interface).captures
-  end
-
-  def interface_names(as_area_row)
-    as_area_row[:interfaces].map { |if_info| if_info[:interface] }
-  end
-
-  def tp_info(asn, area, node, interface)
-    { as: asn, area: area, node: node, interface: interface }
-  end
-
-  def make_tp_info_from(node, term_point)
-    found_row = @as_area_table.find do |row|
-      row[:node] == node && interface_names(row).include?(term_point)
-    end
-    if found_row
-      tp_info(found_row[:as], found_row[:area], node, term_point)
-    else
-      tp_info(-1, -1, node, term_point)
-    end
-  end
-
-  def make_ospf_link_info(node_interface)
-    node, tp = separate_node_interface(node_interface)
-    make_tp_info_from(node, tp)
-  end
-
-  def make_ospf_proc_links
-    links = @edges_ospf_table.map do |row|
-      src = make_ospf_link_info(row[:interface])
-      dst = make_ospf_link_info(row[:remote_interface])
-      { source: src, destination: dst }
-    end
-    links.filter do |link|
-      link[:source][:as] >= 0 && link[:destination][:as] >= 0
-    end
-  end
+  private
 
   def ospf_proc_node_attribute(row)
     {
       name: "process_#{row[:process_id]}",
-      prefixes: routes_of(row[:node], /ospf.*/),
+      prefixes: @routes_table.routes_of(row[:node], /ospf.*/),
       flags: ['ospf-proc']
     }
   end
@@ -72,9 +40,7 @@ class OSPFProcTopologyConverter < OSPFTopologyConverterBase
   # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
   def make_ospf_proc_layer_nodes(nws)
     support_count = {}
-    @as_area_table
-      .select { |row| row[:area] >= 0 }
-      .each do |row|
+    @as_area_table.records_has_area.each do |row|
       debug '# ospf_layer node: ', row
 
       node_attr = ospf_proc_node_attribute(row)
@@ -102,11 +68,10 @@ class OSPFProcTopologyConverter < OSPFTopologyConverterBase
   # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
   def make_ospf_proc_layer_links(nws)
-    @proc_links.each do |link_row|
-      src = link_row[:source]
-      dst = link_row[:destination]
+    @edges_ospf_table.proc_links.each do |p_link|
       nws.network('ospf-proc').register do
-        link src[:node], src[:interface], dst[:node], dst[:interface]
+        link p_link.src.node, p_link.src.interface,
+             p_link.dst.node, p_link.dst.interface
       end
     end
   end

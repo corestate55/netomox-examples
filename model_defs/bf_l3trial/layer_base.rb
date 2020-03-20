@@ -2,13 +2,20 @@
 
 require 'json'
 require 'netomox'
+require_relative 'csv/routes_table'
+require_relative 'csv/edges_bgp_table'
 
 # base class of layer topology converter
 class TopologyLayerBase
-  def initialize(debug: false, csv_dir: '')
+  def initialize(target: '', debug: false, csv_dir: '')
+    @target = target
     @csv_dir = csv_dir # default: bundle exec ruby model_defs/bf_trial.rb
     @use_debug = debug
-    @routes_table = read_table('routes.csv')
+
+    # commons for bgp-*, ospf-* and layer3
+    @routes_table = RoutesTable.new(@target)
+    # commons for bgp-* and ospf-*
+    @edges_bgp_table = EdgesBGPTable.new(@target, @use_debug)
   end
 
   def to_json(*_args)
@@ -17,24 +24,21 @@ class TopologyLayerBase
     JSON.pretty_generate(nws.topo_data)
   end
 
+  def make_topology(_nws)
+    raise 'Abstract method must be override.'
+  end
+
   protected
+
+  # common data (build by batfish-query tables)
+  def make_tables
+    # commons for bgp-* and ospf-*
+    @as_numbers = @edges_bgp_table.as_numbers
+    debug '# as_numbers: ', @as_numbers
+  end
 
   # debug print
   def debug(*message)
     puts message if @use_debug
-  end
-
-  def read_table(file_path)
-    CSV.table("#{@csv_dir}/#{file_path}")
-  end
-
-  def prefix_attr(prefix, metric, protocol)
-    { prefix: prefix, metric: metric, flag: [protocol] }
-  end
-
-  def routes_of(node, protocol = /.+/)
-    @routes_table
-      .find_all { |row| row[:node] == node && row[:protocol] =~ protocol }
-      .map { |row| prefix_attr(row[:network], row[:metric], row[:protocol]) }
   end
 end
