@@ -41,11 +41,10 @@ class Layer3TopologyConverter < TopologyLayerBase
   # rubocop:enable Metrics/MethodLength
 
   def make_layer3_layer_links(nws)
-    @edges_layer3_table.links.each do |l3_link|
-      src = l3_link[:source]
-      dst = l3_link[:destination]
+    @edges_layer3_table.layer3_links.each do |l3_link|
       nws.network('layer3').register do
-        link src.node, src.interface, dst.node, dst.interface
+        link l3_link.src.node, l3_link.src.interface,
+             l3_link.dst.node, l3_link.dst.interface
       end
     end
   end

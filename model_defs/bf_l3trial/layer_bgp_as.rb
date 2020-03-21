@@ -49,35 +49,25 @@ class BGPASTopologyConverter < BGPTopologyConverterBase
 
   private
 
-  def inter_area_routers(asn)
-    routers = []
-    nodes = @nodes_in_as[asn]
-    nodes.each do |node|
-      area_borders = @config_ospf_area_table.area_border_data(asn, node)
-      routers.push(area_borders)
-    end
-    routers.filter { |r| r[:areas].length > 1 }
-  end
-
   # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
   def make_bgp_as_layer_nodes(nws)
     @as_numbers.each do |asn|
       tps = @links_inter_as.interfaces_inter_as(asn)
       debug "### check: AS:#{asn}, tps:", tps
-      inter_routers = inter_area_routers(asn)
+      inter_routers = @nodes_in_as[asn].inter_area_routers
       debug '### inter_area_routers: ', inter_routers
 
       areas = @areas_in_as[asn]
-      router_ids = @nodes_in_as.router_ids_in_as(asn)
+      router_ids = @nodes_in_as[asn].router_ids_in_as
 
       nws.network('bgp-as').register do
         # AS as node
         node "as#{asn}" do
           # interface of inter-AS link and its support-tp
           tps.each do |tp|
-            term_point tp[:interface] do
-              support 'bgp-proc', tp[:router_id], tp[:interface]
-              attribute(ip_addrs: [tp[:interface]])
+            term_point tp.interface do
+              support 'bgp-proc', tp.router_id, tp.interface
+              attribute(ip_addrs: [tp.interface])
             end
           end
           # support-node to ospf layer
@@ -98,11 +88,10 @@ class BGPASTopologyConverter < BGPTopologyConverterBase
   # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
   def make_bgp_as_layer_links(nws)
-    @links_inter_as.each do |link_row|
-      src = link_row[:source]
-      dst = link_row[:destination]
+    @links_inter_as.each do |as_link|
       nws.network('bgp-as').register do
-        link "as#{src[:as]}", src[:interface], "as#{dst[:as]}", dst[:interface]
+        link "as#{as_link.src.as}", as_link.src.interface,
+             "as#{as_link.dst.as}", as_link.dst.interface
       end
     end
   end

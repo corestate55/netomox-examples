@@ -4,20 +4,15 @@ require 'forwardable'
 require_relative 'table_base'
 
 # edge (term-point) of inter layer3-nodes link.
-class L3Edge
+class L3Edge < EdgeBase
   attr_accessor :node, :interface, :ips
+
   # rubocop:disable Security/Eval
   def initialize(node_interface, ips)
     @node, @interface = split_node_interface(node_interface)
     @ips = eval(ips) # ip list
   end
   # rubocop:enable Security/Eval
-
-  private
-
-  def split_node_interface(node_interface)
-    /(.+)\[(.+)\]/.match(node_interface).captures
-  end
 end
 
 # row of edges_l3 table
@@ -45,7 +40,7 @@ class EdgesL3Table < TableBase
   end
 
   # layer3 links
-  def links
-    @records.map { |r| { source: r.src, destination: r.dst } }
+  def layer3_links
+    @records
   end
 end

@@ -2,6 +2,8 @@
 
 require 'forwardable'
 require_relative 'table_base'
+require_relative 'as_area_util'
+require_relative 'as_area_links_table'
 
 # BGP-AS--OSPF-Area table
 class ASAreaTable < TableBase
@@ -18,28 +20,31 @@ class ASAreaTable < TableBase
 
     nodes_in_as = find_nodes_in_as
     debug '# nodes_in_as:', nodes_in_as
+
+    # NOTICE: @records is NOT array, it is Hash
+    # key:AS-Number => value:ASAreaTableRecord
     @records = make_as_area_table(nodes_in_as)
   end
 
   def nodes_in(asn, area)
     @records
-      .find_all { |r| r[:as] == asn && r[:area] == area }
-      .map { |r| r[:node] }
+      .find_all { |r| r.as == asn && r.area == area }
+      .map(&:node)
       .sort
       .uniq
   end
 
   def areas_in_as(asn)
     @records
-      .find_all { |r| r[:as] == asn }
-      .map { |r| r[:area] }
+      .find_all { |r| r.as == asn }
+      .map(&:area)
       .find_all { |area| area >= 0 } # area 0 MUST be backbone area.
       .sort
       .uniq
   end
 
   def records_has_area
-    @records.select { |r| r[:area] >= 0 }
+    @records.select { |r| r.area >= 0 }
   end
 
   # rubocop:disable Metrics/MethodLength
@@ -48,11 +53,12 @@ class ASAreaTable < TableBase
     area_node_pairs = area_node_connections
     count_area_tp = {}
     links = area_node_pairs.flatten.map do |area_node_pair|
-      area_node_pair[:interfaces].map do |interface|
-        area_key = "#{area_node_pair[:as]}_#{area_node_pair[:area]}"
+      area_node_pair.interfaces.map do |interface|
+        area_key = node_pair_path(area_node_pair.as, area_node_pair.area)
         count_area_tp[area_key] = count_area_tp[area_key] || 0
         count_area_tp[area_key] += 1
-        area_link_data(area_node_pair, interface, count_area_tp[area_key])
+        ASAreaLinkTableRecord.new(area_node_pair, interface,
+                                  count_area_tp[area_key])
       end
     end
     links.flatten
@@ -60,25 +66,14 @@ class ASAreaTable < TableBase
   # rubocop:enable Metrics/MethodLength
 
   def find_all_by_as_node(asn, node)
-    @records.find_all { |r| r[:as] == asn && r[:node] == node }
+    @records.find_all { |r| r.as == asn && r.node == node }
+  end
+
+  def to_s
+    @records.map(&:to_s).join("\n").to_s
   end
 
   private
-
-  # name of ospf-are node in ospf-area layer
-  def area_node_name(asn, area)
-    "as#{asn}-area#{area}"
-  end
-
-  def area_link_data(area_node_pair, interface, area_tp_count)
-    {
-      as: area_node_pair[:as],
-      node: area_node_pair[:node],
-      node_tp: interface[:interface],
-      area: area_node_name(area_node_pair[:as], area_node_pair[:area]),
-      area_tp: "p#{area_tp_count}"
-    }
-  end
 
   def area_node_connections
     inter_area_nodes.map do |as_node|
@@ -86,15 +81,26 @@ class ASAreaTable < TableBase
     end
   end
 
-  def inter_area_nodes
-    paths = @records.map { |r| "#{r[:as]}__#{r[:node]}" }
+  def node_pair_path(node1, node2)
+    "#{node1}__#{node2}"
+  end
+
+  def select_duplicated_paths
+    paths = @records.map { |r| node_pair_path(r.as, r.node) }
     paths
       .sort
-      .reject { |p| paths.index(p) == paths.rindex(p) }
+      .reject { |p| paths.index(p) == paths.rindex(p) } # reject single element
       .uniq
-      .map do |path|
-      path =~ /(.*)__(.*)/
-      { as: Regexp.last_match(1).to_i, node: Regexp.last_match(2) }
+  end
+
+  def split_node_pair_path(as_node_path)
+    /(.*)__(.*)/.match(as_node_path).captures
+  end
+
+  def inter_area_nodes
+    select_duplicated_paths.map do |as_node_path|
+      as, node = split_node_pair_path(as_node_path)
+      { as: as.to_i, node: node }
     end
   end
 
@@ -112,8 +118,8 @@ class ASAreaTable < TableBase
     as_area_table = []
     nodes_in_as.each_pair do |asn, nodes|
       nodes.each do |node|
-        @config_ospf_area_table.find_all_by_node(node).each do |config|
-          as_area_table.push(config.as_area(asn))
+        @config_ospf_area_table.find_all_by_node(node).each do |record|
+          as_area_table.push(record.as_area(asn))
         end
       end
     end

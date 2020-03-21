@@ -2,6 +2,8 @@
 
 require 'netomox'
 require_relative 'layer_ospf_base'
+require_relative 'csv/as_area_links_table'
+
 # ospf-area layer topology converter
 class OSPFAreaTopologyConverter < OSPFTopologyConverterBase
   def initialize(opts = {})
@@ -19,7 +21,8 @@ class OSPFAreaTopologyConverter < OSPFTopologyConverterBase
   def make_tables
     super
 
-    @area_links = @as_area_table.make_ospf_area_links
+    table_of = { as_area: @as_area_table }
+    @area_links = ASAreaLinkTable.new(@target, table_of, @use_debug)
     debug '# ospf_area_link: ', @area_links
   end
 
@@ -60,20 +63,20 @@ class OSPFAreaTopologyConverter < OSPFTopologyConverterBase
       debug '# link: ', link
 
       nws.network('ospf-area').register do
-        node link[:node] do
-          term_point link[:node_tp] do
-            support 'ospf-proc', link[:node], link[:node_tp]
+        node link.node do
+          term_point link.node_tp do
+            support 'ospf-proc', link.node, link.node_tp
           end
           # avoid duplicate support-node
-          key = "#{link[:as]}-#{link[:node]}"
+          key = link.as_node_key
           support_count[key] = support_count[key] || 0
-          support 'ospf-proc', link[:node] if support_count[key] < 1
+          support 'ospf-proc', link.node if support_count[key] < 1
           support_count[key] += 1
         end
-        node link[:area] do
-          term_point link[:area_tp]
+        node link.area do
+          term_point link.area_tp
         end
-        bdlink link[:node], link[:node_tp], link[:area], link[:area_tp]
+        bdlink link.node, link.node_tp, link.area, link.area_tp
       end
     end
   end

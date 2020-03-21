@@ -4,8 +4,9 @@ require 'forwardable'
 require_relative 'table_base'
 
 # edge (term-point) of inter ospf-proc link.
-class OSPFEdge
+class OSPFEdge < EdgeBase
   attr_accessor :node, :interface, :as, :area
+
   def initialize(node_interface, as_area_table)
     @as_area_table = as_area_table
     @node, @interface = split_node_interface(node_interface)
@@ -16,21 +17,17 @@ class OSPFEdge
 
   def term_point_info
     found_row = @as_area_table.find do |row|
-      row[:node] == @node && interface_names(row).include?(@interface)
+      row.node == @node && interface_names(row).include?(@interface)
     end
     if found_row
-      [found_row[:as], found_row[:area]]
+      [found_row.as, found_row.area]
     else
       [-1, -1]
     end
   end
 
   def interface_names(as_area_row)
-    as_area_row[:interfaces].map { |if_info| if_info[:interface] }
-  end
-
-  def split_node_interface(node_interface)
-    /(.+)\[(.+)\]/.match(node_interface).captures
+    as_area_row.interfaces.map(&:interface)
   end
 end
 

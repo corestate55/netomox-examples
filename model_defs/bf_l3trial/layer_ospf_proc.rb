@@ -29,35 +29,27 @@ class OSPFProcTopologyConverter < OSPFTopologyConverterBase
 
   private
 
-  def ospf_proc_node_attribute(row)
-    {
-      name: "process_#{row[:process_id]}",
-      prefixes: @routes_table.routes_of(row[:node], /ospf.*/),
-      flags: ['ospf-proc']
-    }
-  end
-
   # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
   def make_ospf_proc_layer_nodes(nws)
     support_count = {}
-    @as_area_table.records_has_area.each do |row|
-      debug '# ospf_layer node: ', row
+    @as_area_table.records_has_area.each do |rec|
+      debug '# ospf_layer node: ', rec
 
-      node_attr = ospf_proc_node_attribute(row)
+      node_attr = rec.ospf_proc_node_attribute
       nws.network('ospf-proc').register do
-        node row[:node] do
+        node rec.node do
           # tp
-          row[:interfaces].each do |tp|
-            term_point tp[:interface] do
-              support 'layer3', row[:node], tp[:interface]
-              attribute(ip_addrs: [tp[:ip]])
+          rec.interfaces.each do |tp|
+            term_point tp.interface do
+              support 'layer3', rec.node, tp.interface
+              attribute(ip_addrs: [tp.ip])
             end
           end
           # avoid duplicate support-node
-          key = "#{row[:as]}-#{row[:node]}"
+          key = "#{rec.as}-#{rec.node}"
           support_count[key] = support_count[key] || 0
           if support_count[key] < 1
-            support 'layer3', row[:node]
+            support 'layer3', rec.node
             attribute(node_attr)
           end
           support_count[key] += 1

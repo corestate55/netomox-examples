@@ -3,6 +3,7 @@
 require 'netomox'
 require_relative 'layer_bgp_base'
 require_relative 'csv/config_bgp_proc_table'
+
 # bgp-proc layer topology converter
 class BGPProcTopologyConverter < BGPTopologyConverterBase
   def initialize(opts = {})
@@ -90,8 +91,8 @@ class BGPProcTopologyConverter < BGPTopologyConverterBase
   def make_bgp_proc_layer_links(nws)
     @edges_bgp_table.make_proc_links.each do |proc_link|
       nws.network('bgp-proc').register do
-        link proc_link[:source].router_id, proc_link[:source].ip,
-             proc_link[:destination].router_id, proc_link[:destination].ip
+        link proc_link.src.router_id, proc_link.src.ip,
+             proc_link.dst.router_id, proc_link.dst.ip
       end
     end
   end

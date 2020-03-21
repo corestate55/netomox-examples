@@ -20,40 +20,49 @@ class EdgesBGPTableRecord < TableRecordBase
   end
 
   def make_as_link
-    { source: @src.as_link_tp, destination: @dst.as_link_tp }
+    LinksInterASTableRecord.new(@src, @dst)
   end
 
-  # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
   def proc_link_tp(link_ref_count, tp_ref_count)
-    fwd_key = proc_link_key(@src, @dst)
-    rev_key = proc_link_key(@dst, @src)
+    fwd_key, rev_key = proc_link_key_pair
     debug "###### fwd_key=#{fwd_key}, rev_key=#{rev_key}"
 
     if link_ref_count[fwd_key].nil? && link_ref_count[rev_key].nil?
       # there are no forward/reverse link of src/dst,
       # count tp_ref and put forward link.
-      tp_ref_count.count_of(@src)
-      tp_ref_count.count_of(@dst)
-      link_ref_count.count_of(fwd_key, tp_ref_count[@src], tp_ref_count[@dst])
-      debug "### rev/fwd not found, #{link_ref_count[fwd_key]}"
+      count_forward_link(fwd_key, link_ref_count, tp_ref_count)
     elsif link_ref_count[fwd_key].nil?
       # exist reverse link of src/dst. put reverse link.
-      link_ref_count.count_of(fwd_key, *link_ref_count[rev_key].reverse)
-      debug "### rev found (fwd not found), #{link_ref_count[fwd_key]}"
+      count_reverse_link(fwd_key, rev_key, link_ref_count)
     else
       warn 'WARNING: duplicated link?'
     end
 
+    make_proc_link(link_ref_count, fwd_key)
+  end
+
+  private
+
+  def make_proc_link(link_ref_count, fwd_key)
     @src.save_counted_ip(link_ref_count[fwd_key][0])
     @dst.save_counted_ip(link_ref_count[fwd_key][1])
     debug "### src: #{@src.node}, #{@src.ip}, #{@src.interface}"
     debug "### dst: #{@dst.node}, #{@dst.ip}, #{@dst.interface}"
 
-    { source: @src, destination: @dst }
+    self # return this @src and @dst pair
   end
-  # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
-  private
+  def count_forward_link(fwd_key, link_ref_count, tp_ref_count)
+    tp_ref_count.count_of(@src)
+    tp_ref_count.count_of(@dst)
+    link_ref_count.count_of(fwd_key, tp_ref_count[@src], tp_ref_count[@dst])
+    debug "### rev/fwd not found, #{link_ref_count[fwd_key]}"
+  end
+
+  def count_reverse_link(fwd_key, rev_key, link_ref_count)
+    link_ref_count.count_of(fwd_key, *link_ref_count[rev_key].reverse)
+    debug "### rev found (fwd not found), #{link_ref_count[fwd_key]}"
+  end
 
   def new_bgp_edge(keys, record, table_of)
     opts = edge_opts(keys, record, table_of)
@@ -68,6 +77,11 @@ class EdgesBGPTableRecord < TableRecordBase
       table_of[:ip_owners].find_interface(node, ip)
     ]
     keys.map { |k| record[k] }.push(*additions)
+  end
+
+  def proc_link_key_pair
+    # forward, reverse
+    [proc_link_key(@src, @dst), proc_link_key(@dst, @src)]
   end
 
   def proc_link_key(src, dst)
@@ -114,6 +128,7 @@ class EdgesBGPTable < TableBase
       .sort.uniq
   end
 
+  # make links_inter_as_table (LinksInterASTable)
   def make_links_inter_as
     @records
       .find_all { |r| r.src.as_number != r.dst.as_number }

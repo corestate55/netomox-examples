@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'links_inter_as_table'
+
 # edge (term-point) of inter bgp-proc link
 class BGPEdge
   attr_accessor :node, :ip, :as_number, :router_id, :interface, :key
@@ -14,12 +16,7 @@ class BGPEdge
   end
 
   def as_link_tp
-    {
-      as: @as_number,
-      node: @node,
-      interface: @ip,
-      router_id: @router_id
-    }
+    ASLinkTp.new(@as_number, @router_id, @node, @ip)
   end
 
   def save_counted_ip(count)
@@ -27,7 +24,7 @@ class BGPEdge
   end
 
   def to_s
-    "BGPEdge: #{@node} #{@ip} #{@as_number} #{@router_id} #{@interface}"
+    "BGPEdge:#{@node},#{@ip},#{@as_number},#{@router_id},#{@interface}"
   end
 
   private

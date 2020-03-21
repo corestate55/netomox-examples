@@ -34,12 +34,18 @@ end
 
 # Base class for record of csv-wrapper
 class TableRecordBase < TableObjectBase
-  def initialize(debug = false)
-    super(debug)
-  end
-
   # get multiple method-results
   def values(attrs)
     attrs.map { |attr| send(attr) }
+  end
+end
+
+# Link edge class
+class EdgeBase < TableObjectBase
+  protected
+
+  def split_node_interface(node_interface)
+    # convert string "node[interface]" into [node, interface]
+    /(.+)\[(.+)\]/.match(node_interface).captures
   end
 end

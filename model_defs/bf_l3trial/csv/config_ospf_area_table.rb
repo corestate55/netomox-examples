@@ -2,6 +2,8 @@
 
 require 'forwardable'
 require_relative 'table_base'
+require_relative 'as_area_util'
+require_relative 'routes_table'
 require_relative 'ip_owners_table'
 
 # row of config_ospf_area table
@@ -10,7 +12,7 @@ class ConfigOSPFAreaTableRecord < TableRecordBase
                 :active_interfaces, :passive_interfaces
 
   # rubocop:disable Security/Eval
-  def initialize(record, ip_owners_table, debug = false)
+  def initialize(record, table_of, debug = false)
     super(debug)
 
     @node = record[:node]
@@ -18,41 +20,35 @@ class ConfigOSPFAreaTableRecord < TableRecordBase
     @process_id = record[:process_id]
     @active_interfaces = eval(record[:active_interfaces])
     @passive_interfaces = eval(record[:passive_interfaces])
-    @ip_owners_table = ip_owners_table
+
+    @ip_owners_table = table_of[:ip_owners]
+    @routes_table = table_of[:routes]
   end
   # rubocop:enable Security/Eval
 
+  # make as_area_table record
+  # see: ASAreaTableRecord, ASAreaTable#make_as_area_table
   def as_area(asn)
-    area, proc_id, interfaces = area_interfaces
-    make_as_area_row(asn, area, node, proc_id, interfaces)
+    area, proc_id, if_infos = area_interfaces
+    opts = {
+      asn: asn, area: area, node: @node, process_id: proc_id,
+      interfaces: if_infos, routes_table: @routes_table
+    }
+    ASAreaTableRecord.new(opts, @debug)
   end
 
   private
 
-  def make_as_area_row(asn, area, node, proc_id, interfaces)
-    {
-      as: asn,
-      area: area,
-      node: node,
-      process_id: proc_id,
-      interfaces: interfaces
-    }
-  end
-
-  def make_interface_info(interfaces)
+  def make_interface_infos(interfaces)
     interfaces.map do |interface|
       ip_rec = @ip_owners_table.find_by_node_int(@node, interface)
-      {
-        interface: interface,
-        ip: ip_rec.ip_mask_str
-      }
+      InterfaceInfo.new(interface, ip_rec)
     end
   end
 
   def area_interfaces
     interfaces = [@active_interfaces, @passive_interfaces].flatten
-    if_info = make_interface_info(interfaces)
-    [@area, @process_id, if_info]
+    [@area, @process_id, make_interface_infos(interfaces)]
   end
 end
 
@@ -65,9 +61,12 @@ class ConfigOSPFAreaTable < TableBase
   def initialize(target, debug = false)
     super(target, 'config_ospf_area.csv', debug)
 
-    ip_owners_table = IPOwnersTable.new(target)
+    table_of = {
+      ip_owners: IPOwnersTable.new(target),
+      routes: RoutesTable.new(target)
+    }
     @records = @orig_table.map do |record|
-      ConfigOSPFAreaTableRecord.new(record, ip_owners_table, debug)
+      ConfigOSPFAreaTableRecord.new(record, table_of, debug)
     end
   end
 
