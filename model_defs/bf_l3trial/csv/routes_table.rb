@@ -29,13 +29,25 @@ class RoutesTable < TableBase
     @records = @orig_table.map { |r| RoutesTableRecord.new(r, debug) }
   end
 
+  def routes_l3node(node)
+    routes_of(node, /^(?!.*(bgp|ospf)).+$/)
+  end
+
+  def routes_ospf_proc(node)
+    routes_of(node, /ospf.*/)
+  end
+
+  def routes_bgp_proc(node)
+    routes_of(node, /.*bgp/)
+  end
+
+  private
+
   def routes_of(node, protocol = /.+/)
     @records
       .find_all { |row| row.node == node && row.protocol =~ protocol }
       .map { |row| prefix_attr(row.network, row.metric, row.protocol) }
   end
-
-  private
 
   def prefix_attr(prefix, metric, protocol)
     { prefix: prefix, metric: metric, flag: [protocol] }

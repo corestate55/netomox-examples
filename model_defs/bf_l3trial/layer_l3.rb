@@ -21,27 +21,25 @@ class Layer3TopologyConverter < TopologyLayerBase
   private
 
   # rubocop:disable Metrics/MethodLength
-  def make_layer3_layer_nodes(nws)
+  def make_layer3_layer_nodes(layer_l3)
     @ip_owners_table.node_interfaces_table.each_pair do |node, interfaces|
       # prefixes: exclude bgp,ospf (only connected)
-      prefixes = @routes_table.routes_of(node, /^(?!.*(bgp|ospf)).+$/)
-      nws.network('layer3').register do
-        node node do
-          interfaces.each do |tp|
-            term_point tp[:interface] do
-              attribute(ip_addrs: ["#{tp[:ip]}/#{tp[:mask]}"])
-            end
+      prefixes = @routes_table.routes_l3node(node)
+      layer_l3.node(node) do
+        interfaces.each do |tp|
+          term_point tp.interface do
+            attribute(ip_addrs: [tp.ip_mask_str])
           end
-          attribute(prefixes: prefixes, flags: ['layer3'])
         end
+        attribute(prefixes: prefixes, flags: ['layer3'])
       end
     end
   end
   # rubocop:enable Metrics/MethodLength
 
-  def make_layer3_layer_links(nws)
+  def make_layer3_layer_links(layer_l3)
     @edges_layer3_table.layer3_links.each do |l3_link|
-      nws.network('layer3').register do
+      layer_l3.register do
         link l3_link.src.node, l3_link.src.interface,
              l3_link.dst.node, l3_link.dst.interface
       end
@@ -54,7 +52,8 @@ class Layer3TopologyConverter < TopologyLayerBase
         type Netomox::NWTYPE_L3
       end
     end
-    make_layer3_layer_nodes(nws)
-    make_layer3_layer_links(nws)
+    layer_l3 = nws.network('layer3')
+    make_layer3_layer_nodes(layer_l3)
+    make_layer3_layer_links(layer_l3)
   end
 end

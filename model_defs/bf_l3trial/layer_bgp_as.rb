@@ -44,7 +44,7 @@ class BGPASTopologyConverter < BGPTopologyConverterBase
   private
 
   # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
-  def make_bgp_as_layer_nodes(nws)
+  def make_bgp_as_layer_nodes(layer_bgp_as)
     @as_numbers.each do |asn|
       tps = @links_inter_as.interfaces_inter_as(asn)
       debug "### check: AS:#{asn}, tps:", tps
@@ -54,36 +54,34 @@ class BGPASTopologyConverter < BGPTopologyConverterBase
       areas = @areas_in_as[asn]
       router_ids = @nodes_in_as[asn].router_ids_in_as
 
-      nws.network('bgp-as').register do
-        # AS as node
-        node "as#{asn}" do
-          # interface of inter-AS link and its support-tp
-          tps.each do |tp|
-            term_point tp.interface do
-              support 'bgp-proc', tp.router_id, tp.interface
-              attribute(ip_addrs: [tp.interface])
-            end
+      # AS as node
+      layer_bgp_as.node("as#{asn}") do
+        # interface of inter-AS link and its support-tp
+        tps.each do |tp|
+          term_point tp.interface do
+            support 'bgp-proc', tp.router_id, tp.interface
+            attribute(ip_addrs: [tp.interface])
           end
-          # support-node to ospf layer
-          areas.each do |area|
-            support 'ospf-area', "as#{asn}-area#{area}" # ospf area
-          end
-          inter_routers.each do |router|
-            support 'ospf-area', router[:node] # inter-area-router
-          end
-          # support-node to bgp-proc layer
-          router_ids.each do |router_id|
-            support 'bgp-proc', router_id
-          end
+        end
+        # support-node to ospf layer
+        areas.each do |area|
+          support 'ospf-area', "as#{asn}-area#{area}" # ospf area
+        end
+        inter_routers.each do |router|
+          support 'ospf-area', router[:node] # inter-area-router
+        end
+        # support-node to bgp-proc layer
+        router_ids.each do |router_id|
+          support 'bgp-proc', router_id
         end
       end
     end
   end
   # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
-  def make_bgp_as_layer_links(nws)
+  def make_bgp_as_layer_links(layer_bgp_as)
     @links_inter_as.each do |as_link|
-      nws.network('bgp-as').register do
+      layer_bgp_as.register do
         link "as#{as_link.src.as}", as_link.src.interface,
              "as#{as_link.dst.as}", as_link.dst.interface
       end
@@ -92,7 +90,8 @@ class BGPASTopologyConverter < BGPTopologyConverterBase
 
   def make_bgp_as_layer(nws)
     nws.register { network 'bgp-as' }
-    make_bgp_as_layer_nodes(nws)
-    make_bgp_as_layer_links(nws)
+    layer_bgp_as = nws.network('bgp-as')
+    make_bgp_as_layer_nodes(layer_bgp_as)
+    make_bgp_as_layer_links(layer_bgp_as)
   end
 end

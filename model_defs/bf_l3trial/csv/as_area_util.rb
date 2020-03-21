@@ -36,7 +36,7 @@ class ASAreaTableRecord < TableRecordBase
   def ospf_proc_node_attribute
     {
       name: "process_#{@process_id}",
-      prefixes: @routes_table.routes_of(@node, /ospf.*/),
+      prefixes: @routes_table.routes_ospf_proc(@node),
       flags: ['ospf-proc']
     }
   end

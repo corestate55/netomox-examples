@@ -16,10 +16,6 @@ class IPOwnersTableRecord < TableRecordBase
     @interface = record[:interface]
   end
 
-  def make_interface_info
-    { interface: @interface, ip: @ip, mask: @mask }
-  end
-
   def ip_mask_str
     "#{@ip}/#{@mask}"
   end
@@ -57,7 +53,6 @@ class IPOwnersTable < TableBase
   def find_interfaces(node)
     @records
       .find_all { |r| r.node == node }
-      .map(&:make_interface_info)
   end
 
   def nodes
