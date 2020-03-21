@@ -9,21 +9,13 @@ class OSPFAreaTopologyConverter < OSPFTopologyConverterBase
   def initialize(opts = {})
     super(opts)
 
-    make_tables
+    table_of = { as_area: @as_area_table }
+    @area_links = ASAreaLinkTable.new(@target, table_of, @use_debug)
+    debug '# ospf_area_link: ', @area_links
   end
 
   def make_topology(nws)
     make_ospf_area_layer(nws)
-  end
-
-  protected
-
-  def make_tables
-    super
-
-    table_of = { as_area: @as_area_table }
-    @area_links = ASAreaLinkTable.new(@target, table_of, @use_debug)
-    debug '# ospf_area_link: ', @area_links
   end
 
   private

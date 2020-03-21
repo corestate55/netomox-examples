@@ -12,7 +12,6 @@ class Layer3TopologyConverter < TopologyLayerBase
     super(opts)
 
     @edges_layer3_table = EdgesL3Table.new(@target)
-    @ip_owners_table = IPOwnersTable.new(@target)
   end
 
   def make_topology(nws)

@@ -8,10 +8,6 @@ require_relative 'csv/config_bgp_proc_table'
 class BGPProcTopologyConverter < BGPTopologyConverterBase
   def initialize(opts = {})
     super(opts)
-
-    @config_bgp_proc_table = ConfigBGPProcTable.new(@target)
-
-    make_tables
   end
 
   def make_topology(nws)

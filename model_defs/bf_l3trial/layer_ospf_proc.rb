@@ -9,22 +9,14 @@ class OSPFProcTopologyConverter < OSPFTopologyConverterBase
   def initialize(opts = {})
     super(opts)
 
-    make_tables
-  end
-
-  def make_topology(nws)
-    make_ospf_proc_layer(nws)
-  end
-
-  protected
-
-  def make_tables
-    super
-
     # @edges_ospf_table uses @as_area_table,
     # put after super.make_tables (@as_area_table)
     table_of = { as_area: @as_area_table }
     @edges_ospf_table = EdgesOSPFTable.new(@target, table_of)
+  end
+
+  def make_topology(nws)
+    make_ospf_proc_layer(nws)
   end
 
   private

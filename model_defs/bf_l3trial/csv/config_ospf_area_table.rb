@@ -3,8 +3,6 @@
 require 'forwardable'
 require_relative 'table_base'
 require_relative 'as_area_util'
-require_relative 'routes_table'
-require_relative 'ip_owners_table'
 
 # row of config_ospf_area table
 class ConfigOSPFAreaTableRecord < TableRecordBase
@@ -37,6 +35,13 @@ class ConfigOSPFAreaTableRecord < TableRecordBase
     ASAreaTableRecord.new(opts, @debug)
   end
 
+  def to_s
+    [
+      "ConfigOSPFAreaTableRec: #{@area},#{@node},#{@process_id}",
+      "act#{@active_interfaces},psv#{@passive_interfaces}"
+    ].join(',')
+  end
+
   private
 
   def make_interface_infos(interfaces)
@@ -58,13 +63,9 @@ class ConfigOSPFAreaTable < TableBase
 
   def_delegators :@records, :each, :find, :[]
 
-  def initialize(target, debug = false)
+  def initialize(target, table_of, debug = false)
     super(target, 'config_ospf_area.csv', debug)
 
-    table_of = {
-      ip_owners: IPOwnersTable.new(target),
-      routes: RoutesTable.new(target)
-    }
     @records = @orig_table.map do |record|
       ConfigOSPFAreaTableRecord.new(record, table_of, debug)
     end
@@ -88,5 +89,9 @@ class ConfigOSPFAreaTable < TableBase
       node: node,
       areas: find_all_area_of(node)
     }
+  end
+
+  def to_s
+    @records.map(&:to_s).join("\n").to_s
   end
 end

@@ -2,9 +2,6 @@
 
 require 'forwardable'
 require_relative 'config_bgp_proc_core'
-require_relative 'ip_owners_table'
-require_relative 'routes_table'
-require_relative 'edges_bgp_table'
 
 # row of config_bgp_proc table
 class ConfigBGPProcTableRecord < ConfigBGPProcTableRecordCore
@@ -49,14 +46,9 @@ class ConfigBGPProcTable < ConfigBGPProcTableCore
 
   def_delegators :@records, :each, :find, :[]
 
-  def initialize(target, debug = false)
+  def initialize(target, table_of, debug = false)
     super(target, debug)
 
-    table_of = {
-      routes: RoutesTable.new(target),
-      ip_owners: IPOwnersTable.new(target),
-      edges_bgp: EdgesBGPTable.new(target)
-    }
     @records = @orig_table.map do |record|
       ConfigBGPProcTableRecord.new(record, table_of, debug)
     end

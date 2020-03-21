@@ -2,8 +2,6 @@
 
 require 'forwardable'
 require_relative 'table_base'
-require_relative 'config_bgp_proc_table'
-require_relative 'ip_owners_table'
 require_relative 'edges_bgp_utils'
 
 # row of edges-bgp table
@@ -95,13 +93,9 @@ class EdgesBGPTable < TableBase
 
   def_delegators :@records, :each, :find, :[]
 
-  def initialize(target, debug = false)
+  def initialize(target, table_of, debug = false)
     super(target, 'edges_bgp.csv', debug)
 
-    table_of = {
-      ip_owners: IPOwnersTable.new(target),
-      config_bgp_proc: ConfigBGPProcTableCore.new(target)
-    }
     @records = @orig_table.map do |rec|
       EdgesBGPTableRecord.new(rec, table_of, debug)
     end

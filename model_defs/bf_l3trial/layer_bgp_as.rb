@@ -10,42 +10,36 @@ require_relative 'csv/links_inter_as_table'
 
 # bgp-as layer topology converter
 class BGPASTopologyConverter < BGPTopologyConverterBase
+  # rubocop:disable Metrics/MethodLength
   def initialize(opts = {})
     super(opts)
 
-    @config_bgp_proc_table = ConfigBGPProcTable.new(@target)
-    @config_ospf_area_table = ConfigOSPFAreaTable.new(@target)
-
-    make_tables
-  end
-
-  def make_topology(nws)
-    make_bgp_as_layer(nws)
-  end
-
-  protected
-
-  # rubocop:disable Metrics/MethodLength
-  def make_tables
-    super
-
     table_of = {
+      ip_owners: @ip_owners_table,
+      routes: @routes_table,
       config_bgp_proc: @config_bgp_proc_table,
-      config_ospf_area: @config_ospf_area_table,
       as_numbers: @as_numbers,
       edges_bgp: @edges_bgp_table
     }
+    @config_ospf_area_table = ConfigOSPFAreaTable.new(@target, table_of)
+    debug '# config_ospf_area: ', @config_ospf_area_table
 
+    table_of[:config_ospf_area] = @config_ospf_area_table
     @nodes_in_as = NodesInASTable.new(@target, table_of)
     debug '# nodes_in_as: ', @nodes_in_as
 
     table_of[:nodes_in_as] = @nodes_in_as
     @areas_in_as = AreasInASTable.new(@target, table_of)
     debug '# areas_in_as: ', @areas_in_as
+
     @links_inter_as = LinksInterASTable.new(@target, table_of)
     debug '# links_inter_as: ', @links_inter_as
   end
   # rubocop:enable Metrics/MethodLength
+
+  def make_topology(nws)
+    make_bgp_as_layer(nws)
+  end
 
   private
 
