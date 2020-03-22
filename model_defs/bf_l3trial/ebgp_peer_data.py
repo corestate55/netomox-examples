@@ -109,7 +109,7 @@ def bgp_peer_loc(row_number, column_name):
 
 
 def as_peer_str(asn, peer):
-    return asn + '_' + peer
+    return 'as' + asn + '_' + peer
 
 
 def ip_query(ip, column):

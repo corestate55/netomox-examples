@@ -12,4 +12,4 @@
 10,,,True,True,EXACT_PATH,"['1.1.1.1/32', '1.2.2.2/32']",as1core1,True,1.10.1.1,ARRIVAL_ORDER,10.0,default
 11,,,True,True,EXACT_PATH,"['1.10.1.1/32', '3.2.2.2/32', '5.6.7.8/32', '10.12.11.2/32']",as1border1,False,1.1.1.1,ARRIVAL_ORDER,11.0,default
 12,,,True,True,EXACT_PATH,"['1.10.1.1/32', '10.13.22.3/32', '10.14.22.4/32']",as1border2,False,1.2.2.2,ARRIVAL_ORDER,12.0,default
-13,,,False,False,,['10.14.22.1'],4_10.14.22.4,False,4_10.14.22.4,ARRIVAL_OERDER,,default
+13,,,False,False,,['10.14.22.1'],as4_10.14.22.4,False,as4_10.14.22.4,ARRIVAL_OERDER,,default

@@ -5,6 +5,6 @@
 3,,,False,False,EXACT_PATH,"['10.0.0.1/32', '10.0.0.3/32', '10.0.0.4/32']",core01,True,10.0.0.2,ARRIVAL_ORDER,3.0,default
 4,,,False,False,EXACT_PATH,"['10.0.1.9/32', '10.0.1.13/32']",border21,False,10.0.1.0,ARRIVAL_ORDER,4.0,default
 5,,,False,False,EXACT_PATH,"['10.0.0.3/32', '10.0.0.45/32']",border12,False,10.0.0.5,ARRIVAL_ORDER,5.0,default
-6,,,False,False,,['10.0.0.18'],65533_10.0.0.17,False,65533_10.0.0.17,ARRIVAL_OERDER,,default
-7,,,False,False,,['10.0.0.46'],65534_10.0.0.45,False,65534_10.0.0.45,ARRIVAL_OERDER,,default
-8,,,False,False,,['10.0.1.14'],65534_10.0.1.13,False,65534_10.0.1.13,ARRIVAL_OERDER,,default
+6,,,False,False,,['10.0.0.18'],as65533_10.0.0.17,False,as65533_10.0.0.17,ARRIVAL_OERDER,,default
+7,,,False,False,,['10.0.0.46'],as65534_10.0.0.45,False,as65534_10.0.0.45,ARRIVAL_OERDER,,default
+8,,,False,False,,['10.0.1.14'],as65534_10.0.1.13,False,as65534_10.0.1.13,ARRIVAL_OERDER,,default

@@ -53,4 +53,4 @@
 51,True,2.23.11.3,GigabitEthernet0/0,24,as2dist1,51.0,default,
 52,True,2.23.21.2,GigabitEthernet3/0,24,as2core2,52.0,default,
 53,True,2.23.12.3,GigabitEthernet1/0,24,as2dist2,53.0,default,
-54,True,10.14.22.4,10.14.22.4,24,4_10.14.22.4,,default,54.0
+54,True,10.14.22.4,10.14.22.4,24,as4_10.14.22.4,,default,54.0
