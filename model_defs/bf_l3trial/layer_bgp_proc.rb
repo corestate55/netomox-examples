@@ -24,9 +24,10 @@ class BGPProcTopologyConverter < BGPTopologyConverterBase
       debug "### check node:#{rec.node}, " \
             "neighbors:#{rec.neighbors}, tps:", tps
 
-      tp_name_counter = TPNameCounter.new(@use_debug)
+      tp_name_counter = TPNameCounter.new(tps)
       tps.each do |tp|
-        tp_name = tp_name_counter.make_tp_name(tps, tp)
+        tp_name = tp_name_counter.tp_name(tp)
+        debug '#### tp name: ', tp_name
 
         layer_bgp_proc.node(rec.router_id).register do
           # p "### check1, tp_name:#{tp_name}"
