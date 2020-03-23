@@ -34,64 +34,78 @@ class BGPASTopologyConverter < BGPTopologyConverterBase
 
     @links_inter_as = LinksInterASTable.new(@target, table_of)
     debug '# links_inter_as: ', @links_inter_as
+
+    make_networks
   end
   # rubocop:enable Metrics/MethodLength
 
-  def make_topology(nws)
-    make_bgp_as_layer(nws)
-  end
-
   private
 
-  # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
-  def make_bgp_as_layer_nodes(layer_bgp_as)
-    @as_numbers.each do |asn|
-      tps = @links_inter_as.interfaces_inter_as(asn)
-      debug "### check: AS:#{asn}, tps:", tps
-      inter_routers = @nodes_in_as[asn].inter_area_routers
-      debug '### inter_area_routers: ', inter_routers
-
-      areas = @areas_in_as[asn]
-      router_ids = @nodes_in_as[asn].router_ids_in_as
-
-      # AS as node
-      layer_bgp_as.node("as#{asn}") do
-        # interface of inter-AS link and its support-tp
-        tps.each do |tp|
-          term_point tp.interface do
-            support 'bgp-proc', tp.router_id, tp.interface
-            attribute(ip_addrs: [tp.interface])
-          end
-        end
-        # support-node to ospf layer
-        areas.each do |area|
-          support 'ospf-area', "as#{asn}-area#{area}" # ospf area
-        end
-        inter_routers.each do |router|
-          support 'ospf-area', router[:node] # inter-area-router
-        end
-        # support-node to bgp-proc layer
-        router_ids.each do |router_id|
-          support 'bgp-proc', router_id
-        end
-      end
+  def make_as_node_tps(asn)
+    # interface of inter-AS link and its support-tp
+    tps = @links_inter_as.interfaces_inter_as(asn)
+    debug "### check: AS:#{asn}, tps:", tps
+    tps.map do |tp|
+      ptp = PTermPoint.new(tp.interface)
+      ptp.supports.push(['bgp-proc', tp.router_id, tp.interface])
+      ptp.attribute = { ip_addrs: [tp.interface] }
+      ptp
     end
   end
-  # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
-  def make_bgp_as_layer_links(layer_bgp_as)
+  def areas_supports(asn)
+    @areas_in_as[asn].map do |area|
+      ['ospf-area', "as#{asn}-area#{area}"] # ospf area
+    end
+  end
+
+  def inter_router_supports(asn)
+    inter_routers = @nodes_in_as[asn].inter_area_routers
+    debug '### inter_area_routers: ', inter_routers
+    inter_routers.map do |router|
+      ['ospf-area', router[:node]] # inter-area-router
+    end
+  end
+
+  def router_id_supports(asn)
+    @nodes_in_as[asn].router_ids.map do |router_id|
+      ['bgp-proc', router_id]
+    end
+  end
+
+  def make_as_node_supports(asn)
+    [
+      areas_supports(asn),
+      inter_router_supports(asn),
+      router_id_supports(asn)
+    ].flatten(1)
+  end
+
+  def make_as_node(asn)
+    pnode = PNode.new("as#{asn}")
+    pnode.tps = make_as_node_tps(asn)
+    pnode.supports = make_as_node_supports(asn)
+    pnode
+  end
+
+  def make_nodes
+    @nodes = @as_numbers.map { |asn| make_as_node(asn) }
+  end
+
+  def make_links
     @links_inter_as.each do |as_link|
-      layer_bgp_as.register do
-        link "as#{as_link.src.as}", as_link.src.interface,
-             "as#{as_link.dst.as}", as_link.dst.interface
-      end
+      add_link "as#{as_link.src.as}", as_link.src.interface,
+               "as#{as_link.dst.as}", as_link.dst.interface,
+               false
     end
+    @links
   end
 
-  def make_bgp_as_layer(nws)
-    nws.register { network 'bgp-as' }
-    layer_bgp_as = nws.network('bgp-as')
-    make_bgp_as_layer_nodes(layer_bgp_as)
-    make_bgp_as_layer_links(layer_bgp_as)
+  def make_networks
+    @network = PNetwork.new('bgp-as')
+    @network.nodes = make_nodes
+    @network.links = make_links
+    @networks.networks.push(@network)
+    @networks
   end
 end

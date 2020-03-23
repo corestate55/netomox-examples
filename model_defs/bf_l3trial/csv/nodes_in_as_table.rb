@@ -32,7 +32,7 @@ class NodesInASTableRecord < TableRecordBase
       .sort.uniq
   end
 
-  def router_ids_in_as
+  def router_ids
     @nodes.map { |n| @config_bgp_proc_table.find_router_id(n) }
   end
 

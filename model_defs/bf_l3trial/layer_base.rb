@@ -2,15 +2,17 @@
 
 require 'json'
 require 'netomox'
+require_relative 'pseudo_model'
 require_relative 'csv/routes_table'
 require_relative 'csv/ip_owners_table'
 require_relative 'csv/edges_bgp_table'
 require_relative 'csv/config_bgp_proc_table'
 
 # base class of layer topology converter
-class TopologyLayerBase
+class TopologyLayerBase < DataBuilderBase
   # rubocop:disable Metrics/MethodLength
   def initialize(target: '', debug: false, csv_dir: '')
+    super()
     @target = target
     @csv_dir = csv_dir # default: bundle exec ruby model_defs/bf_trial.rb
     @use_debug = debug
@@ -32,13 +34,7 @@ class TopologyLayerBase
   # rubocop:enable Metrics/MethodLength
 
   def to_json(*_args)
-    nws = Netomox::DSL::Networks.new
-    make_topology(nws)
-    JSON.pretty_generate(nws.topo_data)
-  end
-
-  def make_topology(_nws)
-    raise 'Abstract method must be override.'
+    JSON.pretty_generate(topo_data)
   end
 
   protected

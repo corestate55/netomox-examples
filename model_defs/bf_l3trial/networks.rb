@@ -26,11 +26,12 @@ class BFL3Networks
   def integrate
     layer_seq = %i[bgp_as bgp_proc ospf_area ospf_proc l3]
     nws = Netomox::DSL::Networks.new
-    layer_seq.each do |layer|
-      opts = { target: @target, csv_dir: @csv_dir }
-      layer = @layer_table[layer].new(opts)
-      layer.make_topology(nws)
-    end
+    opts = { target: @target, csv_dir: @csv_dir }
+    nws.networks = layer_seq
+                     .map { |l| @layer_table[l].new(opts) }
+                     .map(&:interpret)
+                     .map(&:networks)
+                     .flatten
     sort_node_tp!(nws)
     json_str = JSON.pretty_generate(nws.topo_data)
     shortening_interface_name(json_str)

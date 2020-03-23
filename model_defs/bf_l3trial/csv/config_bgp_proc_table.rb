@@ -56,7 +56,7 @@ end
 class ConfigBGPProcTable < ConfigBGPProcTableCore
   extend Forwardable
 
-  def_delegators :@records, :each, :find, :[]
+  def_delegators :@records, :each, :map, :find, :[]
 
   def initialize(target, table_of, debug = false)
     super(target, debug)

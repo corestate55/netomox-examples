@@ -12,48 +12,49 @@ class Layer3TopologyConverter < TopologyLayerBase
     super(opts)
 
     @edges_layer3_table = EdgesL3Table.new(@target)
-  end
-
-  def make_topology(nws)
-    make_layer3_layer(nws)
+    make_networks
   end
 
   private
 
-  # rubocop:disable Metrics/MethodLength
-  def make_layer3_layer_nodes(layer_l3)
+  def make_l3node_tps(interfaces)
+    interfaces.map do |tp|
+      ptp = PTermPoint.new(tp.interface)
+      ptp.attribute = { ip_addrs: [tp.ip_mask_str] }
+      ptp
+    end
+  end
+
+  def make_l3node(node, interfaces)
+    pnode = PNode.new(node)
+    prefixes = @routes_table.routes_l3node(node)
+    pnode.attribute = { prefixes: prefixes, flags: ['layer3'] }
+    pnode.tps = make_l3node_tps(interfaces)
+    pnode
+  end
+
+  def make_nodes
     @ip_owners_table.node_interfaces_table.each_pair do |node, interfaces|
-      # prefixes: exclude bgp,ospf (only connected)
-      prefixes = @routes_table.routes_l3node(node)
-      layer_l3.node(node) do
-        interfaces.each do |tp|
-          term_point tp.interface do
-            attribute(ip_addrs: [tp.ip_mask_str])
-          end
-        end
-        attribute(prefixes: prefixes, flags: ['layer3'])
-      end
+      @nodes.push(make_l3node(node, interfaces))
     end
-  end
-  # rubocop:enable Metrics/MethodLength
-
-  def make_layer3_layer_links(layer_l3)
-    @edges_layer3_table.layer3_links.each do |l3_link|
-      layer_l3.register do
-        link l3_link.src.node, l3_link.src.interface,
-             l3_link.dst.node, l3_link.dst.interface
-      end
-    end
+    @nodes
   end
 
-  def make_layer3_layer(nws)
-    nws.register do
-      network 'layer3' do
-        type Netomox::NWTYPE_L3
-      end
+  def make_links
+    @edges_layer3_table.layer3_links.map do |l3_link|
+      add_link l3_link.src.node, l3_link.src.interface,
+               l3_link.dst.node, l3_link.dst.interface,
+               false
     end
-    layer_l3 = nws.network('layer3')
-    make_layer3_layer_nodes(layer_l3)
-    make_layer3_layer_links(layer_l3)
+    @links
+  end
+
+  def make_networks
+    @network = PNetwork.new('layer3')
+    @network.type = Netomox::NWTYPE_L3
+    @network.nodes = make_nodes
+    @network.links = make_links
+    @networks.networks.push(@network)
+    @networks
   end
 end

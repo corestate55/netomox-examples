@@ -13,59 +13,51 @@ class OSPFProcTopologyConverter < OSPFTopologyConverterBase
     # put after super.make_tables (@as_area_table)
     table_of = { as_area: @as_area_table }
     @edges_ospf_table = EdgesOSPFTable.new(@target, table_of)
-  end
-
-  def make_topology(nws)
-    make_ospf_proc_layer(nws)
+    make_networks
   end
 
   private
 
-  # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
-  def make_ospf_proc_layer_nodes(layer_ospf_proc)
-    support_count = {}
+  def make_ospf_proc_tps(as_area)
+    as_area.interfaces.map do |tp|
+      ptp = PTermPoint.new(tp.interface)
+      ptp.supports.push(['layer3', as_area.node, tp.interface])
+      ptp.attribute = { ip_addrs: [tp.ip] }
+      ptp
+    end
+  end
+
+  def make_ospf_proc_node(as_area)
+    pnode = PNode.new(as_area.node)
+    pnode.tps = make_ospf_proc_tps(as_area)
+    pnode.supports.push(['layer3', as_area.node])
+    pnode.attribute = as_area.ospf_proc_node_attribute
+    pnode
+  end
+
+  def make_nodes
     @as_area_table.records_has_area.each do |rec|
       debug '# ospf_layer node: ', rec
-
-      node_attr = rec.ospf_proc_node_attribute
-      layer_ospf_proc.node(rec.node) do
-        # tp
-        rec.interfaces.each do |tp|
-          term_point tp.interface do
-            support 'layer3', rec.node, tp.interface
-            attribute(ip_addrs: [tp.ip])
-          end
-        end
-        # avoid duplicate support-node
-        key = "#{rec.as}-#{rec.node}"
-        support_count[key] = support_count[key] || 0
-        if support_count[key] < 1
-          support 'layer3', rec.node
-          attribute(node_attr)
-        end
-        support_count[key] += 1
-      end
+      @nodes.push(make_ospf_proc_node(rec))
     end
+    @nodes
   end
-  # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
-  def make_ospf_proc_layer_links(layer_ospf_proc)
+  def make_links
     @edges_ospf_table.proc_links.each do |p_link|
-      layer_ospf_proc.register do
-        link p_link.src.node, p_link.src.interface,
-             p_link.dst.node, p_link.dst.interface
-      end
+      add_link  p_link.src.node, p_link.src.interface,
+                p_link.dst.node, p_link.dst.interface,
+                false
     end
+    @links
   end
 
-  def make_ospf_proc_layer(nws)
-    nws.register do
-      network 'ospf-proc' do
-        type Netomox::NWTYPE_L3
-      end
-    end
-    layer_ospf_proc = nws.network('ospf-proc')
-    make_ospf_proc_layer_nodes(layer_ospf_proc)
-    make_ospf_proc_layer_links(layer_ospf_proc)
+  def make_networks
+    @network = PNetwork.new('ospf-proc')
+    @network.type = Netomox::NWTYPE_L3
+    @network.nodes = make_nodes
+    @network.links = make_links
+    @networks.networks.push(@network)
+    @networks
   end
 end
