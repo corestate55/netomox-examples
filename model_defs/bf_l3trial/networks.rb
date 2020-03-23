@@ -24,14 +24,8 @@ class BFL3Networks
   end
 
   def integrate
-    layer_seq = %i[bgp_as bgp_proc ospf_area ospf_proc l3]
     nws = Netomox::DSL::Networks.new
-    opts = { target: @target, csv_dir: @csv_dir }
-    nws.networks = layer_seq
-                     .map { |l| @layer_table[l].new(opts) }
-                     .map(&:interpret)
-                     .map(&:networks)
-                     .flatten
+    nws.networks = generate_nmx_networks
     sort_node_tp!(nws)
     json_str = JSON.pretty_generate(nws.topo_data)
     shortening_interface_name(json_str)
@@ -41,13 +35,23 @@ class BFL3Networks
     if @layer_table[@debug]
       opts = { target: @target, debug: true, csv_dir: @csv_dir }
       layer = @layer_table[@debug].new(opts)
-      puts layer.to_json
+      layer.dump
+      # puts layer.to_json
     else
       warn 'Invalid debug option'
     end
   end
 
   private
+
+  def generate_nmx_networks
+    opts = { target: @target, csv_dir: @csv_dir }
+    %i[bgp_as bgp_proc ospf_area ospf_proc l3]
+      .map { |l| @layer_table[l].new(opts) }
+      .map(&:interpret)
+      .map(&:networks)
+      .flatten
+  end
 
   def shortening_interface_name(str)
     str.gsub!(/FastEthernet/, 'Fa')

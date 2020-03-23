@@ -41,16 +41,18 @@ class BGPASTopologyConverter < BGPTopologyConverterBase
 
   private
 
+  def make_as_node_tp(term_point)
+    ptp = PTermPoint.new(term_point.interface)
+    ptp.supports.push(['bgp-proc', term_point.router_id, term_point.interface])
+    ptp.attribute = { ip_addrs: [term_point.interface] }
+    ptp
+  end
+
   def make_as_node_tps(asn)
     # interface of inter-AS link and its support-tp
     tps = @links_inter_as.interfaces_inter_as(asn)
     debug "### check: AS:#{asn}, tps:", tps
-    tps.map do |tp|
-      ptp = PTermPoint.new(tp.interface)
-      ptp.supports.push(['bgp-proc', tp.router_id, tp.interface])
-      ptp.attribute = { ip_addrs: [tp.interface] }
-      ptp
-    end
+    tps.map { |tp| make_as_node_tp(tp) }
   end
 
   def areas_supports(asn)
@@ -105,7 +107,7 @@ class BGPASTopologyConverter < BGPTopologyConverterBase
     @network = PNetwork.new('bgp-as')
     @network.nodes = make_nodes
     @network.links = make_links
-    @networks.networks.push(@network)
+    @networks.push(@network)
     @networks
   end
 end

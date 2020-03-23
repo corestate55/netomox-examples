@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 
+require 'forwardable'
 require 'netomox'
 
 # pseudo networks: Netomox-DSL interpreter
 class PNetworks
+  extend Forwardable
+
+  def_delegators :@networks, :each, :find, :push, :[]
   attr_accessor :networks, :nmx_networks
 
   def initialize
@@ -149,13 +153,6 @@ class DataBuilderBase
     @links = [] # Array of PLinks
   end
 
-  def add_link(snode, stp, dnode, dtp, bidirectional = true)
-    src = PLinkEdge.new(snode, stp)
-    dst = PLinkEdge.new(dnode, dtp)
-    @links.push(PLink.new(src, dst))
-    @links.push(PLink.new(dst, src)) if bidirectional
-  end
-
   def interpret
     @networks.interpret
   end
@@ -166,5 +163,28 @@ class DataBuilderBase
 
   def dump
     @networks.dump
+  end
+
+  protected
+
+  def find_node(node_name)
+    @nodes.find { |n| n.name == node_name }
+  end
+
+  def find_or_new_node(node_name)
+    find_node(node_name) || PNode.new(node_name)
+  end
+
+  def add_link(src_node, src_tp, dst_node, dst_tp, bidirectional = true)
+    src = PLinkEdge.new(src_node, src_tp)
+    dst = PLinkEdge.new(dst_node, dst_tp)
+    @links.push(PLink.new(src, dst))
+    @links.push(PLink.new(dst, src)) if bidirectional
+  end
+
+  def add_node_if_new(pnode)
+    return if find_node(pnode.name)
+
+    @nodes.push(pnode)
   end
 end

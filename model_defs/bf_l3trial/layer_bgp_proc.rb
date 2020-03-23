@@ -14,11 +14,11 @@ class BGPProcTopologyConverter < BGPTopologyConverterBase
 
   private
 
-  def make_proc_node_tp(rec, tp, tp_name)
+  def make_proc_node_tp(rec, term_point, tp_name)
     debug '#### tp name: ', tp_name
     ptp = PTermPoint.new(tp_name)
-    ptp.supports.push(['layer3', rec.node, tp.interface])
-    ptp.attribute = { ip_addrs: [tp.ip] }
+    ptp.supports.push(['layer3', rec.node, term_point.interface])
+    ptp.attribute = { ip_addrs: [term_point.ip] }
     ptp
   end
 
@@ -61,7 +61,7 @@ class BGPProcTopologyConverter < BGPTopologyConverterBase
     @network.type = Netomox::NWTYPE_L3
     @network.nodes = make_nodes
     @network.links = make_links
-    @networks.networks.push(@network)
+    @networks.push(@network)
     @networks
   end
 end

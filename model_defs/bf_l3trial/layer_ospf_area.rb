@@ -40,31 +40,25 @@ class OSPFAreaTopologyConverter < OSPFTopologyConverterBase
     end
   end
 
-  def make_link_proc_edge_tp(link)
-    ptp = PTermPoint.new(link.node_tp)
-    ptp.supports.push(['ospf-proc', link.node, link.node_tp])
+  def make_link_edge_tp(node_name, tp_name, is_node)
+    ptp = PTermPoint.new(tp_name)
+    ptp.supports.push(['ospf-proc', node_name, tp_name]) if is_node
     ptp
   end
 
-  def make_link_proc_edge(link)
-    pnode = PNode.new(link.node)
-    pnode.tps.push(make_link_proc_edge_tp(link))
-    pnode.supports.push(['ospf-proc', link.node])
-    pnode
-  end
-
-  def make_link_area_edge(link)
-    # OSPF-Area node is already exists (by #make_area_nodes)
-    pnode = @nodes.find { |n| n.name == link.area }
-    pnode.tps.push(PTermPoint.new(link.area_tp))
+  def make_link_edge(node_name, tp_name, is_node = true)
+    pnode = find_or_new_node(node_name)
+    pnode.tps.push(make_link_edge_tp(node_name, tp_name, is_node))
+    pnode.supports.push(['ospf-proc', node_name]) if is_node
+    pnode.supports.uniq!
     pnode
   end
 
   def make_link_edges
     @area_links.each do |link|
       debug '# link: ', link
-      @nodes.push(make_link_proc_edge(link))
-      @nodes.push(make_link_area_edge(link))
+      add_node_if_new(make_link_edge(link.node, link.node_tp))
+      add_node_if_new(make_link_edge(link.area, link.area_tp, false))
     end
   end
 
@@ -86,7 +80,7 @@ class OSPFAreaTopologyConverter < OSPFTopologyConverterBase
     @network = PNetwork.new('ospf-area')
     @network.nodes = make_nodes
     @network.links = make_links
-    @networks.networks.push(@network)
+    @networks.push(@network)
     @networks
   end
 end
