@@ -31,7 +31,7 @@ Then it can use several variables and methods to build model data.
 * Variables (private)
   * `@nodes` : Array of `PNodes`.
   * `@links` : Array of `PLinks`.
-  * `@nodes` and `@links` are combined with layer object with `#inherit`.
+  * `@nodes` and `@links` are combined with layer object in `#interpret`.
     These are standalone (context-less) objects before combined.
 * Methods (public)
   * `#interpret` : Combining all pseudo-model data to construct Netomox-DSL instance.
