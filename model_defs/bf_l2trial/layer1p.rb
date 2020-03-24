@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'json'
-require_relative 'pseudo_model'
+require_relative '../bf_common/pseudo_model'
 require_relative 'csv/node_props_table'
 require_relative 'csv/edges_layer1_table'
 
@@ -41,7 +41,7 @@ class L1DataBuilder < DataBuilderBase
     @network = PNetwork.new('layer1')
     @network.nodes = make_nodes
     @network.links = make_links
-    @networks.networks.push(@network)
+    @networks.push(@network)
     @networks
   end
 end

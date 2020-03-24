@@ -3,7 +3,7 @@
 require 'json'
 require 'set'
 require 'ipaddr'
-require_relative 'pseudo_model'
+require_relative '../bf_common/pseudo_model'
 require_relative 'csv/edges_layer3_table.rb'
 require_relative 'csv/edges_layer1_table.rb'
 require_relative 'csv/sw_vlan_props_table'
@@ -207,7 +207,7 @@ class L3DataBuilder < DataBuilderBase
     @network.type = Netomox::NWTYPE_L3
     @network.nodes = make_nodes
     @network.links = make_links
-    @networks.networks.push(@network)
+    @networks.push(@network)
     @networks
   end
 end

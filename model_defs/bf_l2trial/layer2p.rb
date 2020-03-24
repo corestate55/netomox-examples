@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'json'
-require_relative 'pseudo_model'
+require_relative '../bf_common/pseudo_model'
 require_relative 'csv/node_props_table'
 require_relative 'csv/edges_layer1_table'
 require_relative 'csv/sw_vlan_props_table'
@@ -185,7 +185,7 @@ class L2DataBuilder < DataBuilderBase
     @network.type = Netomox::NWTYPE_L2
     @network.nodes = make_nodes
     @network.links = make_links
-    @networks.networks.push(@network)
+    @networks.push(@network)
     @networks
   end
 end

@@ -2,7 +2,7 @@
 
 require 'json'
 require 'netomox'
-require_relative 'pseudo_model'
+require_relative '../bf_common/pseudo_model'
 require_relative 'csv/routes_table'
 require_relative 'csv/ip_owners_table'
 require_relative 'csv/edges_bgp_table'
