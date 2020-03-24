@@ -30,6 +30,29 @@ Linux dev01 5.3.0-42-generic #34-Ubuntu SMP Fri Feb 28 05:49:40 UTC 2020 x86_64 
 hagiwara@dev01:~/nwmodel/netomox-examples$ 
 ```
 
+### Clone sample configs (batfish example)
+
+Setup configs (use [sample config s in batfish](https://github.com/batfish/pybatfish/tree/master/jupyter_notebooks/networks)).
+
+```
+hagiwara@dev01:~/batfish$ git clone https://github.com/batfish/pybatfish.git
+hagiwara@dev01:~/batfish$ ls pybatfish/jupyter_notebooks/networks/example      
+configs  example-network.png  hosts  iptables                                  
+hagiwara@dev01:~/batfish
+```
+
+### Clone sample configs (batfish l3-trial)
+
+Clone it as submodule. See: [README.md](../../README.md)
+
+* samples repository: [batfish\-test\-topology](https://github.com/corestate55/batfish-test-topology)
+
+```
+hagiwara@dev01:~/nwmodel/netomox-examples/model_defs/batfish-test-topology$ ls
+README.md  docker-compose.yml  l2  l3  setup_bfq.py
+hagiwara@dev01:~/nwmodel/netomox-examples/model_defs/batfish-test-topology$ 
+```
+
 ### Run batfish container
 
 Install docker at first.
@@ -48,7 +71,7 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
 hagiwara@dev01:~$ 
 ```
 
-OR able to use docker-compose
+OR able to use docker-compose using `docker-compose.yml` in cloned sample config repository.
 
 ```
 agiwara@dev01:~/nwmodel/netomox-examples/model_defs/batfish-test-topology$ docker-compose up -d 
@@ -77,30 +100,7 @@ Install pybatfish (See: [pybatfish on github](https://github.com/batfish/pybatfi
 (bf-venv) hagiwara@dev01:~/batfish$ python3 -m pip install --upgrade git+https://github.com/batfish/pybatfish.git                                               
 ```
 
-### Clone sample (batfish example)
-
-Setup configs (use [sample config s in batfish](https://github.com/batfish/pybatfish/tree/master/jupyter_notebooks/networks)).
-
-```
-hagiwara@dev01:~/batfish$ git clone https://github.com/batfish/pybatfish.git
-hagiwara@dev01:~/batfish$ ls pybatfish/jupyter_notebooks/networks/example      
-configs  example-network.png  hosts  iptables                                  
-hagiwara@dev01:~/batfish
-```
-
-### Clone sample (batfish l3-trial)
-
-Clone it as submodule. See: [README.md](../../README.md)
-
-* samples repository: [batfish\-test\-topology](https://github.com/corestate55/batfish-test-topology)
-
-```
-hagiwara@dev01:~/nwmodel/netomox-examples/model_defs/batfish-test-topology$ ls
-README.md  docker-compose.yml  l2  l3  setup_bfq.py
-hagiwara@dev01:~/nwmodel/netomox-examples/model_defs/batfish-test-topology$ 
-```
-
-### Exec batfish queries
+### Generate data from router configurations using batfish.
 
 Exec batfish queries and save its answers as csv files. (exec once when config files are updated.)
 
@@ -110,12 +110,21 @@ Exec batfish queries and save its answers as csv files. (exec once when config f
 hagiwara@dev01:~/nwmodel/netomox-examples/model_defs/bf_l3trial$ ./make_csv.sh -c
 ```
 
-## Convert query data to topology
+`make_csv.sh` kicks two python scripts:
+* `exec_l3queries.py`: Send queries to batfish and save its answers as csv files.
+* `ebgp_peer_data.py` : Complement the router (eBGP-peer) information of the external AS
+  that does not exist as a configuration.
+
+
+## Convert query data to topology data
 
 Convert data
+* `bf_l3ex.rb`: for batfish-example topology.
+* `bf_l3s1.rb`: for batfish-l3trial sample1 topology.
 
 ```
 hagiwara@dev01:~/nwmodel/netomox-examples$ bundle exec rake TARGET=./model_defs/bf_l3ex.rb
+hagiwara@dev01:~/nwmodel/netomox-examples$ bundle exec rake TARGET=./model_defs/bf_l3s1.rb
 ```
 
 For debugging (each layer)

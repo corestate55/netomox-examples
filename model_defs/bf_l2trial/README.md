@@ -3,7 +3,7 @@
 ## Reference
 
 local
-* [Batfish trial (L3)](../bf_l3trial/info.md)
+* [Batfish trial (L3)](../bf_l3trial/README.md)
 
 blog
 * [BatfishでL2 Topologyを出せるかどうか調べてみる \- Qiita](https://qiita.com/corestate55/items/50ba0ae3e204d84fb03e)
@@ -12,7 +12,7 @@ blog
 
 ## Setup
 
-See [Batfish trial (L3)](../bf_l3trial/info.md).
+See [Batfish trial (L3)](../bf_l3trial/README.md).
 Sample config is at [batfish\-test\-topology](https://github.com/corestate55/batfish-test-topology).
 See blogs about these sample configs.
 

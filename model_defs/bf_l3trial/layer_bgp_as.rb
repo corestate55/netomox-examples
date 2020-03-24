@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'netomox'
 require_relative 'layer_bgp_base'
 require_relative 'csv/config_bgp_proc_table'
 require_relative 'csv/config_ospf_area_table'
@@ -10,36 +9,49 @@ require_relative 'csv/links_inter_as_table'
 
 # bgp-as layer topology converter
 class BGPASTopologyConverter < BGPTopologyConverterBase
-  # rubocop:disable Metrics/MethodLength
   def initialize(opts = {})
     super(opts)
 
+    setup_config_ospf_area_table
+    setup_nodes_in_as_table # MUST after config_ospf_area_table
+    setup_areas_in_as_table # MUST after nodes_in_as_table
+    setup_links_inter_as_table
+    make_networks
+  end
+
+  private
+
+  def setup_config_ospf_area_table
     table_of = {
       ip_owners: @ip_owners_table,
-      routes: @routes_table,
-      config_bgp_proc: @config_bgp_proc_table,
-      as_numbers: @as_numbers,
-      edges_bgp: @edges_bgp_table
+      routes: @routes_table
     }
     @config_ospf_area_table = ConfigOSPFAreaTable.new(@target, table_of)
     debug '# config_ospf_area: ', @config_ospf_area_table
+  end
 
-    table_of[:config_ospf_area] = @config_ospf_area_table
+  def setup_nodes_in_as_table
+    table_of = {
+      as_numbers: @as_numbers,
+      edges_bgp: @edges_bgp_table,
+      config_bgp_proc: @config_bgp_proc_table,
+      config_ospf_area: @config_ospf_area_table
+    }
     @nodes_in_as = NodesInASTable.new(@target, table_of)
     debug '# nodes_in_as: ', @nodes_in_as
+  end
 
-    table_of[:nodes_in_as] = @nodes_in_as
+  def setup_areas_in_as_table
+    table_of = { nodes_in_as: @nodes_in_as }
     @areas_in_as = AreasInASTable.new(@target, table_of)
     debug '# areas_in_as: ', @areas_in_as
+  end
 
+  def setup_links_inter_as_table
+    table_of = { edges_bgp: @edges_bgp_table }
     @links_inter_as = LinksInterASTable.new(@target, table_of)
     debug '# links_inter_as: ', @links_inter_as
-
-    make_networks
   end
-  # rubocop:enable Metrics/MethodLength
-
-  private
 
   def make_as_node_tp(term_point)
     ptp = PTermPoint.new(term_point.interface)

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'json'
-require 'netomox'
 require_relative '../bf_common/pseudo_model'
 require_relative 'csv/routes_table'
 require_relative 'csv/ip_owners_table'
@@ -10,28 +9,20 @@ require_relative 'csv/config_bgp_proc_table'
 
 # base class of layer topology converter
 class TopologyLayerBase < DataBuilderBase
-  # rubocop:disable Metrics/MethodLength
   def initialize(target: '', debug: false, csv_dir: '')
     super()
     @target = target
-    @csv_dir = csv_dir # default: bundle exec ruby model_defs/bf_trial.rb
+    @csv_dir = csv_dir
     @use_debug = debug
 
     # commons for bgp-*, ospf-* and layer3
-    @routes_table = RoutesTable.new(@target)
-    @ip_owners_table = IPOwnersTable.new(@target)
+    setup_routes_table
+    setup_ip_owners_table
 
     # commons for bgp-* and ospf-*
-    table_of = {
-      ip_owners: @ip_owners_table,
-      # avoid cyclic loading
-      config_bgp_proc: ConfigBGPProcTableCore.new(@target)
-    }
-    @edges_bgp_table = EdgesBGPTable.new(@target, table_of, @use_debug)
-    @as_numbers = @edges_bgp_table.as_numbers
-    debug '# as_numbers: ', @as_numbers
+    setup_edges_bgp_table
+    setup_as_numbers_table
   end
-  # rubocop:enable Metrics/MethodLength
 
   def to_json(*_args)
     JSON.pretty_generate(topo_data)
@@ -42,5 +33,29 @@ class TopologyLayerBase < DataBuilderBase
   # debug print
   def debug(*message)
     puts message if @use_debug
+  end
+
+  private
+
+  def setup_routes_table
+    @routes_table = RoutesTable.new(@target)
+  end
+
+  def setup_ip_owners_table
+    @ip_owners_table = IPOwnersTable.new(@target)
+  end
+
+  def setup_edges_bgp_table
+    table_of = {
+      ip_owners: @ip_owners_table,
+      # Use config_bgp_proc_table_CORE to avoid cyclic loading.
+      config_bgp_proc: ConfigBGPProcTableCore.new(@target)
+    }
+    @edges_bgp_table = EdgesBGPTable.new(@target, table_of, @use_debug)
+  end
+
+  def setup_as_numbers_table
+    @as_numbers = @edges_bgp_table.as_numbers
+    debug '# as_numbers: ', @as_numbers
   end
 end

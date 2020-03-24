@@ -4,7 +4,7 @@ RFC8345-based network topology data and helper tool for its development.
 
 ## Project setup (Submodules)
 
-### Initial setup
+### Initialize submodules
 
 Clone and install submodules at first.
 
@@ -17,13 +17,6 @@ Clone and install submodules at first.
 git submodule update --init --recursive
 ```
 
-### Install netoviz packages
-
-```bash
-cd netoviz/
-npm install
-```
-
 ### Update submodules
 
 Update submodule repositories. (each submodules uses develop branch as default.)
@@ -34,8 +27,15 @@ git submodule foreach git pull origin develop
 
 * Exec `npm install` if necessary (updating `netoviz`).
 * Update CSV data files (updating `model_defs/batfish_test_topology`)
-  * Exec `python exec_l2queries.py` in `model_defs/bf_l2trial`. See: [Batfish L2 trial doc](model_defs/bf_l2trial/info.md).
-  * Exec `bash make_csv.sh` in `model_defs/bf_l3trial`. See: [Batfish L3 trial doc](model_defs/bf_l3trial/info.md)
+  * Exec `python exec_l2queries.py` in `model_defs/bf_l2trial`. See: [Batfish L2 trial doc](model_defs/bf_l2trial/README.md).
+  * Exec `bash make_csv.sh` in `model_defs/bf_l3trial`. See: [Batfish L3 trial doc](model_defs/bf_l3trial/README.md)
+
+### Install netoviz packages
+
+```bash
+cd netoviz/
+npm install
+```
 
 ### Run netoviz
 
@@ -75,8 +75,8 @@ There are several rules for scripts below:
 
 Additional info:
 
-* [batfish trial (L3)](./model_defs/bf_l3trial/info.md): A trial to generate topology data using batfish (for L3 network)
-* [batfish trial (L2)](./model_defs/bf_l2trial/info.md): A trial for L2 Network
+* [batfish trial (L3)](model_defs/bf_l3trial/README.md): A trial to generate topology data using batfish (for L3 network)
+* [batfish trial (L2)](model_defs/bf_l2trial/README.md): A trial for L2 Network
 
 ### Topology data generation
 
@@ -92,9 +92,10 @@ Specify a target file to generate using `TARGET` environment variable.
 bundle exec rake TARGET=./model_defs/hoge.rb
 ```
 
-### Watch script and generate data automatically
+### Watch changing script and generate data automatically
 
-It can watch files and exec data generate command automatically when a file edited (saved).
+It can watch changing files and exec data generate command automatically
+when a script edited (saved).
 
 ```bash
 # watch ./model_defs/foo.rb and files it requires.
@@ -113,5 +114,7 @@ NOTICE:
 ```bash
 bundle exec rake make_idnex
 ```
-`make_index` rake task generate index file for netoviz. (It makes `netoviz/static/model/_index.json` directly.)
-If a model def script is added in `model_defs/`, exec 'rake make_index' to generate new index.
+`make_index` rake task generate index file for netoviz.
+(It makes `netoviz/static/model/_index.json` directly.)
+If a model def script is added in `model_defs/`,
+exec 'rake make_index' to generate new index.

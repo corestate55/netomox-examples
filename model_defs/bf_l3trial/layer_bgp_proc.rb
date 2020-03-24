@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'netomox'
 require_relative 'layer_bgp_base'
 require_relative 'layer_bgp_utils'
 require_relative 'csv/config_bgp_proc_table'

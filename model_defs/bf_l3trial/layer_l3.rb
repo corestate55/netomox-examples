@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'csv'
-require 'netomox'
 require_relative 'layer_base'
 require_relative 'csv/ip_owners_table'
 require_relative 'csv/edges_layer3_table'
@@ -11,11 +9,15 @@ class Layer3TopologyConverter < TopologyLayerBase
   def initialize(opts = {})
     super(opts)
 
-    @edges_layer3_table = EdgesL3Table.new(@target)
+    setup_edges_layer3_table
     make_networks
   end
 
   private
+
+  def setup_edges_layer3_table
+    @edges_layer3_table = EdgesL3Table.new(@target)
+  end
 
   def make_l3node_tps(interfaces)
     interfaces.map do |tp|

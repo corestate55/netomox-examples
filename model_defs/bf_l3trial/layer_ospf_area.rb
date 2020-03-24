@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'netomox'
 require_relative 'layer_ospf_base'
 require_relative 'csv/as_area_links_table'
 
@@ -9,13 +8,17 @@ class OSPFAreaTopologyConverter < OSPFTopologyConverterBase
   def initialize(opts = {})
     super(opts)
 
-    table_of = { as_area: @as_area_table }
-    @area_links = ASAreaLinkTable.new(@target, table_of, @use_debug)
-    debug '# ospf_area_link: ', @area_links
+    setup_area_links_table
     make_networks
   end
 
   private
+
+  def setup_area_links_table
+    table_of = { as_area: @as_area_table }
+    @area_links = ASAreaLinkTable.new(@target, table_of, @use_debug)
+    debug '# ospf_area_link: ', @area_links
+  end
 
   # name of ospf-are node in ospf-area layer
   def area_node_name(asn, area)

@@ -4,7 +4,7 @@ Wrapper module for [Netomox DSL](https://github.com/corestate55/netomox/blob/dev
 Netomox DSL is designed to define data according to RFC 8345 topology model.
 The DSL has context about 'parent' object is.
 It makes some complexity especially in  cases to fully automated model data building,
-like that [bf-l2trial](../bf_l2trial/info.md) and [bf-l3trial](../bf_l3trial/info.md).
+like that [bf-l2trial](../bf_l2trial/README.md) and [bf-l3trial](../bf_l3trial/README.md).
 
 Issues:
 * Too deep nested blocks.
@@ -13,9 +13,8 @@ Issues:
   Because `#register` method of each DSL object is evaluated with DSL object scope.
   (using `#instance_eval` for evaluation DSL block.)
 
-So, this 'pseud-model' used to resolve the issues.
-It is wrapping Netomox-DSL.
-It construct data model context-less.
+So, this 'pseud-model' resolve the issues.
+It is wrapping Netomox-DSL and construct data model context-less.
 Therefore, there is no validation and security checks but simple.
 It can avoid complexity from using `#instance_eval`.
 
@@ -25,7 +24,7 @@ It can avoid complexity from using `#instance_eval`.
 ## DataBuilderBase
 
 Inherit `DataBuilderBase` at your own data builder.
-It makes to single network-layer (with dummy parent (`networks`)).
+It focuses to make single network-layer (with dummy parent (`networks`)).
 
 Then it can use several variables and methods to build model data.
 
