@@ -103,6 +103,7 @@ bundle exec guard -g ./model_defs/hoge.rb
 ```
 
 ## Edit layout data
+
 `model_defs/layout/foo-layout.json` is layout file of `model_defs/layout/foo.rb`
 (it make topology data as `foo.json`).
 
@@ -111,10 +112,11 @@ NOTICE:
 * `rake` install corresponding layout file when topology data (json) is generated from model def script.
 
 ## Generate Netoviz index
+
 ```bash
 bundle exec rake make_idnex
 ```
 `make_index` rake task generate index file for netoviz.
 (It makes `netoviz/static/model/_index.json` directly.)
-If a model def script is added in `model_defs/`,
-exec 'rake make_index' to generate new index.
+If a new model definition script is added in `model_defs/`,
+exec `rake make_index` to update netoviz index.

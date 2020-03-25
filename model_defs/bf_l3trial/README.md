@@ -1,6 +1,21 @@
 # Batfish Trial (L3)
 
-## Reference
+## About
+
+Target of batfish L3 trial is construct network-system model and draw as diagram from network device configurations using batfish.
+This scripts creates network layers about layer3 and routing protocols relations.
+
+* Layer3 topology
+* OSPF Area and Process topology
+* BGP AS and Process topology
+
+Results (pybatfish example):
+* [Batfish を使ってネットワーク構成を可視化してみよう \(1\) \- Qiita](https://qiita.com/corestate55/items/8a39af553785fd77c20a)
+* [Batfish を使ってネットワーク構成を可視化してみよう \(2\) \- Qiita](https://qiita.com/corestate55/items/9d8023eb19637f9bbd1e)
+* [Batfish を使ってネットワーク構成を可視化してみよう \(3\) \- Qiita](https://qiita.com/corestate55/items/10673ef74c33a24a0389)
+
+Results (sample1):
+* TBA
 
 About batfish:
 * [batfish](https://www.batfish.org/)
@@ -14,7 +29,7 @@ About batfish:
 
 ## Setup
 
-### Environment I use
+### Trial environment
 
 2020-Mar
 
@@ -30,7 +45,7 @@ Linux dev01 5.3.0-42-generic #34-Ubuntu SMP Fri Feb 28 05:49:40 UTC 2020 x86_64 
 hagiwara@dev01:~/nwmodel/netomox-examples$ 
 ```
 
-### Clone sample configs (batfish example)
+### Clone sample configs (pybatfish example)
 
 Setup configs (use [sample config s in batfish](https://github.com/batfish/pybatfish/tree/master/jupyter_notebooks/networks)).
 
@@ -46,6 +61,11 @@ hagiwara@dev01:~/batfish
 Clone it as submodule. See: [README.md](../../README.md)
 
 * samples repository: [batfish\-test\-topology](https://github.com/corestate55/batfish-test-topology)
+* There are two variations in sample1:
+  * sample1a: includes configurations of external AS. (for constructing configs in GNS3)
+  * sample1b: does not includes external AS configs. (for this trial.)
+    Usually, AS admins can not know about details of external AS configurations except of bgp-peer parameters.
+    So, bf_l3trial scripts complement external AS information from peer parameters.
 
 ```
 hagiwara@dev01:~/nwmodel/netomox-examples/model_defs/batfish-test-topology$ ls
@@ -64,6 +84,17 @@ hagiwara@dev01:~$ sudo docker pull batfish/allinone
 hagiwara@dev01:~$ docker image ls
 REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
 batfish/allinone    latest              4687b954c765        3 weeks ago         1.02GB
+hagiwara@dev01:~$ docker run -p 8888:8888 -p 9997:9997 -p 9996:9996 batfish/allinone
+```
+
+OR able to use docker-compose using `docker-compose.yml` in cloned sample config repository.
+
+```
+hagiwara@dev01:~/nwmodel/netomox-examples/model_defs/batfish-test-topology$ docker-compose up -d
+```
+Then, batfish container is running.
+
+```
 hagiwara@dev01:~$ docker ps
 CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS                                        NAMES
 5af6abe4aba6        batfish/allinone    "./wrapper.sh"      7 hours ago         Up 2 hours
@@ -71,16 +102,12 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
 hagiwara@dev01:~$ 
 ```
 
-OR able to use docker-compose using `docker-compose.yml` in cloned sample config repository.
-
-```
-agiwara@dev01:~/nwmodel/netomox-examples/model_defs/batfish-test-topology$ docker-compose up -d 
-```
-
+Next, send queries to batfish using pybatfish, and save the results.
 
 ### Setup python env and pybatfish
 
-Setup venv for python3.
+[Pybatfish](https://github.com/batfish/pybatfish) is a python frontend for batfish.
+Setup venv for python3 before install pybatfish.
 
 ```
 hagiwara@dev01:~/batfish$ sudo apt install python3-venv
@@ -104,23 +131,27 @@ Install pybatfish (See: [pybatfish on github](https://github.com/batfish/pybatfi
 
 Exec batfish queries and save its answers as csv files. (exec once when config files are updated.)
 
-* With `-c` option: clean (remove) working files. 
+* `make_csv.sh` backups original batfish answers as `.orig.csv`
+  and add complemented bgp peer information into each CSVs.
+  * With `-c` option: it removes (cleans) these backup files.
 
 ```
 hagiwara@dev01:~/nwmodel/netomox-examples/model_defs/bf_l3trial$ ./make_csv.sh -c
 ```
 
 `make_csv.sh` kicks two python scripts:
+
 * `exec_l3queries.py`: Send queries to batfish and save its answers as csv files.
 * `ebgp_peer_data.py` : Complement the router (eBGP-peer) information of the external AS
   that does not exist as a configuration.
 
 
-## Convert query data to topology data
+## Convert query answers to topology data
 
-Convert data
-* `bf_l3ex.rb`: for batfish-example topology.
-* `bf_l3s1.rb`: for batfish-l3trial sample1 topology.
+Convert batfish query answers to RFC8345 topology data:
+
+* `bf_l3ex.rb`: for pybatfish-example topology.
+* `bf_l3s1.rb`: for l3trial sample1 topology.
 
 ```
 hagiwara@dev01:~/nwmodel/netomox-examples$ bundle exec rake TARGET=./model_defs/bf_l3ex.rb
@@ -138,4 +169,5 @@ Check data file
 
 ```
 hagiwara@dev01:~/nwmodel/netomox-examples$ bundle exec netomox check netoviz/static/model/bf_l3ex.json
+hagiwara@dev01:~/nwmodel/netomox-examples$ bundle exec netomox check netoviz/static/model/bf_l3s1.json
 ```

@@ -12,6 +12,7 @@ defs_dir = './model_defs'
 tests_dir = "#{defs_dir}/model_diff_test"
 data_dir = "#{defs_dir}/model"
 
+system "mkdir -p #{data_dir}"
 system "bundle exec ruby #{tests_dir}/multiple.rb"
 Tempfile.create(basename: 'diff_test', tmpdir: '/tmp') do |tmpfile|
   file1 = "#{data_dir}/test_multiple1.json"

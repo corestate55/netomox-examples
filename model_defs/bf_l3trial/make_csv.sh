@@ -9,9 +9,10 @@ CSV_DIRS=("${CSV_BASEDIR}/example" "${CSV_BASEDIR}/sample1b")
 CSVS=(config_bgp_proc edges_bgp edges_layer3 ip_owners)
 CSV_POST="_ep"
 
-# cleaning
+# initialize directory to save data
 for csv_dir in "${CSV_DIRS[@]}"; do
-  rm ${csv_dir}/*.csv
+  mkdir -p ${csv_dir}
+  rm -f ${csv_dir}/*.csv
 done
 
 # generate tables as answer of each batfish-queries.
@@ -26,15 +27,17 @@ done
 # overwrite data include complemented-peer configs
 for csv_dir in "${CSV_DIRS[@]}"; do
   for csv in "${CSVS[@]}"; do
-    cp "${csv_dir}/${csv}${CSV_POST}.csv" "${csv_dir}/${csv}.csv"
+    cp "${csv_dir}/${csv}.csv" "${csv_dir}/${csv}.orig.csv" # backup original
+    mv "${csv_dir}/${csv}${CSV_POST}.csv" "${csv_dir}/${csv}.csv" # overwrite
   done
 done
 
-# remove if needed (-c:clean)
+# cleaning backups
 if [[ "${1}" == "-c" ]]; then
   for csv_dir in "${CSV_DIRS[@]}"; do
-    rm ${csv_dir}/*${CSV_POST}.csv
+    rm ${csv_dir}/*.orig.csv
   done
 fi
 
+echo '#######'
 echo '# NEXT: run rake and generate topology jsons.'
