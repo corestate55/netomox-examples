@@ -1,6 +1,6 @@
-[submodule "netoviz"]
-	path = netoviz
-	url = https://github.com/corestate55/netoviz.git
 [submodule "model_defs/batfish-test-topology"]
 	path = model_defs/batfish-test-topology
 	url = https://github.com/corestate55/batfish-test-topology.git
+[submodule "netoviz"]
+	path = netoviz
+	url = https://github.com/corestate55/netoviz.git
