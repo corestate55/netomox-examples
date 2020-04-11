@@ -73,14 +73,6 @@ class BGPASTopologyConverter < BGPTopologyConverterBase
     end
   end
 
-  def inter_router_supports(asn)
-    inter_routers = @nodes_in_as[asn].inter_area_routers
-    debug '### inter_area_routers: ', inter_routers
-    inter_routers.map do |router|
-      ['ospf-area', router[:node]] # inter-area-router
-    end
-  end
-
   def router_id_supports(asn)
     @nodes_in_as[asn].router_ids.map do |router_id|
       ['bgp-proc', router_id]
@@ -90,7 +82,6 @@ class BGPASTopologyConverter < BGPTopologyConverterBase
   def make_as_node_supports(asn)
     [
       areas_supports(asn),
-      inter_router_supports(asn),
       router_id_supports(asn)
     ].flatten(1)
   end

@@ -31,50 +31,35 @@ class OSPFAreaTopologyConverter < OSPFTopologyConverterBase
     pnode
   end
 
-  def make_area_nodes
+  def make_nodes
     @as_numbers.each do |asn|
       debug "# areas in #{asn} -- #{@as_area_table.areas_in_as(asn)}"
       @as_area_table.areas_in_as(asn).each do |area|
         name = area_node_name(asn, area)
+        # supports are ABR ospf-proc
         supports = @as_area_table.nodes_in(asn, area)
         debug "## asn, area = #{asn}, #{area} : supports: ", supports
         @nodes.push(make_area_node(name, supports))
       end
     end
-  end
-
-  def make_link_edge_tp(node_name, tp_name, is_node)
-    ptp = PTermPoint.new(tp_name)
-    ptp.supports.push(['ospf-proc', node_name, tp_name]) if is_node
-    ptp
-  end
-
-  def make_link_edge(node_name, tp_name, is_node = true)
-    pnode = find_or_new_node(node_name)
-    pnode.tps.push(make_link_edge_tp(node_name, tp_name, is_node))
-    pnode.supports.push(['ospf-proc', node_name]) if is_node
-    pnode.supports.uniq!
-    pnode
-  end
-
-  def make_link_edges
-    @area_links.each do |link|
-      debug '# link: ', link
-      add_node_if_new(make_link_edge(link.node, link.node_tp))
-      add_node_if_new(make_link_edge(link.area, link.area_tp, false))
-    end
-  end
-
-  def make_nodes
-    make_area_nodes
-    make_link_edges
     @nodes
+  end
+
+  def apppend_area_node_tp(link_end)
+    node = @nodes.find { |n| n.name == link_end.area_node_name }
+    tp = PTermPoint.new(link_end.area_node_tp_name)
+    tp.supports.push(%W[ospf-proc #{link_end.node} #{link_end.base_node_tp}])
+    node.tps.push(tp)
   end
 
   def make_links
     @area_links.each do |link|
-      debug '# link: ', link
-      add_link link.node, link.node_tp, link.area, link.area_tp
+      debug '# make_links: ', link
+      apppend_area_node_tp(link.src)
+      apppend_area_node_tp(link.dst)
+      add_link link.src.area_node_name, link.src.area_node_tp_name,
+               link.dst.area_node_name, link.dst.area_node_tp_name,
+               true
     end
     @links
   end

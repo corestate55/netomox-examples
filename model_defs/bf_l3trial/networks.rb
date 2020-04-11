@@ -39,6 +39,7 @@ class BFL3Networks
       # puts layer.to_json
     else
       warn 'Invalid debug option'
+      warn "usage -d,--debug=#{@layer_table.keys.map(&:to_s)}"
     end
   end
 
