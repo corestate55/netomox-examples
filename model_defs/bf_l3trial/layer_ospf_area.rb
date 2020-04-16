@@ -45,7 +45,7 @@ class OSPFAreaTopologyConverter < OSPFTopologyConverterBase
     @nodes
   end
 
-  def apppend_area_node_tp(link_end)
+  def append_area_node_tp(link_end)
     node = @nodes.find { |n| n.name == link_end.area_node_name }
     tp = PTermPoint.new(link_end.area_node_tp_name)
     tp.supports.push(%W[ospf-proc #{link_end.node} #{link_end.base_node_tp}])
@@ -55,8 +55,8 @@ class OSPFAreaTopologyConverter < OSPFTopologyConverterBase
   def make_links
     @area_links.each do |link|
       debug '# make_links: ', link
-      apppend_area_node_tp(link.src)
-      apppend_area_node_tp(link.dst)
+      append_area_node_tp(link.src)
+      append_area_node_tp(link.dst)
       add_link link.src.area_node_name, link.src.area_node_tp_name,
                link.dst.area_node_name, link.dst.area_node_tp_name,
                true

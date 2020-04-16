@@ -46,10 +46,10 @@ class ASAreaLink
   end
 
   def base_node_tp
-    name = @node_tp.split(':')
+    name = @node_tp.split('::')
     if name.length > 1
       name.pop
-      name.join(':')
+      name.join('::')
     else
       name[0]
     end
@@ -58,13 +58,13 @@ class ASAreaLink
   private
 
   def node_tp_with_count
-    name = @node_tp.split(':')
+    name = @node_tp.split('::')
     if name.length > 1
       name[-1] = @tp_count.to_s
     else
       name.push(@tp_count.to_s)
     end
-    name.join(':')
+    name.join('::')
   end
 end
 
