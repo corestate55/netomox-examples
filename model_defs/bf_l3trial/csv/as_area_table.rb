@@ -47,16 +47,23 @@ class ASAreaTable < TableBase
     @records.select { |r| r.area >= 0 }
   end
 
+  # rubocop:disable Metrics/MethodLength
   def make_ospf_area_links
     # find router and its interface that connects multiple-area
     area_node_pairs = area_node_connections
-    links = area_node_pairs.flatten.map do |pair|
-      pair.interfaces.map do |interface|
-        ASAreaLink.new(pair.as, pair.area, pair.node, interface.interface)
+    count_area_tp = {}
+    links = area_node_pairs.flatten.map do |area_node_pair|
+      area_node_pair.interfaces.map do |interface|
+        area_key = node_pair_path(area_node_pair.as, area_node_pair.area)
+        count_area_tp[area_key] = count_area_tp[area_key] || 0
+        count_area_tp[area_key] += 1
+        ASAreaLinkTableRecord.new(area_node_pair, interface,
+                                  count_area_tp[area_key])
       end
     end
     links.flatten
   end
+  # rubocop:enable Metrics/MethodLength
 
   def find_all_by_as_node(asn, node)
     @records.find_all { |r| r.as == asn && r.node == node }

@@ -2,88 +2,51 @@
 
 require_relative 'table_base'
 
-# half of inter-area link
-class ASAreaLink
-  attr_accessor :as, :area, :node, :node_tp, :tp_count
+# edge (term-point) of AS-Are link
+class ASAreaLinkEdge
+  attr_accessor :node, :tp
 
-  # see ASAreaTable#makeOSPFAreaLinks
-  def initialize(asn, area, node, interface)
-    @as = asn
-    @area = area
+  def initialize(node, term_point)
     @node = node
-    @node_tp = interface
-    @tp_count = -1
+    @tp = term_point
   end
 
   def to_s
-    "ASAreaLink: (#{@tp_count}) #{@as},#{@node},#{@node_tp},#{@area}"
-  end
-
-  def sub_area?
-    @area.positive?
-  end
-
-  def area0_pair?(other)
-    @as == other.as && @area.zero? && @node == other.node
-  end
-
-  def count_dup
-    @tp_count += 1
-    return self if @tp_count.zero?
-
-    duplicated = ASAreaLink.new(@as, @area, @node, node_tp_with_count)
-    duplicated.tp_count = @tp_count
-    duplicated
-  end
-
-  # name of ospf-are node in ospf-area layer
-  def area_node_name
-    "as#{@as}-area#{@area}"
-  end
-
-  def area_node_tp_name
-    "#{@node}-#{@node_tp}"
-  end
-
-  def base_node_tp
-    name = @node_tp.split('::')
-    if name.length > 1
-      name.pop
-      name.join('::')
-    else
-      name[0]
-    end
-  end
-
-  private
-
-  def node_tp_with_count
-    name = @node_tp.split('::')
-    if name.length > 1
-      name[-1] = @tp_count.to_s
-    else
-      name.push(@tp_count.to_s)
-    end
-    name.join('::')
+    "ASAreaLinkEdge: #{@node},#{@tp}"
   end
 end
 
 # AS-Area links table record
 class ASAreaLinkTableRecord < TableRecordBase
-  attr_accessor :as, :src, :dst
+  attr_accessor :as, :node, :node_tp, :area, :area_tp,
+                :src, :dst
 
-  def initialize(asn, src, dst)
-    @as = asn
-    @src = src # ASAreaLink
-    @dst = dst # ASAreaLink
+  # see ASAreaTable#makeOSPFAreaLinks
+  def initialize(area_node_pair, interface, area_tp_count)
+    @as = area_node_pair.as
+    @node = area_node_pair.node
+    @node_tp = interface.interface
+    @area = area_node_name(area_node_pair.as, area_node_pair.area)
+    @area_tp = "p#{area_tp_count}"
+
+    # alias
+    @src = ASAreaLinkEdge.new(@node, @node_tp)
+    @dst = ASAreaLinkEdge.new(@area, @area_tp)
+  end
+
+  def as_node_key
+    "#{@as}-#{@node}"
   end
 
   def to_s
-    "ASAreaLinkTableRec: #{@as},s=#{@src},d=#{@dst}"
+    "ASAreaLinkTableRec: #{@as},#{@node},#{@node_tp},#{@area},#{@area_tp}"
   end
 
-  def check_duplicate
-    @dst = @dst.count_dup
+  private
+
+  # name of ospf-are node in ospf-area layer
+  def area_node_name(asn, area)
+    "as#{asn}-area#{area}"
   end
 end
 
@@ -95,23 +58,10 @@ class ASAreaLinkTable < TableBase
 
   def initialize(target, table_of, debug = false)
     super(target, nil, debug)
-    @half_links = table_of[:as_area].make_ospf_area_links
-    @records = make_link_table
+    @records = table_of[:as_area].make_ospf_area_links
   end
 
   def to_s
     @records.map(&:to_s).join("\n").to_s
-  end
-
-  private
-
-  def make_link_table
-    records = []
-    @half_links.filter(&:sub_area?).each do |target_hl|
-      dst = @half_links.find { |hl| hl.area0_pair?(target_hl) }
-      records.push(ASAreaLinkTableRecord.new(target_hl.as, target_hl, dst))
-    end
-    records.each(&:check_duplicate)
-    records # uni-direction link (sub-area -> area0 (backbone))
   end
 end
