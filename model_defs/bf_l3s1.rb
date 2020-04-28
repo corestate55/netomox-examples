@@ -9,7 +9,7 @@ require_relative 'bf_l3trial/networks'
 
 opts = ARGV.getopts('d', 'debug:')
 if opts['d']
-  puts 'batfish trial (L3 sample1)'
+  puts '[batfish-L3] sample1b'
   exit 0
 end
 
