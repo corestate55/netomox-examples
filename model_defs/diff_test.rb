@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'optparse'
+require 'tempfile'
 
 opts = ARGV.getopts('d')
 if opts['d']

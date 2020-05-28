@@ -55,7 +55,7 @@ Install [netomox](https://github.com/corestate55/netomox)
 (See [netomox DSL page](https://github.com/corestate55/netomox/blob/develop/dsl.md) about data definition DSL.)
 
 ```bash
-bundle install path=vendor/bundle
+bundle install --path=vendor/bundle
 ```
 
 ## Edit/Convert model data

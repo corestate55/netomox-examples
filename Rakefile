@@ -85,8 +85,9 @@ task json2xml: %i[jtox] do
   TARGET_JSON.each do |json|
     xml = json.ext('xml')
     puts "## make xml:#{xml}"
-    if File.basename(json) == 'diff_test.json'
-      puts '### skip (it include diff-state)'
+    nonstandard_files=%w[diff_test.json mp_attr.json]
+    if nonstandard_files.include?(File.basename(json))
+      puts '### skip (it include nonstandard-data: diff-state or mp-attr)'
       next
     end
     sh "json2xml #{JTOX} #{json} | xmllint --output #{xml} --format -"
