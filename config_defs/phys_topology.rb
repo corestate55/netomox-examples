@@ -6,6 +6,7 @@ require 'yaml'
 require 'hashie'
 require 'netomox'
 
+# monkey patches
 module Netomox
   module Topology
     class Network < TopoObjectBase
@@ -18,9 +19,20 @@ module Netomox
         @links.find { |link| link.source == source_ref}
       end
     end
+
+    class Node < TopoObjectBase
+      def find_all_non_loopback_tps
+        @termination_points.filter { |tp| tp.name !~ /Lo/i }
+      end
+
+      def find_all_tps_with_attribute(key)
+        @termination_points.filter { |tp| tp.attribute.class.method_defined?(key) }
+      end
+    end
   end
 end
 
+# data converter (layer3 to tinet)
 class Topo2PhysConfigConverter
   def initialize(file)
     @file = file
@@ -51,16 +63,8 @@ class Topo2PhysConfigConverter
     link ? "#{link.destination.node_ref}##{link.destination.tp_ref}" : '_NONE_'
   end
 
-  def non_lo_interfaces(node)
-    node.termination_points.filter { |tp| tp.name !~ /Lo/i }
-  end
-
-  def ip_interfaces(node)
-    node.termination_points.filter { |tp| tp.attribute }
-  end
-
   def config_interfaces(node)
-    non_lo_interfaces(node).map do |tp|
+    node.find_all_non_loopback_tps.map do |tp|
       Hashie::Mash.new(
         name: tp.name,
         type: 'direct',
@@ -79,12 +83,13 @@ class Topo2PhysConfigConverter
 
   def config_node_cmds(node)
     cmds = [ '/usr/lib/frr/frr start' ]
-    ip_cmds = ip_interfaces(node).map do |tp|
+    ip_cmds = node.find_all_tps_with_attribute(:ip_addrs).map do |tp|
       tp.attribute.ip_addrs.map do |ip_addr|
         "ip addr add #{ip_addr} dev #{tp.name}"
       end
     end
-    cmds.concat(ip_cmds.flatten!).map { |cmd| { cmd: cmd }}
+    ip_cmds.nil? ? [] : ip_cmds.flatten!
+    cmds.concat(ip_cmds).map { |cmd| { cmd: cmd }}
   end
 
   def config_node_config(node)
@@ -110,9 +115,10 @@ class Topo2PhysConfigConverter
   end
 end
 
+# exec:
+# hagiwara@dev02:~/nwmodel/netomox-examples$ bundle exec ruby config_defs/phys_topology.rb
 file_dir = Pathname.new('~/nwmodel/netomox-examples/netoviz/static/model')
 file_name = Pathname.new('bf_l3s1.json')
 file_path = file_dir.join(file_name).expand_path
 phys_config_converter = Topo2PhysConfigConverter.new(file_path)
-puts phys_config_converter
 puts phys_config_converter.to_config
