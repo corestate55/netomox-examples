@@ -124,7 +124,7 @@ Install pybatfish (See: [pybatfish on github](https://github.com/batfish/pybatfi
 
 ```
 (bf-venv) hagiwara@dev01:~/batfish$ pip install wheel
-(bf-venv) hagiwara@dev01:~/batfish$ python3 -m pip install --upgrade git+https://github.com/batfish/pybatfish.git                                               
+(bf-venv) hagiwara@dev01:~/batfish$ python3 -m pip install --upgrade git+https://github.com/batfish/pybatfish.git
 ```
 
 ### Generate data from router configurations using batfish.
