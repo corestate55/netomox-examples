@@ -29,6 +29,7 @@ GEM
     guard-shell (0.7.1)
       guard (>= 2.0.0)
       guard-compat (~> 1.0)
+    hashie (4.1.0)
     highline (2.0.3)
     json (2.3.0)
     listen (3.2.1)
@@ -85,6 +86,7 @@ PLATFORMS
 DEPENDENCIES
   guard
   guard-shell
+  hashie (>= 4.1.0)
   netomox!
   rubocop (>= 0.80)
 
