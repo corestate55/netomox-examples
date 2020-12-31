@@ -48,6 +48,11 @@ hagiwara@dev02:~/nwmodel/netomox-examples$ docker exec -it border01 bash
 root@border01:/#
 ```
 
+Run `tinet test` to test p2p link ping.
+```
+hagiwara@dev02:~/nwmodel/netomox-examples/config_defs$ tinet test -c spec.yaml | sudo sh -x
+```
+
 Run `tinet down` to clear network.
 ```
 hagiwara@dev02:~/nwmodel/netomox-examples/config_defs$ tinet down -c spec.yaml | sudo sh -x

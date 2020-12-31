@@ -3,12 +3,13 @@
 require 'hashie'
 require_relative './netomox_patch'
 
+# rubocop:disable Metrics/ClassLength
 # Tinet config generator
 class TinetConfig
   attr_reader :config
 
   def initialize
-    @config = Hashie::Mash.new(nodes: [], node_configs: [])
+    @config = Hashie::Mash.new(nodes: [], node_configs: [], test: { cmds: [] })
   end
 
   def to_yaml
@@ -27,15 +28,36 @@ class TinetConfig
     @config[:node_configs].push(config_node_config(node))
   end
 
+  def add_test(l3nw, node)
+    @config[:test][:cmds].concat(config_test(l3nw, node))
+  end
+
   private
 
+  def facing_tp(l3nw, node, term_point)
+    facing_interface_config = config_facing_interface(l3nw, node, term_point)
+    dst_node_name, dst_tp_name = facing_interface_config.split('#')
+    dst_node = l3nw.find_node_by_name(dst_node_name)
+    dst_node.find_tp_by_name(dst_tp_name)
+  end
+
+  def config_test(l3nw, node)
+    cmds = []
+    node.find_all_non_loopback_tps.map do |tp|
+      dst_tp = facing_tp(l3nw, node, tp)
+      next unless dst_tp.attribute.attribute?(:ip_addrs)
+
+      dst_tp.attribute.ip_addrs.each do |dst_ip_addr|
+        # test p2p link ping
+        cmds.push("docker exec #{node.name} ping -c2 #{dst_ip_addr.split('/').shift}")
+      end
+    end
+    format_cmds(cmds)
+  end
+
   def config_facing_interface(l3nw, node, term_point)
-    source_data = {
-      'source-node' => node.name,
-      'source-tp' => term_point.name
-    }
-    source_ref = Netomox::Topology::TpRef.new(source_data, l3nw.name)
-    found_link = l3nw.links.find { |link| link.source == source_ref }
+    found_link = l3nw.find_link_by_source(node.name, term_point.name)
+    # return "hostname#interface" format string
     found_link ? "#{found_link.destination.node_ref}##{found_link.destination.tp_ref}" : '_NONE_'
   end
 
@@ -57,6 +79,10 @@ class TinetConfig
     )
   end
 
+  def format_cmds(cmds)
+    cmds.map { |cmd| Hashie::Mash.new(cmd: cmd) }
+  end
+
   def config_node_cmds(node)
     cmds = ['/usr/lib/frr/frr start']
     ip_cmds = node.find_all_tps_with_attribute(:ip_addrs).map do |tp|
@@ -65,7 +91,7 @@ class TinetConfig
       end
     end
     ip_cmds.nil? ? [] : ip_cmds.flatten!
-    cmds.concat(ip_cmds).map { |cmd| { cmd: cmd } }
+    format_cmds(cmds.concat(ip_cmds))
   end
 
   def config_node_config(node)
@@ -130,3 +156,4 @@ class TinetConfig
     check_ifname_in_node_configs
   end
 end
+# rubocop:enable Metrics/ClassLength
