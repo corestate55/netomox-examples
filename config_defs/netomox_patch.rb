@@ -25,5 +25,11 @@ module Netomox
         @termination_points.filter { |tp| tp.attribute.class.method_defined?(key) }
       end
     end
+
+    class TpRef < SupportingRefBase
+      def to_s
+        "tp_ref:#{ref_path}"
+      end
+    end
   end
 end
