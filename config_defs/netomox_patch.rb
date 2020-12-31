@@ -5,6 +5,7 @@ require 'netomox'
 # monkey patches
 module Netomox
   module Topology
+    # patch for Netomox::Topology::Network
     class Network < TopoObjectBase
       def find_link_source(node_ref, tp_ref)
         source_data = {
@@ -12,10 +13,11 @@ module Netomox
           'source-tp' => tp_ref
         }
         source_ref = TpRef.new(source_data, @name)
-        @links.find { |link| link.source == source_ref}
+        @links.find { |link| link.source == source_ref }
       end
     end
 
+    # patch for Netomox::Topology::Node
     class Node < TopoObjectBase
       def find_all_non_loopback_tps
         @termination_points.filter { |tp| tp.name !~ /Lo/i }
@@ -26,6 +28,7 @@ module Netomox
       end
     end
 
+    # patch for Netomox::Topology::TpRef
     class TpRef < SupportingRefBase
       def to_s
         "tp_ref:#{ref_path}"

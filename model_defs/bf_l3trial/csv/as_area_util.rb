@@ -21,6 +21,7 @@ end
 # generated from config_ospf_area table
 class ASAreaTableRecord < TableRecordBase
   attr_accessor :as, :area, :node, :process_id, :interfaces
+
   def initialize(opts, debug = false)
     super(debug)
 
