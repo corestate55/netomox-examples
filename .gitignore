@@ -1,19 +1,16 @@
+node_modules
+dist/
+
 # backups
 *.tgz
 
 # generated files
 model_defs/model
-
-# editor
-.idea
+spec.yaml
 
 # ruby
 .bundle/
 vendor/bundle/
-
-.DS_Store
-node_modules
-/dist
 
 # local env files
 .env.local
@@ -25,6 +22,7 @@ yarn-debug.log*
 yarn-error.log*
 
 # Editor directories and files
+.DS_Store
 .idea
 .vscode
 *.suo
