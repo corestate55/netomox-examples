@@ -30,6 +30,7 @@ class Topo2PhysConfigConverter
     @l3nw.nodes.each do |node|
       @tinet_config.add_node(@l3nw, node)
       @tinet_config.add_node_config(node)
+      @tinet_config.add_test(@l3nw, node)
     end
   end
 
