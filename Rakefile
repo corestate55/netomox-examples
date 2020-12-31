@@ -85,7 +85,7 @@ task json2xml: %i[jtox] do
   TARGET_JSON.each do |json|
     xml = json.ext('xml')
     puts "## make xml:#{xml}"
-    nonstandard_files=%w[diff_test.json mp_attr.json]
+    nonstandard_files = %w[diff_test.json mp_attr.json]
     if nonstandard_files.include?(File.basename(json))
       puts '### skip (it include nonstandard-data: diff-state or mp-attr)'
       next

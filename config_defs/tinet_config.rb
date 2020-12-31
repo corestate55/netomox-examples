@@ -3,6 +3,7 @@
 require 'hashie'
 require_relative './netomox_patch'
 
+# Tinet config generator
 class TinetConfig
   attr_reader :config
 
@@ -11,7 +12,7 @@ class TinetConfig
   end
 
   def to_yaml
-    check_config_interface
+    check_ifname_in_configs
     YAML.dump(@config.to_hash)
   end
 
@@ -28,14 +29,14 @@ class TinetConfig
 
   private
 
-  def config_facing_interface(l3nw, node, tp)
+  def config_facing_interface(l3nw, node, term_point)
     source_data = {
       'source-node' => node.name,
-      'source-tp' => tp.name
+      'source-tp' => term_point.name
     }
     source_ref = Netomox::Topology::TpRef.new(source_data, l3nw.name)
-    link = l3nw.links.find { |link| link.source == source_ref }
-    link ? "#{link.destination.node_ref}##{link.destination.tp_ref}" : '_NONE_'
+    found_link = l3nw.links.find { |link| link.source == source_ref }
+    found_link ? "#{found_link.destination.node_ref}##{found_link.destination.tp_ref}" : '_NONE_'
   end
 
   def config_interfaces(l3nw, node)
@@ -57,14 +58,14 @@ class TinetConfig
   end
 
   def config_node_cmds(node)
-    cmds = [ '/usr/lib/frr/frr start' ]
+    cmds = ['/usr/lib/frr/frr start']
     ip_cmds = node.find_all_tps_with_attribute(:ip_addrs).map do |tp|
       tp.attribute.ip_addrs.map do |ip_addr|
         "ip addr add #{ip_addr} dev #{tp.name}"
       end
     end
     ip_cmds.nil? ? [] : ip_cmds.flatten!
-    cmds.concat(ip_cmds).map { |cmd| { cmd: cmd }}
+    cmds.concat(ip_cmds).map { |cmd| { cmd: cmd } }
   end
 
   def config_node_config(node)
@@ -75,9 +76,7 @@ class TinetConfig
   end
 
   def check_interface_name_body(name)
-    if !name.ascii_only? || name.include?(' ') || name.length > 15
-      warn "Interface name is invalid or too log: #{name}"
-    end
+    warn "Interface name is invalid or too log: #{name}" if !name.ascii_only? || name.include?(' ') || name.length > 15
     name.tr!(' ', '_')
     name.tr!('/', '-')
     name
@@ -106,20 +105,28 @@ class TinetConfig
     cmd
   end
 
-  def check_config_interface
-    # chekc interface name: veth constraint
-    # max 15 chars (add \0 at last: 16byte)
-    # cannot use '/' and space
+  def check_ifname_in_nodes
     @config[:nodes].each do |node|
       node[:interfaces].each do |interface|
         interface[:name] = check_interface_name(interface[:name])
         interface[:args] = check_interface_name(interface[:args])
       end
     end
+  end
+
+  def check_ifname_in_node_configs
     @config[:node_configs].each do |nconf|
       nconf[:cmds].each do |cmd|
         cmd[:cmd] = check_cmd_interface_name(cmd[:cmd])
       end
     end
+  end
+
+  def check_ifname_in_configs
+    # chekc interface name: veth constraint
+    # max 15 chars (add \0 at last: 16byte)
+    # cannot use '/' and space
+    check_ifname_in_nodes
+    check_ifname_in_node_configs
   end
 end

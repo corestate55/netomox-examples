@@ -17,7 +17,7 @@ class Topo2PhysConfigConverter
   end
 
   def to_s
-    "nws: #{@networks.networks.map { |nw| nw.name }}"
+    "nws: #{@networks.networks.map(&:name)}"
   end
 
   def to_config

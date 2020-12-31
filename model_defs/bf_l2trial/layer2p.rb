@@ -65,9 +65,7 @@ class L2DataBuilder < DataBuilderBase
 
   def make_l3nodes_tps(ip_owner)
     ptp = PTermPoint.new(ip_owner.interface)
-    if ip_owner.physical_interface?
-      ptp.supports.push(%W[layer1 #{ip_owner.node} #{ip_owner.interface}])
-    end
+    ptp.supports.push(%W[layer1 #{ip_owner.node} #{ip_owner.interface}]) if ip_owner.physical_interface?
     [ptp]
   end
 
