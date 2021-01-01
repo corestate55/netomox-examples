@@ -7,7 +7,7 @@ require_relative 'table_base'
 class ConfigOSPFProcTableRecord < TableRecordBase
   attr_accessor :node, :vrf, :process_id, :areas, :router_id, :area_border
 
-  def initialize(record, table_of, debug = false)
+  def initialize(record, _table_of, debug = false)
     super(debug)
 
     @node = record[:node]

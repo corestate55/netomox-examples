@@ -40,7 +40,7 @@ class ConfigOSPFAreaTableRecord < TableRecordBase
 
   def to_s
     [
-      "ConfigOSPFAreaTableRec: ",
+      'ConfigOSPFAreaTableRec: ',
       "#{@area},#{@node},#{@process_id},#{@router_id},",
       "act#{@active_interfaces},psv#{@passive_interfaces}"
     ].join('')
