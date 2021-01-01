@@ -3,7 +3,6 @@
 require 'hashie'
 require_relative './netomox_patch'
 
-# rubocop:disable Metrics/ClassLength
 # Tinet config generator
 class TinetConfig
   attr_reader :config
@@ -100,4 +99,3 @@ class TinetConfig
     )
   end
 end
-# rubocop:enable Metrics/ClassLength

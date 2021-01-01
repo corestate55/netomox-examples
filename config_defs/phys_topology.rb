@@ -43,7 +43,7 @@ class Topo2PhysConfigConverter
     end
   end
 
-  def convert_interface_name
+  def convert_ifname_for_nodes
     @networks.all_nodes do |node, _nw|
       node.each_tps do |tp|
         tp.name = check_interface_name(tp.name)
@@ -52,10 +52,18 @@ class Topo2PhysConfigConverter
         end
       end
     end
+  end
+
+  def convert_ifname_for_links
     @networks.all_links do |link, _nw|
       link.source.tp_ref = check_interface_name(link.source.tp_ref)
       link.destination.tp_ref = check_interface_name(link.destination.tp_ref)
     end
+  end
+
+  def convert_interface_name
+    convert_ifname_for_nodes
+    convert_ifname_for_links
   end
 
   def convert_data_to_topology
