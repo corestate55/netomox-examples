@@ -38,10 +38,11 @@ module Netomox
         @termination_points.find { |tp| tp.name == tp_name }
       end
 
-      def find_all_non_loopback_tps
+      def find_all_tps_except_loopback
         @termination_points.filter { |tp| tp.name !~ /Lo/i }
       end
 
+      # key: method to read attribute (symbol)
       def find_all_tps_with_attribute(key)
         @termination_points.filter { |tp| tp.attribute.attribute?(key) }
       end

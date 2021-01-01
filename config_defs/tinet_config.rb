@@ -42,7 +42,7 @@ class TinetConfig
 
   def config_test(l3nw, node)
     cmds = []
-    node.find_all_non_loopback_tps.map do |tp|
+    node.find_all_tps_except_loopback.map do |tp|
       dst_tp = facing_tp(l3nw, node, tp)
       next unless dst_tp.attribute.attribute?(:ip_addrs)
 
@@ -61,7 +61,7 @@ class TinetConfig
   end
 
   def config_interfaces(l3nw, node)
-    node.find_all_non_loopback_tps.map do |tp|
+    node.find_all_tps_except_loopback.map do |tp|
       Hashie::Mash.new(
         name: tp.name,
         type: 'direct',
