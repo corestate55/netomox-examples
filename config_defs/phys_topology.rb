@@ -11,6 +11,7 @@ class Topo2PhysConfigConverter
     @file = file
     @topology_data = read_topology_data
     @networks = convert_data_to_topology
+    convert_interface_name
     @l3nw = @networks.find_network('layer3')
     @tinet_config = TinetConfig.new
     construct_config
@@ -26,11 +27,34 @@ class Topo2PhysConfigConverter
 
   private
 
+  # check and convert interface name to implement veth interface name constraints.
+  def check_interface_name(name)
+    warn "Interface name is invalid or too log: #{name}" if !name.ascii_only? || name.include?(' ') || name.length > 15
+    name.tr!(' ', '_')
+    name.tr!('/', '-')
+    name
+  end
+
   def construct_config
     @l3nw.nodes.each do |node|
       @tinet_config.add_node(@l3nw, node)
       @tinet_config.add_node_config(node)
       @tinet_config.add_test(@l3nw, node)
+    end
+  end
+
+  def convert_interface_name
+    @networks.all_nodes do |node, _nw|
+      node.each_tps do |tp|
+        tp.name = check_interface_name(tp.name)
+        tp.each_supports do |stp|
+          stp.tp_ref = check_interface_name(stp.tp_ref)
+        end
+      end
+    end
+    @networks.all_links do |link, _nw|
+      link.source.tp_ref = check_interface_name(link.source.tp_ref)
+      link.destination.tp_ref = check_interface_name(link.destination.tp_ref)
     end
   end
 
