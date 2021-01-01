@@ -20,7 +20,7 @@ end
 # record of as_area table.
 # generated from config_ospf_area table
 class ASAreaTableRecord < TableRecordBase
-  attr_accessor :as, :area, :node, :process_id, :interfaces
+  attr_accessor :as, :area, :node, :process_id, :router_id, :interfaces
 
   def initialize(opts, debug = false)
     super(debug)
@@ -29,6 +29,7 @@ class ASAreaTableRecord < TableRecordBase
     @area = opts[:area]
     @node = opts[:node]
     @process_id = opts[:process_id]
+    @router_id = opts[:router_id]
     @interfaces = opts[:interfaces] # Array of InterfaceInfo instance
 
     @routes_table = opts[:routes_table]
@@ -37,6 +38,7 @@ class ASAreaTableRecord < TableRecordBase
   def ospf_proc_node_attribute
     {
       name: "process_#{@process_id}",
+      router_id: @router_id,
       prefixes: @routes_table.routes_ospf_proc(@node),
       flags: ['ospf-proc']
     }
@@ -44,6 +46,6 @@ class ASAreaTableRecord < TableRecordBase
 
   def to_s
     ints_str = @interfaces.map(&:to_s).join(',')
-    "ASAreaTableRecord: #{@as},#{@area},#{@node},#{@process_id},[#{ints_str}]"
+    "ASAreaTableRecord: #{@as},#{@area},#{@node},#{@process_id},#{@router_id},[#{ints_str}]"
   end
 end

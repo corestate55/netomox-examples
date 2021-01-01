@@ -6,7 +6,7 @@ require_relative 'as_area_util'
 
 # row of config_ospf_area table
 class ConfigOSPFAreaTableRecord < TableRecordBase
-  attr_accessor :node, :area, :process_id,
+  attr_accessor :node, :area, :process_id, :router_id,
                 :active_interfaces, :passive_interfaces
 
   # rubocop:disable Security/Eval
@@ -21,6 +21,9 @@ class ConfigOSPFAreaTableRecord < TableRecordBase
 
     @ip_owners_table = table_of[:ip_owners]
     @routes_table = table_of[:routes]
+    @config_ospf_proc_table = table_of[:config_ospf_proc]
+
+    @router_id = @config_ospf_proc_table.find_by_node_and_proc(@node, @process_id).router_id
   end
   # rubocop:enable Security/Eval
 
@@ -29,7 +32,7 @@ class ConfigOSPFAreaTableRecord < TableRecordBase
   def as_area(asn)
     area, proc_id, if_infos = area_interfaces
     opts = {
-      asn: asn, area: area, node: @node, process_id: proc_id,
+      asn: asn, area: area, node: @node, process_id: proc_id, router_id: @router_id,
       interfaces: if_infos, routes_table: @routes_table
     }
     ASAreaTableRecord.new(opts, @debug)
@@ -37,9 +40,10 @@ class ConfigOSPFAreaTableRecord < TableRecordBase
 
   def to_s
     [
-      "ConfigOSPFAreaTableRec: #{@area},#{@node},#{@process_id}",
+      "ConfigOSPFAreaTableRec: ",
+      "#{@area},#{@node},#{@process_id},#{@router_id},",
       "act#{@active_interfaces},psv#{@passive_interfaces}"
-    ].join(',')
+    ].join('')
   end
 
   private
