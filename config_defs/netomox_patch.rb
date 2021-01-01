@@ -21,6 +21,17 @@ module Netomox
       end
     end
 
+    # patch for object base
+    class TopoObjectBase
+      # rewrite object name
+      def name=(value)
+        @name = value
+        path_elements = @path.split('__')
+        path_elements[-1] = @name
+        @path = path_elements.join('__')
+      end
+    end
+
     # patch for Netomox::Topology::Node
     class Node < TopoObjectBase
       def find_tp_by_name(tp_name)
@@ -33,6 +44,21 @@ module Netomox
 
       def find_all_tps_with_attribute(key)
         @termination_points.filter { |tp| tp.attribute.attribute?(key) }
+      end
+
+      def each_tps
+        @termination_points.each do |tp|
+          yield tp
+        end
+      end
+    end
+
+    # patch for term-point
+    class TermPoint < TopoObjectBase
+      def each_supports
+        @supports.each do |support|
+          yield support
+        end
       end
     end
 
