@@ -1,0 +1,6 @@
+,Node,VRF,Process_ID,Areas,Reference_Bandwidth,Router_ID,Export_Policy_Sources,Area_Border_Router
+0,border12,default,1,['10'],100000000.0,10.0.0.5,[],False
+1,core02,default,1,"['0', '10', '100']",100000000.0,10.0.0.3,[],True
+2,core01,default,1,"['0', '10', '100']",100000000.0,10.0.0.2,[],True
+3,border01,default,1,['100'],100000000.0,10.0.0.1,[],False
+4,border11,default,1,['10'],100000000.0,10.0.0.4,[],False

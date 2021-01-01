@@ -6,6 +6,8 @@ require_relative 'csv/routes_table'
 require_relative 'csv/ip_owners_table'
 require_relative 'csv/edges_bgp_table'
 require_relative 'csv/config_bgp_proc_table'
+require_relative 'csv/config_ospf_area_table'
+require_relative 'csv/config_ospf_proc_table'
 
 # base class of layer topology converter
 class TopologyLayerBase < DataBuilderBase
@@ -22,6 +24,8 @@ class TopologyLayerBase < DataBuilderBase
     # commons for bgp-* and ospf-*
     setup_edges_bgp_table
     setup_as_numbers_table
+    setup_config_ospf_proc_table
+    setup_config_ospf_area_table
   end
 
   def to_json(*_args)
@@ -57,5 +61,21 @@ class TopologyLayerBase < DataBuilderBase
   def setup_as_numbers_table
     @as_numbers = @edges_bgp_table.as_numbers
     debug '# as_numbers: ', @as_numbers
+  end
+
+  def setup_config_ospf_proc_table
+    table_of = {}
+    @config_ospf_proc_table = ConfigOSPFProcTable.new(@target, table_of)
+    debug '# config_ospf_proc: ', @config_ospf_proc_table
+  end
+
+  def setup_config_ospf_area_table
+    table_of = {
+      routes: @routes_table,
+      ip_owners: @ip_owners_table,
+      config_ospf_proc: @config_ospf_proc_table
+    }
+    @config_ospf_area_table = ConfigOSPFAreaTable.new(@target, table_of)
+    debug '# config_ospf_area: ', @config_ospf_area_table
   end
 end

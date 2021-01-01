@@ -116,9 +116,11 @@ class ASAreaTable < TableBase
 
   def make_as_area_table(nodes_in_as)
     as_area_table = []
+    # Combine data: AS -> Node (in AS) -> OSPF Area/Proc
     nodes_in_as.each_pair do |asn, nodes|
       nodes.each do |node|
         @config_ospf_area_table.find_all_by_node(node).each do |record|
+          # record.as_area returns ASAreaTableRecord
           as_area_table.push(record.as_area(asn))
         end
       end
