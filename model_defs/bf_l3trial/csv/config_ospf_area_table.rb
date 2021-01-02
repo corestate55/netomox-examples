@@ -2,7 +2,21 @@
 
 require 'forwardable'
 require_relative 'table_base'
-require_relative 'as_area_util'
+
+# interfaces information for ASAreaTableRecord
+# A part of ASAreaTableRecord.
+class InterfaceInfo
+  attr_accessor :interface, :ip
+
+  def initialize(interface, ip_rec)
+    @interface = interface
+    @ip = ip_rec.ip_mask_str
+  end
+
+  def to_s
+    "IfInfo:#{@interface},#{@ip}"
+  end
+end
 
 # row of config_ospf_area table
 class ConfigOSPFAreaTableRecord < TableRecordBase
@@ -24,16 +38,15 @@ class ConfigOSPFAreaTableRecord < TableRecordBase
   end
   # rubocop:enable Security/Eval
 
-  # make as_area_table record
+  # as_area_table record
   # see: ASAreaTableRecord, ASAreaTable#make_as_area_table
   def as_area(asn)
     area, proc_id, if_infos = area_interfaces
-    opts = {
+    {
       asn: asn, area: area, node: @node, process_id: proc_id,
       router_id: @router_id, areas: @areas,
       interfaces: if_infos, routes_table: @routes_table
     }
-    ASAreaTableRecord.new(opts, @debug)
   end
 
   def to_s
