@@ -21,30 +21,36 @@ class OSPFProcTopologyConverter < OSPFTopologyConverterBase
     @edges_ospf_table = EdgesOSPFTable.new(@target, table_of)
   end
 
-  def make_proc_node_tp(term_point, as_area)
+  def make_proc_node_tp(term_point, as_area_rec)
+    debug '# ospf_proc_layer tp: ', term_point, as_area_rec
     ptp = PTermPoint.new(term_point.interface)
-    ptp.supports.push(['layer3', as_area.node, term_point.interface])
-    ptp.attribute = { ip_addrs: [term_point.ip] }
+    ptp.supports.push(['layer3', as_area_rec.node, term_point.interface])
+    # NOTICE: appending ospf-area info that interface joins.
+    # In nature, `ip_addrs` field contains only IP-format string, it becomes a type validation error.
+    # This implementation is experimental.
+    # It must be used as a new network type (ospf-type network) and its attributes instead of layer3-network-type.
+    # (but not implemented the ospf-type schemas yet.)
+    ptp.attribute = { ip_addrs: ["area#{as_area_rec.area}:#{term_point.ip}"] }
     ptp
   end
 
-  def make_proc_node_tps(as_area)
-    as_area.interfaces.map { |tp| make_proc_node_tp(tp, as_area) }
+  def make_proc_node_tps(as_area_rec)
+    as_area_rec.interfaces.map { |tp| make_proc_node_tp(tp, as_area_rec) }
   end
 
-  def make_proc_node(as_area)
-    pnode = find_or_new_node(as_area.node)
+  def make_proc_node(as_area_rec)
+    pnode = find_or_new_node(as_area_rec.node)
     # append tps if found in existence node.
-    pnode.tps.concat(make_proc_node_tps(as_area))
-    pnode.supports.push(['layer3', as_area.node])
+    pnode.tps.concat(make_proc_node_tps(as_area_rec))
+    pnode.supports.push(['layer3', as_area_rec.node])
     pnode.supports.uniq!
-    pnode.attribute = as_area.ospf_proc_node_attribute
+    pnode.attribute = as_area_rec.ospf_proc_node_attribute
     pnode
   end
 
   def make_nodes
     @as_area_table.records_has_area.each do |rec|
-      debug '# ospf_layer node: ', rec
+      debug '# ospf_proc_layer node: ', rec
       add_node_if_new(make_proc_node(rec))
     end
     @nodes

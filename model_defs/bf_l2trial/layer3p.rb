@@ -44,8 +44,8 @@ class L3DataBuilder < DataBuilderBase
     dst_prop = @sw_vlan_props.find_node_int(dst_l1.node, dst_l1.interface)
     return unless dst_prop
 
-    seg.add_node(dst_prop.vlan_id, node) # src (host)
-    seg.add_node(dst_prop.vlan_id, dst_l1) # dst
+    seg.add_l3_node(dst_prop.vlan_id, node) # src (host)
+    seg.add_l3_node(dst_prop.vlan_id, dst_l1) # dst
   end
 
   def add_segment_nodes(seg, node)
@@ -53,7 +53,7 @@ class L3DataBuilder < DataBuilderBase
     # if node/interface found in sw_vlan_props, use vlan_id directly.
     node_prop = @sw_vlan_props.find_node_int(node.node, node.interface)
     if node_prop
-      seg.add_node(node_prop.vlan_id, node)
+      seg.add_l3_node(node_prop.vlan_id, node)
     else
       add_seg_nodes_by_l1(seg, node)
     end

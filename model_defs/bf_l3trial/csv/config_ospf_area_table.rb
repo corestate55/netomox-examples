@@ -2,7 +2,21 @@
 
 require 'forwardable'
 require_relative 'table_base'
-require_relative 'as_area_util'
+
+# interfaces information for ASAreaTableRecord
+# A part of ASAreaTableRecord.
+class InterfaceInfo
+  attr_accessor :interface, :ip
+
+  def initialize(interface, ip_rec)
+    @interface = interface
+    @ip = ip_rec.ip_mask_str
+  end
+
+  def to_s
+    "IfInfo:#{@interface},#{@ip}"
+  end
+end
 
 # row of config_ospf_area table
 class ConfigOSPFAreaTableRecord < TableRecordBase
@@ -19,34 +33,46 @@ class ConfigOSPFAreaTableRecord < TableRecordBase
     @active_interfaces = eval(record[:active_interfaces])
     @passive_interfaces = eval(record[:passive_interfaces])
 
-    @ip_owners_table = table_of[:ip_owners]
-    @routes_table = table_of[:routes]
-    @config_ospf_proc_table = table_of[:config_ospf_proc]
-
-    @router_id = @config_ospf_proc_table.find_by_node_and_proc(@node, @process_id).router_id
+    setup_tables(table_of)
+    setup_from_config_ospf_table # must be after setup config_ospf_proc_table
   end
   # rubocop:enable Security/Eval
 
-  # make as_area_table record
+  # as_area_table record
   # see: ASAreaTableRecord, ASAreaTable#make_as_area_table
   def as_area(asn)
     area, proc_id, if_infos = area_interfaces
-    opts = {
-      asn: asn, area: area, node: @node, process_id: proc_id, router_id: @router_id,
+    {
+      asn: asn, area: area, node: @node, process_id: proc_id,
+      router_id: @router_id, areas: @areas,
       interfaces: if_infos, routes_table: @routes_table
     }
-    ASAreaTableRecord.new(opts, @debug)
   end
 
   def to_s
     [
       'ConfigOSPFAreaTableRec: ',
-      "#{@area},#{@node},#{@process_id},#{@router_id},",
+      "#{@area},#{@node},#{@process_id},#{@router_id},#{@areas}",
       "act#{@active_interfaces},psv#{@passive_interfaces}"
     ].join('')
   end
 
   private
+
+  def setup_tables(table_of)
+    @ip_owners_table = table_of[:ip_owners]
+    @routes_table = table_of[:routes]
+    @config_ospf_proc_table = table_of[:config_ospf_proc]
+  end
+
+  # rubocop:disable Security/Eval
+  def setup_from_config_ospf_table
+    config_ospf_proc_rec = @config_ospf_proc_table.find_by_node_and_proc(@node, @process_id)
+    @router_id = config_ospf_proc_rec.router_id
+    # areas the process(node) owns (array-like string to array)
+    @areas = eval(config_ospf_proc_rec.areas).map(&:to_i)
+  end
+  # rubocop:enable Security/Eval
 
   def make_interface_infos(interfaces)
     interfaces.map do |interface|

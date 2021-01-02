@@ -15,34 +15,44 @@ class TinetConfig
     YAML.dump(@config.to_hash)
   end
 
-  # l3nw : Netomox::Topology::Network
+  # l3_nw : Netomox::Topology::Network
   # node : Netomox::Topology::Node
-  def add_node(l3nw, node)
-    @config[:nodes].push(config_node(l3nw, node))
+  def add_l3_node(l3_nw, node)
+    @config[:nodes].push(config_l3_node(l3_nw, node))
   end
 
   # node : Netomox::Topology::Node
-  def add_node_config(node)
-    @config[:node_configs].push(config_node_config(node))
+  def add_l3_node_config(node)
+    @config[:node_configs].push(config_l3_node_config(node))
   end
 
-  def add_test(l3nw, node)
-    @config[:test][:cmds].concat(config_test(l3nw, node))
+  def add_l3_test(l3_nw, node)
+    @config[:test][:cmds].concat(config_l3_test(l3_nw, node))
   end
 
   private
 
-  def facing_tp(l3nw, node, term_point)
-    facing_interface_config = config_facing_interface(l3nw, node, term_point)
+  def format_cmds(cmds)
+    cmds.map { |cmd| Hashie::Mash.new(cmd: cmd) }
+  end
+
+  def facing_tp(network, node, term_point)
+    facing_interface_config = config_facing_interface(network, node, term_point)
     dst_node_name, dst_tp_name = facing_interface_config.split('#')
-    dst_node = l3nw.find_node_by_name(dst_node_name)
+    dst_node = network.find_node_by_name(dst_node_name)
     dst_node.find_tp_by_name(dst_tp_name)
   end
 
-  def config_test(l3nw, node)
+  def config_facing_interface(network, node, term_point)
+    found_link = network.find_link_by_source(node.name, term_point.name)
+    # return "hostname#interface" format string
+    found_link ? "#{found_link.destination.node_ref}##{found_link.destination.tp_ref}" : '_NONE_'
+  end
+
+  def config_l3_test(l3_nw, node)
     cmds = []
     node.find_all_tps_except_loopback.map do |tp|
-      dst_tp = facing_tp(l3nw, node, tp)
+      dst_tp = facing_tp(l3_nw, node, tp)
       next unless dst_tp.attribute.attribute?(:ip_addrs)
 
       dst_tp.attribute.ip_addrs.each do |dst_ip_addr|
@@ -53,35 +63,25 @@ class TinetConfig
     format_cmds(cmds)
   end
 
-  def config_facing_interface(l3nw, node, term_point)
-    found_link = l3nw.find_link_by_source(node.name, term_point.name)
-    # return "hostname#interface" format string
-    found_link ? "#{found_link.destination.node_ref}##{found_link.destination.tp_ref}" : '_NONE_'
-  end
-
-  def config_interfaces(l3nw, node)
+  def config_l3_interfaces(l3_nw, node)
     node.find_all_tps_except_loopback.map do |tp|
       Hashie::Mash.new(
         name: tp.name,
         type: 'direct',
-        args: config_facing_interface(l3nw, node, tp)
+        args: config_facing_interface(l3_nw, node, tp)
       )
     end
   end
 
-  def config_node(l3nw, node)
+  def config_l3_node(l3_nw, node)
     Hashie::Mash.new(
       name: node.name,
       image: 'slankdev/frr',
-      interfaces: config_interfaces(l3nw, node)
+      interfaces: config_l3_interfaces(l3_nw, node)
     )
   end
 
-  def format_cmds(cmds)
-    cmds.map { |cmd| Hashie::Mash.new(cmd: cmd) }
-  end
-
-  def config_node_cmds(node)
+  def config_l3_node_cmds(node)
     cmds = ['/usr/lib/frr/frr start']
     ip_cmds = node.find_all_tps_with_attribute(:ip_addrs).map do |tp|
       tp.attribute.ip_addrs.map do |ip_addr|
@@ -92,10 +92,10 @@ class TinetConfig
     format_cmds(cmds.concat(ip_cmds))
   end
 
-  def config_node_config(node)
+  def config_l3_node_config(node)
     Hashie::Mash.new(
       name: node.name,
-      cmds: config_node_cmds(node)
+      cmds: config_l3_node_cmds(node)
     )
   end
 end
