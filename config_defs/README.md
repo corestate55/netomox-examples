@@ -1,18 +1,34 @@
 # "Model to Config" trial
 
-## generate L3(L1) topology from model
-Generate network config for tinet from layer3 topology data of [Batfish Trial (L3)](../model_defs/bf_l3trial/README.md).
+## Generate network config from topology data
+
+Generate network config for tinet from layer3 topology data.
 
 See also:
 * [tinynetwork/tinet: TiNET](https://github.com/tinynetwork/tinet)
 * [Dockerで始めるネットワーク実験入門 2020-5-30 C-4 - YouTube](https://youtu.be/_gaeI56vmPI)
 
-Generate network model (netoviz/static/model/bf_l3s1.json)
+### Target topology data
+
+Target: `netoviz/static/model/bf_l3s1.json`
+
+The topology data is converted from router configs.
+See [Batfish Trial (L3)](../model_defs/bf_l3trial/README.md) to generate it.
+
+### Convert topology data
 
 Run model converter
 ```
-hagiwara@dev02:~/nwmodel/netomox-examples$ bundle exec ruby config_defs/phys_topology.rb | tee config_defs/spec.yaml
+hagiwara@dev02:~/nwmodel/netomox-examples$ bundle exec ruby config_defs/topo2config_converter.rb
 ```
+
+Then, it output yaml files for tinet.
+Check and save it as `spec.yaml` for tinet.
+```
+hagiwara@dev02:~/nwmodel/netomox-examples$ bundle exec ruby config_defs/topo2config_converter.rb | config_defs/spec.yaml
+```
+
+### Setup network with tinet
 
 Run `tinet upconf` without shell pipeline to check commands.
 ```
