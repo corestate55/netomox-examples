@@ -1,12 +1,13 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require 'optparse'
 require_relative './topo2config_converter_base'
 
 # data converter (layer3 to tinet)
 class Topo2Layer3ConfigConverter < Topo2ConfigConverterBase
-  def initialize(file)
-    super(file)
+  def initialize(file: '', debug: nil)
+    super(file: file, debug: debug)
     construct_l3_config
   end
 
@@ -24,23 +25,36 @@ end
 
 # data converter (ospf)
 class Topo2OSPFConfigConverter < Topo2Layer3ConfigConverter
-  def initialize(file)
-    super(file)
+  def initialize(file: '', debug: nil)
+    super(file: file, debug: debug)
     construct_ospf_config
   end
 
   private
 
   def construct_ospf_config
-    # TBA
+    ospf_proc_nw = @networks.find_network('ospf-proc')
+    ospf_proc_nw.nodes.each do |node|
+      @tinet_config.add_ospf_node_config(node)
+    end
   end
 end
 
 # exec:
 # hagiwara@dev02:~/nwmodel/netomox-examples$ bundle exec ruby config_defs/topo2config_converter.rb
+
+opts = ARGV.getopts('debug:')
+
+debug = opts['debug'] ? opts['debug'].intern : nil
+
 file_dir = Pathname.new('~/nwmodel/netomox-examples/netoviz/static/model')
 file_name = Pathname.new('bf_l3s1.json')
 file_path = file_dir.join(file_name).expand_path
-# config_converter = Topo2Layer3ConfigConverter.new(file_path)
-config_converter = Topo2OSPFConfigConverter.new(file_path)
+
+opts = { file: file_path, debug: debug }
+config_converter = if debug == :layer3
+                     Topo2Layer3ConfigConverter.new(opts)
+                   else
+                     Topo2OSPFConfigConverter.new(opts)
+                   end
 puts config_converter.to_config
