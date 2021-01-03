@@ -37,6 +37,7 @@ class Topo2OSPFConfigConverter < Topo2Layer3ConfigConverter
     ospf_proc_nw = @networks.find_network('ospf-proc')
     ospf_proc_nw.nodes.each do |node|
       @tinet_config.add_ospf_node_config(node)
+      @tinet_config.add_ospf_test(node)
     end
   end
 end
