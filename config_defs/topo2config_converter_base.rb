@@ -2,18 +2,19 @@
 
 require 'json'
 require 'yaml'
-require_relative 'tinet_config'
+require 'netomox'
 
 # base class
 class Topo2ConfigConverterBase
-  def initialize(file: '', debug: nil)
-    @file = file
-    @debug = debug
+  def initialize(opts)
+    @file = opts[:file]
+    @tinet_config = opts[:tinet_config]
+    @debug = opts[:debug]
+    warn "file: #{@file}, tinet_config:#{@tinet_config.class}" if @debug
 
     @topology_data = read_topology_data
     @networks = convert_data_to_topology
     convert_interface_name
-    @tinet_config = TinetConfig.new
   end
 
   def to_s
