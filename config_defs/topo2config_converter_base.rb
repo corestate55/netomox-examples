@@ -6,8 +6,10 @@ require_relative 'tinet_config'
 
 # base class
 class Topo2ConfigConverterBase
-  def initialize(file)
+  def initialize(file: '', debug: nil)
     @file = file
+    @debug = debug
+
     @topology_data = read_topology_data
     @networks = convert_data_to_topology
     convert_interface_name
@@ -61,5 +63,8 @@ class Topo2ConfigConverterBase
 
   def read_topology_data(opt_hash = {})
     JSON.parse(File.read(@file), opt_hash)
+  rescue StandardError => e
+    warn e
+    exit 1
   end
 end

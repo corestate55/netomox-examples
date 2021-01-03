@@ -34,6 +34,12 @@ module Netomox
 
     # patch for Netomox::Topology::Node
     class Node < TopoObjectBase
+      def find_all_supports_by_network(nw_name)
+        @supports.find_all do |support|
+          support.ref_network == nw_name
+        end
+      end
+
       def find_tp_by_name(tp_name)
         @termination_points.find { |tp| tp.name == tp_name }
       end
@@ -45,6 +51,12 @@ module Netomox
       # key: method to read attribute (symbol)
       def find_all_tps_with_attribute(key)
         @termination_points.filter { |tp| tp.attribute.attribute?(key) }
+      end
+
+      def each_tps_except_loopback
+        find_all_tps_except_loopback.each do |tp|
+          yield tp
+        end
       end
 
       def each_tps
@@ -67,6 +79,14 @@ module Netomox
     class AttributeBase
       def attribute?(key)
         self.class.method_defined?(key)
+      end
+    end
+
+    # patch for supports
+    class SupportingRefBase < AttributeBase
+      def ref_node
+        path = ref_path.split('__')
+        path.length > 1 ? path[1] : nil
       end
     end
 

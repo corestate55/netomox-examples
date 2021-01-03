@@ -31,6 +31,7 @@ GEM
       guard-compat (~> 1.0)
     hashie (4.1.0)
     highline (2.0.3)
+    ipaddress (0.8.3)
     json (2.3.0)
     listen (3.2.1)
       rb-fsevent (~> 0.10, >= 0.10.3)
@@ -87,6 +88,7 @@ DEPENDENCIES
   guard
   guard-shell
   hashie (>= 4.1.0)
+  ipaddress (~> 0.8.3)
   netomox!
   rubocop (>= 0.80)
 
