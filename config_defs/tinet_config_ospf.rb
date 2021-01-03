@@ -10,12 +10,35 @@ class TinetConfigOSPF < TinetConfigLayer3
     target_node_config[:cmds].push(config_ospf_node_cmds(node))
   end
 
+  def add_ospf_test(node)
+    @config[:test][:cmds].concat(config_ospf_test(node))
+  end
+
   private
 
-  def find_node_config_by_ospf_node(node)
+  def ospf_status_check_cmds
+    [
+      'show ip ospf neighbor',
+      'show ip route ospf'
+    ]
+  end
+
+  def config_ospf_test(node)
+    l3_node_name = find_support_layer3_node_name(node)
+    cmds = ospf_status_check_cmds.map do |cmd|
+      "docker exec #{l3_node_name} vtysh -c \"#{cmd}\""
+    end
+    format_cmds(cmds)
+  end
+
+  def find_support_layer3_node_name(node)
     # ospf-proc node has single support node
     l3_node_support = node.find_all_supports_by_network('layer3').shift
-    l3_node_name = l3_node_support.ref_node
+    l3_node_support.ref_node
+  end
+
+  def find_node_config_by_ospf_node(node)
+    l3_node_name = find_support_layer3_node_name(node)
     find_node_config_by_name(l3_node_name)
   end
 

@@ -28,6 +28,13 @@ Check and save it as `spec.yaml` for tinet.
 hagiwara@dev02:~/nwmodel/netomox-examples$ bundle exec ruby config_defs/topo2config_converter.rb | config_defs/spec.yaml
 ```
 
+Debug option: `--debug=<key>`
+- `layer3`: exec layer3 only
+- `ospf` : exec ospf (including layer3)
+
+```
+hagiwara@dev02:~/nwmodel/netomox-examples$ bundle exec ruby config_defs/topo2config_converter.rb --debug=layer3
+```
 ### Setup network with tinet
 
 Run `tinet upconf` without shell pipeline to check commands.
