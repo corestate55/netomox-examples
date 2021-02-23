@@ -53,11 +53,9 @@ class Topo2BGPConfigConverter < Topo2Layer3ConfigConverter
   private
 
   def construct_bgp_config
+    bgp_as_nw = @networks.find_network('bgp-as')
     bgp_proc_nw = @networks.find_network('bgp-proc')
-    bgp_proc_nw.nodes.each do |node|
-      @tinet_config.add_bgp_node_config(node)
-      @tinet_config.add_bgp_test(node)
-    end
+    @tinet_config.add_bgp_node_config_by_nw(bgp_as_nw, bgp_proc_nw)
   end
 end
 
