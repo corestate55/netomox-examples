@@ -53,11 +53,9 @@ class Topo2BGPConfigConverter < Topo2Layer3ConfigConverter
   private
 
   def construct_bgp_config
+    bgp_as_nw = @networks.find_network('bgp-as')
     bgp_proc_nw = @networks.find_network('bgp-proc')
-    bgp_proc_nw.nodes.each do |node|
-      @tinet_config.add_bgp_node_config(node)
-      @tinet_config.add_bgp_test(node)
-    end
+    @tinet_config.add_bgp_node_config_by_nw(bgp_as_nw, bgp_proc_nw)
   end
 end
 
@@ -86,6 +84,8 @@ if debug && !%i[layer3 ospf bgp].include?(debug)
   warn "Unknown debug option: #{debug}"
   exit 1
 end
+warn "# Debug mode : #{debug}" if debug
+opts['debug'] = debug
 
 file_dir = Pathname.new('~/nwmodel/netomox-examples/netoviz/static/model')
 file_name = Pathname.new('bf_l3s1.json')

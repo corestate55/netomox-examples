@@ -25,7 +25,7 @@ hagiwara@dev02:~/nwmodel/netomox-examples$ bundle exec ruby config_defs/topo2con
 Then, it output yaml files for tinet.
 Check and save it as `spec.yaml` for tinet.
 ```
-hagiwara@dev02:~/nwmodel/netomox-examples$ bundle exec ruby config_defs/topo2config_converter.rb | config_defs/spec.yaml
+hagiwara@dev02:~/nwmodel/netomox-examples$ bundle exec ruby config_defs/topo2config_converter.rb | tee config_defs/spec.yaml
 ```
 
 Debug option: `--debug=<key>`
