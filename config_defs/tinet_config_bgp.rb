@@ -20,7 +20,7 @@ class TinetConfigBGP < TinetConfigLayer3
 
   def add_bgp_proc_node_config(asn, proc_node)
     l3_node_name = proc_node.attribute.name
-    puts "AS:#{asn}, NODE:#{proc_node}, L3_NODE:#{l3_node_name}"
+    warn "AS:#{asn}, NODE:#{proc_node}, L3_NODE:#{l3_node_name}"
     target_node_config = find_node_config_by_name(l3_node_name)
     target_node_config[:cmds].push(config_bgp_proc_node_config(asn, proc_node))
   end
@@ -38,10 +38,13 @@ class TinetConfigBGP < TinetConfigLayer3
     format_vtysh_cmds([
       'conf t',
       "router bgp #{asn}",
-      "router-id #{router_id(proc_node)}",
-      'log-adjacency-changes',
-      'redistribute connected subnets',
-      'passive-interface Loopback0'
+      "bgp router-id #{router_id(proc_node)}",
+      'bgp log-neighbor-changes',
+      'address-family ipv4 unicast',
+      'redistribute connected',
+      'exit-address-family',
+      'exit',
+      'exit'
     ])
   end
 end

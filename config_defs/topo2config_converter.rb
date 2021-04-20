@@ -84,6 +84,8 @@ if debug && !%i[layer3 ospf bgp].include?(debug)
   warn "Unknown debug option: #{debug}"
   exit 1
 end
+warn "# Debug mode : #{debug}" if debug
+opts['debug'] = debug
 
 file_dir = Pathname.new('~/nwmodel/netomox-examples/netoviz/static/model')
 file_name = Pathname.new('bf_l3s1.json')
