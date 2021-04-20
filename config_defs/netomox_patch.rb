@@ -5,6 +5,15 @@ require 'netomox'
 # monkey patches
 module Netomox
   module Topology
+    # patch for Netomox::Topology::AttributeTable
+    # It occurs warnings in ruby 2.7.x from 2.6.x.
+    # This patch must be merged netomox (for ruby >=2.7.x)
+    class AttributeTable
+      def initialize(lines)
+        @lines = lines.map { |line| AttributeTableLine.new(**line) }
+      end
+    end
+
     # patch for Netomox::Topology::Network
     class Network < TopoObjectBase
       def find_link_by_source(node_ref, tp_ref)
