@@ -19,21 +19,23 @@ See [Batfish Trial (L3)](../model_defs/bf_l3trial/README.md) to generate it.
 
 Run model converter
 ```
-hagiwara@dev02:~/nwmodel/netomox-examples$ bundle exec ruby config_defs/topo2config_converter.rb
+hagiwara@dev02:~/nwmodel/netomox-examples$ bundle exec config_defs/convert_topology2config.rb
 ```
 
 Then, it output yaml files for tinet.
 Check and save it as `spec.yaml` for tinet.
 ```
-hagiwara@dev02:~/nwmodel/netomox-examples$ bundle exec ruby config_defs/topo2config_converter.rb | tee config_defs/spec.yaml
+hagiwara@dev02:~/nwmodel/netomox-examples$ bundle exec config_defs/convert_topology2config.rb | tee config_defs/spec.yaml
 ```
 
 Debug option: `--debug=<key>`
-- `layer3`: exec layer3 only
+- `l3` or `layer3`: exec layer3 only
 - `ospf` : exec ospf (including layer3)
+- `bgp` : exec bgp (including layer3)
+- `all` (or without debug option) : exec whole layers (layer3, ospf and bgp)
 
 ```
-hagiwara@dev02:~/nwmodel/netomox-examples$ bundle exec ruby config_defs/topo2config_converter.rb --debug=layer3
+hagiwara@dev02:~/nwmodel/netomox-examples$ bundle exec ruby config_defs/convert_topology2config.rb --debug=layer3
 ```
 ### Setup network with tinet
 
