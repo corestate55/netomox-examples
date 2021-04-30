@@ -2,8 +2,10 @@
 
 require_relative './tinet_config_layer3'
 
-# Tinet config generator for bgp-proc topology model
-class TinetConfigBGP < TinetConfigLayer3
+# Mix-in module to construct bgp tinet config
+module TinetConfigBGPModule
+  include TinetConfigBaseModule
+
   def add_bgp_node_config_by_nw(bgp_as_nw, bgp_proc_nw)
     bgp_as_nw.nodes.each do |bgp_as_node|
       asn = bgp_as_node.name.split(/as/).pop.to_i
@@ -25,8 +27,8 @@ class TinetConfigBGP < TinetConfigLayer3
     target_node_config[:cmds].push(config_bgp_proc_node_config(asn, proc_node))
   end
 
-  def add_bgp_test(node)
-    # TBA
+  def add_bgp_test(_node)
+    # TODO: test commands for bgp network
   end
 
   def router_id(proc_node)
@@ -34,17 +36,25 @@ class TinetConfigBGP < TinetConfigLayer3
     proc_node.attribute.router_id.shift.split('_').pop
   end
 
+  # rubocop:disable Metrics/MethodLength
   def config_bgp_proc_node_config(asn, proc_node)
     format_vtysh_cmds([
-      'conf t',
-      "router bgp #{asn}",
-      "bgp router-id #{router_id(proc_node)}",
-      'bgp log-neighbor-changes',
-      'address-family ipv4 unicast',
-      'redistribute connected',
-      'exit-address-family',
-      'exit',
-      'exit'
-    ])
+                        'conf t',
+                        "router bgp #{asn}",
+                        "bgp router-id #{router_id(proc_node)}",
+                        'bgp log-neighbor-changes',
+                        'address-family ipv4 unicast',
+                        # TODO: bgp configuration
+                        'redistribute connected',
+                        'exit-address-family',
+                        'exit', # router bgp
+                        'exit' # conf t
+                      ])
   end
+  # rubocop:enable Metrics/MethodLength
+end
+
+# Tinet config generator for bgp-proc topology model
+class TinetConfigBGP < TinetConfigLayer3
+  include TinetConfigBGPModule
 end

@@ -3,7 +3,7 @@
 require 'hashie'
 require 'yaml'
 
-# Tinet config generator base class
+# Base class of tinet config wrapper.
 class TinetConfigBase
   attr_reader :config
 
@@ -20,9 +20,10 @@ class TinetConfigBase
     # blick/chomp(|-) to fold/chomp(>-)
     YAML.dump(@config.to_hash).tr('cmd: |-', 'cmd: >-')
   end
+end
 
-  protected
-
+# Base methods to mix-in
+module TinetConfigBaseModule
   def format_cmds(cmds)
     cmds.map { |cmd| Hashie::Mash.new(cmd: cmd) }
   end

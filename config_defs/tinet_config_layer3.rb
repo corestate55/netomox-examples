@@ -3,8 +3,10 @@
 require_relative './tinet_config_base'
 require_relative './netomox_patch'
 
-# Tinet config generator for layer3 topology model
-class TinetConfigLayer3 < TinetConfigBase
+# Mix-in module to construct layer3 tinet config
+module TinetConfigLayer3Module
+  include TinetConfigBaseModule
+
   # l3_nw : Netomox::Topology::Network
   # node : Netomox::Topology::Node
   def add_l3_node(l3_nw, node)
@@ -84,4 +86,9 @@ class TinetConfigLayer3 < TinetConfigBase
       cmds: config_l3_node_cmds(node)
     )
   end
+end
+
+# Tinet config generator for layer3 topology model
+class TinetConfigLayer3 < TinetConfigBase
+  include TinetConfigLayer3Module
 end
