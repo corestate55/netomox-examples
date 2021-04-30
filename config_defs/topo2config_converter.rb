@@ -29,15 +29,8 @@ class Topo2Layer3ConfigConverter < Topo2ConfigConverterBase
   end
 end
 
-# data converter (ospf)
-class Topo2OSPFConfigConverter < Topo2Layer3ConfigConverter
-  def initialize(opts)
-    super(opts)
-    construct_ospf_config
-  end
-
-  private
-
+# data convert method for ospf (to mix-in)
+module Topo2OSPFConfigConverterModule
   def construct_ospf_config
     ospf_proc_nw = @networks.find_network('ospf-proc')
     ospf_proc_nw.nodes.each do |node|
@@ -47,15 +40,18 @@ class Topo2OSPFConfigConverter < Topo2Layer3ConfigConverter
   end
 end
 
-# data converter (bgp)
-class Topo2BGPConfigConverter < Topo2Layer3ConfigConverter
+# data converter (ospf)
+class Topo2OSPFConfigConverter < Topo2Layer3ConfigConverter
+  include Topo2OSPFConfigConverterModule
+
   def initialize(opts)
     super(opts)
-    construct_bgp_config
+    construct_ospf_config
   end
+end
 
-  private
-
+# data convert method for bgp (to mix-in)
+module Topo2BGPConfigConverterModule
   def construct_bgp_config
     bgp_as_nw = @networks.find_network('bgp-as')
     bgp_proc_nw = @networks.find_network('bgp-proc')
@@ -63,26 +59,24 @@ class Topo2BGPConfigConverter < Topo2Layer3ConfigConverter
   end
 end
 
-# data converter (whole layers)
-class Topo2AllConfigConverter < Topo2Layer3ConfigConverter
+# data converter (bgp)
+class Topo2BGPConfigConverter < Topo2Layer3ConfigConverter
+  include Topo2BGPConfigConverterModule
+
   def initialize(opts)
     super(opts)
-    construct_all_config
+    construct_bgp_config
   end
+end
 
-  private
+# data converter (whole layers)
+class Topo2AllConfigConverter < Topo2Layer3ConfigConverter
+  include Topo2OSPFConfigConverterModule
+  include Topo2BGPConfigConverterModule
 
-  def construct_all_config
-    # ospf
-    ospf_proc_nw = @networks.find_network('ospf-proc')
-    ospf_proc_nw.nodes.each do |node|
-      @tinet_config.add_ospf_node_config(node)
-      @tinet_config.add_ospf_test(node)
-    end
-
-    # bgp
-    bgp_as_nw = @networks.find_network('bgp-as')
-    bgp_proc_nw = @networks.find_network('bgp-proc')
-    @tinet_config.add_bgp_node_config_by_nw(bgp_as_nw, bgp_proc_nw)
+  def initialize(opts)
+    super(opts)
+    construct_ospf_config
+    construct_bgp_config
   end
 end
