@@ -4,7 +4,7 @@ require 'json'
 require 'yaml'
 require 'netomox'
 
-# base class
+# base class of tinet config converter
 class Topo2ConfigConverterBase
   def initialize(opts)
     @file = opts[:file]

@@ -3,8 +3,10 @@
 require 'ipaddress'
 require_relative './tinet_config_layer3'
 
-# Tinet config generator for ospf-proc topology model
-class TinetConfigOSPF < TinetConfigLayer3
+# Mix-in module to construct ospf tinet config
+module TinetConfigOSPFModule
+  include TinetConfigBaseModule
+
   def add_ospf_node_config(node)
     target_node_config = node_config_by_ospf_node(node)
     target_node_config[:cmds].push(config_ospf_node_cmds(node))
@@ -68,6 +70,7 @@ class TinetConfigOSPF < TinetConfigLayer3
     "network #{ip.network.to_string} area #{area}"
   end
 
+  # rubocop:disable Metrics/MethodLength
   def config_ospf_node_cmds(node)
     cmds = ['conf t']
     # the proc number is not used in the ospfd of FRR.
@@ -83,6 +86,14 @@ class TinetConfigOSPF < TinetConfigLayer3
         cmds.push(ospf_network_cmd(ip_ospf_str))
       end
     end
+    cmds.push('exit') # router ospf
+    cmds.push('exit') # conf t
     format_vtysh_cmds(cmds)
   end
+  # rubocop:enable Metrics/MethodLength
+end
+
+# Tinet config generator for ospf-proc topology model
+class TinetConfigOSPF < TinetConfigLayer3
+  include TinetConfigOSPFModule
 end
