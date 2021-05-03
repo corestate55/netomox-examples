@@ -8,6 +8,7 @@ class OSPFEdge < EdgeBase
   attr_accessor :node, :interface, :as, :area
 
   def initialize(node_interface, as_area_table)
+    super()
     @as_area_table = as_area_table
     @node, @interface = split_node_interface(node_interface)
     @as, @area = term_point_info

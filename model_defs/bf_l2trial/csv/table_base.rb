@@ -27,6 +27,7 @@ class EdgeBase < TableRecordBase
   end
 
   def initialize(interface_str)
+    super()
     interface_str =~ /(.+)\[(.+)\]/
     @node = Regexp.last_match(1)
     @interface = Regexp.last_match(2)

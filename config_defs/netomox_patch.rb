@@ -62,25 +62,19 @@ module Netomox
         @termination_points.filter { |tp| tp.attribute.attribute?(key) }
       end
 
-      def each_tps_except_loopback
-        find_all_tps_except_loopback.each do |tp|
-          yield tp
-        end
+      def each_tps_except_loopback(&block)
+        find_all_tps_except_loopback.each(&block)
       end
 
-      def each_tps
-        @termination_points.each do |tp|
-          yield tp
-        end
+      def each_tps(&block)
+        @termination_points.each(&block)
       end
     end
 
     # patch for term-point
     class TermPoint < TopoObjectBase
-      def each_supports
-        @supports.each do |support|
-          yield support
-        end
+      def each_supports(&block)
+        @supports.each(&block)
       end
     end
 

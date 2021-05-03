@@ -9,6 +9,8 @@ class L3Edge < EdgeBase
 
   # rubocop:disable Security/Eval
   def initialize(node_interface, ips)
+    super()
+    # overwrite @node/@interface (written in super at first)
     @node, @interface = split_node_interface(node_interface)
     @ips = eval(ips) # ip list
   end

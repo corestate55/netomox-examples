@@ -54,7 +54,7 @@ class ConfigOSPFAreaTableRecord < TableRecordBase
       'ConfigOSPFAreaTableRec: ',
       "#{@area},#{@node},#{@process_id},#{@router_id},#{@areas}",
       "act#{@active_interfaces},psv#{@passive_interfaces}"
-    ].join('')
+    ].join
   end
 
   private

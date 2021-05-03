@@ -47,10 +47,6 @@ end
 
 # pseudo termination point
 class PTermPoint < PObjectBase
-  def initialize(name)
-    super(name)
-  end
-
   def to_s
     "[#{name}]"
   end

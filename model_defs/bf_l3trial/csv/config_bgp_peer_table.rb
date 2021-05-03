@@ -25,7 +25,8 @@ class ConfigBGPPeerTableRecord < TableRecordBase
   end
 
   def to_s
-    "ConfigBGPPeerTableRec: #{@node},#{@local_as},#{@local_ip},#{@confederation},#{@remote_as},#{@remote_ip},#{@rr_client},#{@cluster_id}"
+    'ConfigBGPPeerTableRec: ' \
+      "#{@node},#{@local_as},#{@local_ip},#{@confederation},#{@remote_as},#{@remote_ip},#{@rr_client},#{@cluster_id}"
   end
 end
 
@@ -54,29 +55,15 @@ class ConfigBGPPeerTable < TableBase
 
   def rr_data(node)
     # search as RR server
-    found_servers = @rr_peers.find_all { |peer| peer[:node] == node }
-    debug "[rr_data] #{node}, search as RR server"
-    unless found_servers.empty?
-      rr_clients = found_servers.map { |peer| peer[:client_peer] }
-      return { type: :server, cluster_id: found_servers[0][:cluster_id], clients: rr_clients }
-    end
+    found = find_node_as_rr_server(node)
+    return found if found
 
     # search as RR client
-    debug "[rr_data] #{node}, search as RR client"
-    node_recs = find_all_recs_by_node(node)
-    unless node_recs.empty?
-      node_local_ips = node_recs.map { |rec| rec.local_ip }
-      # A RR-client is able to have multiple servers
-      server_recs = find_all_rr_server_recs.find_all { |rec| node_local_ips.include?(rec.remote_ip) }
-      unless server_recs.empty?
-        servers = server_recs.map { |rec| rec.local_ip }
-        return { type: :client, servers: servers }
-      end
-    end
+    found = find_node_as_rr_client(node)
+    return found if found
 
     # no RR proc
-    debug "[rr_data] #{node}, no-RR"
-    { type: :no_rr }
+    {}
   end
 
   def to_s
@@ -84,6 +71,27 @@ class ConfigBGPPeerTable < TableBase
   end
 
   private
+
+  def find_node_as_rr_server(node)
+    found_servers = @rr_peers.find_all { |peer| peer[:node] == node }
+    return nil if found_servers.empty?
+
+    rr_clients = found_servers.map { |peer| peer[:client_peer] }
+    { type: :server, cluster_id: found_servers[0][:cluster_id], clients: rr_clients }
+  end
+
+  def find_node_as_rr_client(node)
+    node_recs = find_all_recs_by_node(node)
+    return nil if node_recs.empty?
+
+    node_local_ips = node_recs.map(&:local_ip)
+    # A RR-client is able to have multiple servers
+    server_recs = find_all_rr_server_recs.find_all { |rec| node_local_ips.include?(rec.remote_ip) }
+    return nil if server_recs.empty?
+
+    servers = server_recs.map(&:local_ip)
+    { type: :client, servers: servers }
+  end
 
   def make_rr_peers
     rr_server_recs = find_all_rr_server_recs
@@ -98,7 +106,7 @@ class ConfigBGPPeerTable < TableBase
   end
 
   def find_all_rr_server_recs
-    @records.find_all { |rec| rec.rr_server? }
+    @records.find_all(&:rr_server?)
   end
 
   def find_rec_by_node(node)

@@ -9,8 +9,7 @@ class L3Node < EdgeBase
 
   # node: EdgeBase obj
   def initialize(vlan_id, node)
-    @node = node.node
-    @interface = node.interface
+    super("#{node.node}[#{node.interface}]")
     @vlan_id = vlan_id
   end
 
