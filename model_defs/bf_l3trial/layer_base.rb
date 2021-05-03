@@ -12,6 +12,7 @@ require_relative 'csv/config_ospf_proc_table'
 
 # base class of layer topology converter
 class TopologyLayerBase < DataBuilderBase
+  # rubocop:disable Metrics/MethodLength
   def initialize(target: '', debug: false, csv_dir: '')
     super()
     @target = target
@@ -29,6 +30,7 @@ class TopologyLayerBase < DataBuilderBase
     setup_config_ospf_proc_table
     setup_config_ospf_area_table
   end
+  # rubocop:enable Metrics/MethodLength
 
   def to_json(*_args)
     JSON.pretty_generate(topo_data)

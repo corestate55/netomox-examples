@@ -8,6 +8,7 @@ class EdgesLayer1TableRecord < TableRecordBase
   attr_accessor :src, :dst
 
   def initialize(record)
+    super()
     @src = EdgeBase.new(record[:interface])
     @dst = EdgeBase.new(record[:remote_interface])
   end

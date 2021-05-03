@@ -49,8 +49,7 @@ nws.register do
         term_point 'p3'
         term_point 'p4'
       end
-    end
-    vlan_range.each do |j|
+
       bdlink %W[host1#{j} eth0 Seg.1#{j} p1]
       bdlink %W[host2#{j} eth0 Seg.1#{j} p2]
       bdlink %W[switch1-GRT p1#{j} Seg.1#{j} p3]

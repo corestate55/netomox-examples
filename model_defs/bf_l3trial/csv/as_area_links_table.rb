@@ -23,6 +23,8 @@ class ASAreaLinkTableRecord < TableRecordBase
 
   # see ASAreaTable#makeOSPFAreaLinks
   def initialize(area_node_pair, interface, area_tp_count)
+    super()
+
     @as = area_node_pair.as
     @node = area_node_pair.node
     @node_tp = interface.interface

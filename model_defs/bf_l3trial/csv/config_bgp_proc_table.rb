@@ -55,7 +55,7 @@ class ConfigBGPProcTableRecord < ConfigBGPProcTableRecordCore
   def confederation_flags
     confederation_local_asn = @config_bgp_peer_table.local_asn(@node)
     confederation_asn = @config_bgp_peer_table.confederation_asn(@node)
-    return 'no_confederation' if confederation_local_asn.nil? || confederation_asn.nil?
+    return {} if confederation_local_asn.nil? || confederation_asn.nil?
 
     {
       local_as: confederation_local_asn,

@@ -8,6 +8,7 @@ class NodePropsTableRecord < TableRecordBase
   attr_accessor :node, :device_type, :interfaces, :vrfs
 
   def initialize(record)
+    super()
     @node = record[:node]
     @device_type = record[:device_type]
     @interfaces = interfaces2array(record[:interfaces])

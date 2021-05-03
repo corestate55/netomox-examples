@@ -30,6 +30,7 @@ class EdgesLayer3TableRecord < TableRecordBase
   attr_accessor :src, :dst
 
   def initialize(record)
+    super()
     @src = EdgeLayer3.new(record[:interface], record[:ips])
     @dst = EdgeLayer3.new(record[:remote_interface], record[:remote_ips])
   end
