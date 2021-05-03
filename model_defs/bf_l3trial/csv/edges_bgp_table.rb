@@ -87,7 +87,7 @@ class EdgesBGPTableRecord < TableRecordBase
   end
 end
 
-# edges-bgp tableX
+# edges-bgp table
 class EdgesBGPTable < TableBase
   extend Forwardable
 
