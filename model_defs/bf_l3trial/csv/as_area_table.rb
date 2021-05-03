@@ -79,7 +79,6 @@ class ASAreaTable < TableBase
     @records.select { |r| r.area >= 0 }
   end
 
-  # rubocop:disable Metrics/MethodLength
   def make_ospf_area_links
     # find router and its interface that connects multiple-area
     area_node_pairs = area_node_connections
@@ -95,7 +94,6 @@ class ASAreaTable < TableBase
     end
     links.flatten
   end
-  # rubocop:enable Metrics/MethodLength
 
   def find_all_by_as_node(asn, node)
     @records.find_all { |r| r.as == asn && r.node == node }

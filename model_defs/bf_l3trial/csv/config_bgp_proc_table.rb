@@ -41,7 +41,12 @@ class ConfigBGPProcTableRecord < ConfigBGPProcTableRecordCore
       name: @node,
       router_id: @router_id,
       prefixes: @routes_table.routes_bgp_proc(@node),
-      flags: ['bgp-proc', "confederation=#{confederation_flags}", "RR=#{rr_flags}"]
+      flags: [
+        'bgp-proc',
+        "confederation=#{confederation_flags}",
+        "RR=#{rr_flags}",
+        "network=#{@routes_table.find_all_bgp_advertise_network(@node)}"
+      ]
     }
   end
 

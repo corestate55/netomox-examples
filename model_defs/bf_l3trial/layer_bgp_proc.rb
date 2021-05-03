@@ -23,8 +23,7 @@ class BGPProcTopologyConverter < BGPTopologyConverterBase
 
   def make_proc_node_tps(rec)
     tps = rec.ips_facing_neighbors # returns Array of BGPProcEdge
-    debug "### check node:#{rec.node}, " \
-            "neighbors:#{rec.neighbors}, tps:", tps
+    debug "### check node:#{rec.node}, neighbors:#{rec.neighbors}, tps:", tps
     tp_name_counter = TPNameCounter.new(tps)
     tps.map do |tp|
       tp_name = tp_name_counter.tp_name(tp)

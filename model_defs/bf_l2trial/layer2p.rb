@@ -108,7 +108,6 @@ class L2DataBuilder < DataBuilderBase
     warn "  - dst: #{dst_if_prop.values(methods)}"
   end
 
-  # rubocop:disable Metrics/MethodLength
   def get_dst_vid(src_vlan_id, src_node, src_interface, dst, dst_node_prop)
     src_if_prop = @if_props.find_node_int(src_node, src_interface)
     dst_if_prop = @if_props.find_node_int(dst.node, dst.interface)
@@ -125,7 +124,6 @@ class L2DataBuilder < DataBuilderBase
       src_vlan_id # OK?
     end
   end
-  # rubocop:enable Metrics/MethodLength
 
   def make_vrf2vlan_link
     @ip_owners.each do |ip_owner|

@@ -4,7 +4,6 @@
 require 'optparse'
 require_relative 'topo2config_converter'
 
-# rubocop:disable Metrics/MethodLength
 def config_converter(opts)
   case opts[:debug]
   when :bgp
@@ -22,8 +21,6 @@ def config_converter(opts)
     Topo2AllConfigConverter.new(opts)
   end
 end
-# rubocop:enable Metrics/MethodLength
-
 # exec:
 # hagiwara@dev02:~/nwmodel/netomox-examples$ bundle exec ruby config_defs/convert_topology2config.rb [--debug foo]
 

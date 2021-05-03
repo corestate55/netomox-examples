@@ -36,7 +36,6 @@ module TinetConfigBGPModule
     proc_node.attribute.router_id.shift.split('_').pop
   end
 
-  # rubocop:disable Metrics/MethodLength
   def config_bgp_proc_node_config(asn, proc_node)
     format_vtysh_cmds([
                         'conf t',
@@ -51,7 +50,6 @@ module TinetConfigBGPModule
                         'exit' # conf t
                       ])
   end
-  # rubocop:enable Metrics/MethodLength
 end
 
 # Tinet config generator for bgp-proc topology model

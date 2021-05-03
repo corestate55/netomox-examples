@@ -70,7 +70,6 @@ module TinetConfigOSPFModule
     "network #{ip.network.to_string} area #{area}"
   end
 
-  # rubocop:disable Metrics/MethodLength
   def config_ospf_node_cmds(node)
     cmds = ['conf t']
     # the proc number is not used in the ospfd of FRR.
@@ -90,7 +89,6 @@ module TinetConfigOSPFModule
     cmds.push('exit') # conf t
     format_vtysh_cmds(cmds)
   end
-  # rubocop:enable Metrics/MethodLength
 end
 
 # Tinet config generator for ospf-proc topology model
