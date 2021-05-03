@@ -8,7 +8,6 @@ class InterfacePropertiesTableRecord < TableRecordBase
   attr_accessor :node, :interface, :vrf, :mtu, :access_vlan, :allowed_vlans,
                 :switchport, :switchport_mode, :switchport_encap
 
-  # rubocop:disable Metrics/MethodLength
   def initialize(record)
     super()
     interface = EdgeBase.new(record[:interface])
@@ -23,7 +22,6 @@ class InterfacePropertiesTableRecord < TableRecordBase
     @mtu = record[:mtu]
     @vrf = record[:vrf]
   end
-  # rubocop:enable Metrics/MethodLength
 
   def switchport?
     @switchport =~ /TRUE/i
