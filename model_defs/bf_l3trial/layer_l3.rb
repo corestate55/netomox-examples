@@ -7,7 +7,7 @@ require_relative 'csv/edges_layer3_table'
 # layer topology converter for batfish layer3 network data
 class Layer3TopologyConverter < TopologyLayerBase
   def initialize(opts = {})
-    super(opts)
+    super(**opts)
 
     setup_edges_layer3_table
     make_networks

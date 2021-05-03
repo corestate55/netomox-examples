@@ -5,6 +5,7 @@ require_relative '../bf_common/pseudo_model'
 require_relative 'csv/routes_table'
 require_relative 'csv/ip_owners_table'
 require_relative 'csv/edges_bgp_table'
+require_relative 'csv/config_bgp_peer_table'
 require_relative 'csv/config_bgp_proc_table'
 require_relative 'csv/config_ospf_area_table'
 require_relative 'csv/config_ospf_proc_table'
@@ -24,6 +25,7 @@ class TopologyLayerBase < DataBuilderBase
     # commons for bgp-* and ospf-*
     setup_edges_bgp_table
     setup_as_numbers_table
+    setup_config_bgp_peer_table
     setup_config_ospf_proc_table
     setup_config_ospf_area_table
   end
@@ -56,6 +58,11 @@ class TopologyLayerBase < DataBuilderBase
       config_bgp_proc: ConfigBGPProcTableCore.new(@target)
     }
     @edges_bgp_table = EdgesBGPTable.new(@target, table_of, @use_debug)
+  end
+
+  def setup_config_bgp_peer_table
+    @config_bgp_peer_table = ConfigBGPPeerTable.new(@target, @use_debug)
+    debug '# config_bgp_peer: ', @config_bgp_peer_table
   end
 
   def setup_as_numbers_table

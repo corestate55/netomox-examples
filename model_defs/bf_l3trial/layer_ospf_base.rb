@@ -6,7 +6,7 @@ require_relative 'csv/as_area_table'
 # layer topology converter for batfish ospf network data
 class OSPFTopologyConverterBase < TopologyLayerBase
   def initialize(opts = {})
-    super(opts)
+    super(**opts)
 
     setup_as_area_table
   end
