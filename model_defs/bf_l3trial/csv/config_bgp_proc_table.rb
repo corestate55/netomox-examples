@@ -45,7 +45,7 @@ class ConfigBGPProcTableRecord < ConfigBGPProcTableRecordCore
         'bgp-proc',
         "confederation=#{confederation_flags}",
         "RR=#{rr_flags}",
-        "network=#{@routes_table.find_all_bgp_advertise_network(@node)}"
+        "network=#{@routes_table.bgp_advertise_networks(@node)}"
       ]
     }
   end

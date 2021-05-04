@@ -73,7 +73,8 @@ module TinetConfigLayer3Module
     cmds = ['/usr/lib/frr/frr start']
     ip_cmds = node.find_all_tps_with_attribute(:ip_addrs).map do |tp|
       tp.attribute.ip_addrs.map do |ip_addr|
-        "ip addr add #{ip_addr} dev #{tp.name}"
+        # notice: loopback interface name
+        "ip addr add #{ip_addr} dev #{tp.name == 'Lo0' ? 'lo' : tp.name}"
       end
     end
     ip_cmds.nil? ? [] : ip_cmds.flatten!

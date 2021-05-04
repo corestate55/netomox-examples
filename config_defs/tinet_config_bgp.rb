@@ -7,8 +7,15 @@ require_relative './tinet_config_layer3'
 module TinetConfigBGPModule
   include TinetConfigBaseModule
 
+  # constants
   COMMON_INSERT_POINT_KEY = '!! bgp-common'
   IPV4UC_INSERT_POINT_KEY = '!! bgp-ipv4-unicast'
+  # constants for bgp topology
+  INTERNAL_AS_RANGE = (65_530..65_532).freeze
+  EXTERNAL_AS_NETWORK = {
+    65_533 => ['10.1.0.0/16'],
+    65_534 => ['10.2.0.0/16']
+  }.freeze
 
   def add_bgp_node_config_by_nw(bgp_as_nw, bgp_proc_nw)
     bgp_as_nw.nodes.each do |bgp_as_node|
@@ -87,7 +94,8 @@ module TinetConfigBGPModule
     elsif confed_ebgp(asn, confederation, neighbor)
       neighbor_confed_ebgp_cmds(neighbor[:peer_ip][0], neighbor[:asn], neighbor[:confederation][:local_as])
     else
-      neighbor_ebgp_cmds(neighbor[:peer_ip][0], neighbor[:asn])
+      remote_asn = neighbor[:confederation].empty? ? neighbor[:asn] : neighbor[:confederation][:global_as]
+      neighbor_ebgp_cmds(neighbor[:peer_ip][0], remote_asn)
     end
   end
   # rubocop:enable Metrics/AbcSize
@@ -179,6 +187,33 @@ module TinetConfigBGPModule
     cmd_list
   end
 
+  def find_network_config_in(proc_node)
+    network_regexp = /network=(.*)/
+    network_flag = proc_node.attribute.flags.find { |f| f =~ network_regexp }
+    return [] unless network_flag
+
+    # rubocop:disable Security/Eval
+    eval(network_regexp.match(network_flag).captures.pop)
+    # rubocop:enable Security/Eval
+  end
+
+  def network_commands_static(asn)
+    cmd_list = SectionCommandList.new # empty command list
+    return cmd_list if INTERNAL_AS_RANGE.cover?(asn.to_i)
+
+    cmd_list.push_ipv4uc(EXTERNAL_AS_NETWORK[asn.to_i].map { |pf| "network #{pf}" })
+    cmd_list
+  end
+
+  def network_commands(proc_node)
+    cmd_list = SectionCommandList.new # empty command list
+    prefixes = find_network_config_in(proc_node)
+    return cmd_list if prefixes.empty?
+
+    cmd_list.push_ipv4uc(prefixes.map { |pref| "network #{pref}" })
+    cmd_list
+  end
+
   def add_bgp_proc_node_config(asn, proc_node, bgp_proc_nw, bgp_as_nw)
     l3_node_name = proc_node.attribute.name
     warn "AS:#{asn}, NODE:#{proc_node}, L3_NODE:#{l3_node_name}"
@@ -222,7 +257,7 @@ module TinetConfigBGPModule
       COMMON_INSERT_POINT_KEY,
       'address-family ipv4 unicast',
       IPV4UC_INSERT_POINT_KEY,
-      'redistribute connected',
+      # 'redistribute connected',
       'exit-address-family',
       'exit', # router bgp
       'exit' # conf t
@@ -230,6 +265,8 @@ module TinetConfigBGPModule
     insert_commands_to_section(cmds, confederation_commands(proc_node))
     insert_commands_to_section(cmds, route_reflector_commands(proc_node))
     insert_commands_to_section(cmds, neighbor_commands(asn, proc_node, proc_neighbors))
+    insert_commands_to_section(cmds, network_commands(proc_node))
+    insert_commands_to_section(cmds, network_commands_static(asn))
     clean_insert_point(cmds)
     format_vtysh_cmds(cmds)
   end
