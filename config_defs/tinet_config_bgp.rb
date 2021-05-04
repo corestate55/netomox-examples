@@ -37,10 +37,6 @@ module TinetConfigBGPModule
     as_node.name.split(/as/).pop.to_i
   end
 
-  def find_links_origin(proc_node, proc_nw)
-    proc_nw.links.find_all { |link| link.source.node_ref == proc_node.name }
-  end
-
   # @return [Netomox::Topology::Node, nil]
   def find_parent(proc_node_ref, as_nw)
     parent = as_nw.nodes.find do |node|
@@ -50,7 +46,7 @@ module TinetConfigBGPModule
   end
 
   def find_bgp_proc_neighbors(proc_node, proc_nw, as_nw)
-    neighbor_links = find_links_origin(proc_node, proc_nw)
+    neighbor_links = proc_nw.find_all_links_by_source_node(proc_node.name)
     neighbor_links.map do |link|
       peer_node_ref = link.destination.node_ref
       peer_node = proc_nw.find_node_by_name(peer_node_ref)
