@@ -40,18 +40,29 @@ class RoutesTable < TableBase
   end
 
   def routes_bgp_proc(node)
-    routes_of(node, /.*bgp/)
+    [
+      routes_of(node, /.*bgp/),
+      find_all_bgp_advertise_network(node).map { |row| prefix_attr(row.network, row.metric, row.protocol) }
+    ].flatten
+  end
+
+  def bgp_advertise_networks(node)
+    found_networks = find_all_bgp_advertise_network(node)
+    return [] if found_networks.empty?
+
+    found_networks.map(&:network)
   end
 
   def find_all_bgp_advertise_network(node)
-    found_networks = @records.find_all do |row|
+    # batfish bgp-related-query cannot pick up
+    # bgp `network` command info (what network is advertised).
+    # but it appears in answer of `routes` query as static-route
+    # (it is static and doesn't have next-hop)
+    @records.find_all do |row|
       row.node == node && row.protocol == 'static' &&
         row.next_hop_ip == 'AUTO/NONE(-1l)' &&
         row.next_hop_interface == 'null_interface'
     end
-    return [] if found_networks.empty?
-
-    found_networks.map(&:network)
   end
 
   private

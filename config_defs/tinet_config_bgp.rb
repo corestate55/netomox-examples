@@ -179,6 +179,15 @@ module TinetConfigBGPModule
     cmd_list
   end
 
+  def network_commands(proc_node)
+    cmd_list = SectionCommandList.new # empty command list
+    prefixes = proc_node.attribute.prefixes.find_all { |pf| pf.flag.include?('static') }
+    return cmd_list if prefixes.empty?
+
+    cmd_list.push_ipv4uc(prefixes.map { |pref| "network #{pref.prefix}" })
+    cmd_list
+  end
+
   def add_bgp_proc_node_config(asn, proc_node, bgp_proc_nw, bgp_as_nw)
     l3_node_name = proc_node.attribute.name
     warn "AS:#{asn}, NODE:#{proc_node}, L3_NODE:#{l3_node_name}"
@@ -222,7 +231,7 @@ module TinetConfigBGPModule
       COMMON_INSERT_POINT_KEY,
       'address-family ipv4 unicast',
       IPV4UC_INSERT_POINT_KEY,
-      'redistribute connected',
+      # 'redistribute connected',
       'exit-address-family',
       'exit', # router bgp
       'exit' # conf t
@@ -230,6 +239,7 @@ module TinetConfigBGPModule
     insert_commands_to_section(cmds, confederation_commands(proc_node))
     insert_commands_to_section(cmds, route_reflector_commands(proc_node))
     insert_commands_to_section(cmds, neighbor_commands(asn, proc_node, proc_neighbors))
+    insert_commands_to_section(cmds, network_commands(proc_node))
     clean_insert_point(cmds)
     format_vtysh_cmds(cmds)
   end
