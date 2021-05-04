@@ -2,9 +2,11 @@
 
 require_relative './tinet_config_layer3'
 
+# rubocop:disable Metrics/ModuleLength
 # Mix-in module to construct bgp tinet config
 module TinetConfigBGPModule
   include TinetConfigBaseModule
+
   COMMON_INSERT_POINT_KEY = '!! bgp-common'
   IPV4UC_INSERT_POINT_KEY = '!! bgp-ipv4-unicast'
 
@@ -69,7 +71,7 @@ module TinetConfigBGPModule
   end
 
   def neighbor_ebgp_cmds(peer_ip, remote_asn)
-    [ "neighbor #{peer_ip} remote-as #{remote_asn}" ]
+    ["neighbor #{peer_ip} remote-as #{remote_asn}"]
   end
 
   def confed_ebgp(orig_asn, orig_confed, neighbor)
@@ -78,30 +80,34 @@ module TinetConfigBGPModule
       neighbor[:confederation][:global_as] == orig_confed[:global_as]
   end
 
+  # rubocop:disable Metrics/AbcSize
+  def select_neighbor_commands(asn, confederation, neighbor)
+    if neighbor[:asn] == asn
+      neighbor_ibgp_cmds(neighbor[:peer_node].attribute.router_id[0], neighbor[:asn])
+    elsif confed_ebgp(asn, confederation, neighbor)
+      neighbor_confed_ebgp_cmds(neighbor[:peer_ip][0], neighbor[:asn], neighbor[:confederation][:local_as])
+    else
+      neighbor_ebgp_cmds(neighbor[:peer_ip][0], neighbor[:asn])
+    end
+  end
+  # rubocop:enable Metrics/AbcSize
+
   def neighbor_commands(asn, proc_node, proc_neighbors)
     cmd_list = SectionCommandList.new
     confederation = find_confederation_config_in(proc_node) # origin config
     proc_neighbors.each do |neighbor|
-      cmds = if neighbor[:asn] == asn
-               neighbor_ibgp_cmds(neighbor[:peer_node].attribute.router_id[0], neighbor[:asn])
-             elsif confed_ebgp(asn, confederation, neighbor)
-               neighbor_confed_ebgp_cmds(neighbor[:peer_ip][0], neighbor[:asn], neighbor[:confederation][:local_as])
-             else
-               neighbor_ebgp_cmds(neighbor[:peer_ip][0], neighbor[:asn])
-             end
+      cmds = select_neighbor_commands(asn, confederation, neighbor)
       cmd_list.push_common(cmds)
     end
     cmd_list.uniq_all!
     cmd_list
   end
 
+  # sectioned command list
   class SectionCommandList
     def initialize
       # initial: empty command list
-      @section = {
-        common: [],
-        ipv4uc: []
-      }
+      @section = { common: [], ipv4uc: [] }
     end
 
     # commands: Array
@@ -126,7 +132,7 @@ module TinetConfigBGPModule
     end
 
     def uniq_all!
-      @section.keys.each { |key| @section[key].uniq! }
+      @section.each_key { |key| @section[key].uniq! }
     end
   end
 
@@ -135,7 +141,9 @@ module TinetConfigBGPModule
     confederation_flag = proc_node.attribute.flags.find { |f| f =~ confederation_flag_regexp }
     return {} unless confederation_flag
 
+    # rubocop:disable Security/Eval
     eval(confederation_flag_regexp.match(confederation_flag).captures.pop)
+    # rubocop:enable Security/Eval
   end
 
   def confederation_commands(proc_node)
@@ -145,7 +153,7 @@ module TinetConfigBGPModule
 
     common_cmds = [
       "bgp confederation identifier #{confederation_config[:global_as]}"
-    # "bgp confederation peers #{}" # added in neighbor commands
+      # "bgp confederation peers #{}" # added in neighbor commands
     ]
     cmd_list.push_common(common_cmds)
     cmd_list
@@ -156,7 +164,9 @@ module TinetConfigBGPModule
     rr_flag = proc_node.attribute.flags.find { |f| f =~ rr_flag_regexp }
     return {} unless rr_flag
 
+    # rubocop:disable Security/Eval
     eval(rr_flag_regexp.match(rr_flag).captures.pop)
+    # rubocop:enable Security/Eval
   end
 
   def route_reflector_commands(proc_node)
@@ -164,7 +174,7 @@ module TinetConfigBGPModule
     cmd_list = SectionCommandList.new # empty command list
     return cmd_list if rr_config.empty? || rr_config[:type] != :server
 
-    cmd_list.push_common([ "bgp cluster-id #{rr_config[:cluster_id]}"])
+    cmd_list.push_common(["bgp cluster-id #{rr_config[:cluster_id]}"])
     cmd_list.push_ipv4uc(rr_config[:clients].map { |client| "neighbor #{client} route-reflector-client" })
     cmd_list
   end
@@ -202,6 +212,7 @@ module TinetConfigBGPModule
     cmds.delete(IPV4UC_INSERT_POINT_KEY)
   end
 
+  # rubocop:disable Metrics/MethodLength
   def config_bgp_proc_node_config(asn, proc_node, proc_neighbors)
     cmds = [
       'conf t',
@@ -222,7 +233,9 @@ module TinetConfigBGPModule
     clean_insert_point(cmds)
     format_vtysh_cmds(cmds)
   end
+  # rubocop:enable Metrics/MethodLength
 end
+# rubocop:enable Metrics/ModuleLength
 
 # Tinet config generator for bgp-proc topology model
 class TinetConfigBGP < TinetConfigLayer3
