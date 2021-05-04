@@ -15,6 +15,8 @@ module TinetConfigBGPModule
     65_534 => ['10.2.0.0/16']
   }.freeze
 
+  # @param [Netomox::Topology::Network] bgp_as_nw
+  # @param [Netomox::Topology::Network] bgp_proc_nw
   def add_bgp_node_config_by_nw(bgp_as_nw, bgp_proc_nw)
     bgp_as_nw.nodes.each do |bgp_as_node|
       asn = asn_of_as_node(bgp_as_node)
@@ -29,6 +31,8 @@ module TinetConfigBGPModule
 
   private
 
+  # @param [Netomox::Topology::Node] as_node node in bgp-as network
+  # @returns [Integer]
   def asn_of_as_node(as_node)
     as_node.name.split(/as/).pop.to_i
   end
@@ -37,6 +41,7 @@ module TinetConfigBGPModule
     proc_nw.links.find_all { |link| link.source.node_ref == proc_node.name }
   end
 
+  # @return [Netomox::Topology::Node, nil]
   def find_parent(proc_node_ref, as_nw)
     parent = as_nw.nodes.find do |node|
       node.supports.find { |sup| sup.network_ref == 'bgp-proc' && sup.node_ref == proc_node_ref }
@@ -51,8 +56,8 @@ module TinetConfigBGPModule
       peer_node = proc_nw.find_node_by_name(peer_node_ref)
       peer_tp = peer_node.find_tp_by_name(link.destination.tp_ref)
       {
-        orig_node: proc_node, # origin
-        peer_node: peer_node, # peer
+        orig_node: proc_node, # origin [Netomox::Topology::Node]
+        peer_node: peer_node, # peer [Netomox::Topology::Node]
         peer_ip: peer_tp.attribute.ip_addrs, # tp name contains ':N' duplicated count
         asn: find_parent(peer_node_ref, as_nw),
         confederation: find_confederation_config_in(peer_node)
@@ -162,11 +167,12 @@ module TinetConfigBGPModule
     # rubocop:enable Security/Eval
   end
 
+  # static bgp-network definition for experiments
   def network_commands_static(asn)
     cmd_list = SectionCommandList.new # empty command list
-    return cmd_list if INTERNAL_AS_RANGE.cover?(asn.to_i)
+    return cmd_list if INTERNAL_AS_RANGE.cover?(asn)
 
-    cmd_list.push_bgp_ipv4uc(EXTERNAL_AS_NETWORK[asn.to_i].map { |pf| "network #{pf}" })
+    cmd_list.push_bgp_ipv4uc(EXTERNAL_AS_NETWORK[asn].map { |pf| "network #{pf}" })
     cmd_list
   end
 
@@ -179,6 +185,10 @@ module TinetConfigBGPModule
     cmd_list
   end
 
+  # @param [Integer] asn AS number of proc_node
+  # @param [Netomox::Topology::Node] proc_node Node in bgp-proc network
+  # @param [Netomox::Topology::Network] bgp_proc_nw bgp-proc network
+  # @param [Netomox::Topology::Network] bgp_as_nw bgp-as network
   def add_bgp_proc_node_config(asn, proc_node, bgp_proc_nw, bgp_as_nw)
     l3_node_name = proc_node.attribute.name
     warn "AS:#{asn}, NODE:#{proc_node}, L3_NODE:#{l3_node_name}"
@@ -196,6 +206,9 @@ module TinetConfigBGPModule
     proc_node.attribute.router_id[0].split('_').pop
   end
 
+  # @param [Integer] asn AS Number of proc_node
+  # @param [Netomox::Topology::Node] proc_node BGP-process node
+  # @param [Array<Hash>] proc_neighbors
   def config_bgp_proc_node_config(asn, proc_node, proc_neighbors)
     cmd_list = SectionCommandList.new
     cmd_list.push_conf_t([

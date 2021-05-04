@@ -9,7 +9,7 @@ module TinetConfigBGPModule
       @section = { conf_t: [], bgp_common: [], bgp_ipv4uc: [] }
     end
 
-    # commands: Array
+    # @param [Array<String>] commands
     def push(section, commands)
       @section[section].push(*commands)
     end
@@ -42,12 +42,14 @@ module TinetConfigBGPModule
       @section.each_key { |key| @section[key].uniq! }
     end
 
+    # @param [SectionCommandList] cmd_list
     def append_section(cmd_list)
       push_conf_t(cmd_list.conf_t)
       push_bgp_common(cmd_list.bgp_common)
       push_bgp_ipv4uc(cmd_list.bgp_ipv4uc)
     end
 
+    # @return [Array<String>]
     def list_all_commands
       [
         'conf t',
@@ -58,7 +60,7 @@ module TinetConfigBGPModule
         'exit-address-family',
         'exit', # router bgp
         'exit' # conf t
-      ].flatten!
+      ].flatten
     end
   end
 end
