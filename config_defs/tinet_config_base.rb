@@ -28,6 +28,7 @@ module TinetConfigBaseModule
     cmds.map { |cmd| Hashie::Mash.new(cmd: cmd) }
   end
 
+  # @param [Array<String>] cmds Array of command strings
   def format_vtysh_cmds(cmds)
     vtysh_cmds = ['vtysh']
     vtysh_cmds.concat(cmds.map { |cmd| "-c \"#{cmd}\"" })

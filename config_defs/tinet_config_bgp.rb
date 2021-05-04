@@ -1,15 +1,13 @@
 # frozen_string_literal: true
 
 require_relative './tinet_config_layer3'
+require_relative './tinet_config_bgp_util'
 
 # rubocop:disable Metrics/ModuleLength
 # Mix-in module to construct bgp tinet config
 module TinetConfigBGPModule
   include TinetConfigBaseModule
 
-  # constants
-  COMMON_INSERT_POINT_KEY = '!! bgp-common'
-  IPV4UC_INSERT_POINT_KEY = '!! bgp-ipv4-unicast'
   # constants for bgp topology
   INTERNAL_AS_RANGE = (65_530..65_532).freeze
   EXTERNAL_AS_NETWORK = {
@@ -17,6 +15,8 @@ module TinetConfigBGPModule
     65_534 => ['10.2.0.0/16']
   }.freeze
 
+  # @param [Netomox::Topology::Network] bgp_as_nw
+  # @param [Netomox::Topology::Network] bgp_proc_nw
   def add_bgp_node_config_by_nw(bgp_as_nw, bgp_proc_nw)
     bgp_as_nw.nodes.each do |bgp_as_node|
       asn = asn_of_as_node(bgp_as_node)
@@ -31,14 +31,13 @@ module TinetConfigBGPModule
 
   private
 
+  # @param [Netomox::Topology::Node] as_node node in bgp-as network
+  # @returns [Integer]
   def asn_of_as_node(as_node)
     as_node.name.split(/as/).pop.to_i
   end
 
-  def find_links_origin(proc_node, proc_nw)
-    proc_nw.links.find_all { |link| link.source.node_ref == proc_node.name }
-  end
-
+  # @return [Netomox::Topology::Node, nil]
   def find_parent(proc_node_ref, as_nw)
     parent = as_nw.nodes.find do |node|
       node.supports.find { |sup| sup.network_ref == 'bgp-proc' && sup.node_ref == proc_node_ref }
@@ -47,14 +46,14 @@ module TinetConfigBGPModule
   end
 
   def find_bgp_proc_neighbors(proc_node, proc_nw, as_nw)
-    neighbor_links = find_links_origin(proc_node, proc_nw)
+    neighbor_links = proc_nw.find_all_links_by_source_node(proc_node.name)
     neighbor_links.map do |link|
       peer_node_ref = link.destination.node_ref
       peer_node = proc_nw.find_node_by_name(peer_node_ref)
       peer_tp = peer_node.find_tp_by_name(link.destination.tp_ref)
       {
-        orig_node: proc_node, # origin
-        peer_node: peer_node, # peer
+        orig_node: proc_node, # origin [Netomox::Topology::Node]
+        peer_node: peer_node, # peer [Netomox::Topology::Node]
         peer_ip: peer_tp.attribute.ip_addrs, # tp name contains ':N' duplicated count
         asn: find_parent(peer_node_ref, as_nw),
         confederation: find_confederation_config_in(peer_node)
@@ -105,43 +104,10 @@ module TinetConfigBGPModule
     confederation = find_confederation_config_in(proc_node) # origin config
     proc_neighbors.each do |neighbor|
       cmds = select_neighbor_commands(asn, confederation, neighbor)
-      cmd_list.push_common(cmds)
+      cmd_list.push_bgp_common(cmds)
     end
     cmd_list.uniq_all!
     cmd_list
-  end
-
-  # sectioned command list
-  class SectionCommandList
-    def initialize
-      # initial: empty command list
-      @section = { common: [], ipv4uc: [] }
-    end
-
-    # commands: Array
-    def push(section, commands)
-      @section[section].push(*commands)
-    end
-
-    def push_common(commands)
-      push(:common, commands)
-    end
-
-    def push_ipv4uc(commands)
-      push(:ipv4uc, commands)
-    end
-
-    def common
-      @section[:common]
-    end
-
-    def ipv4uc
-      @section[:ipv4uc]
-    end
-
-    def uniq_all!
-      @section.each_key { |key| @section[key].uniq! }
-    end
   end
 
   def find_confederation_config_in(proc_node)
@@ -163,7 +129,7 @@ module TinetConfigBGPModule
       "bgp confederation identifier #{confederation_config[:global_as]}"
       # "bgp confederation peers #{}" # added in neighbor commands
     ]
-    cmd_list.push_common(common_cmds)
+    cmd_list.push_bgp_common(common_cmds)
     cmd_list
   end
 
@@ -182,8 +148,8 @@ module TinetConfigBGPModule
     cmd_list = SectionCommandList.new # empty command list
     return cmd_list if rr_config.empty? || rr_config[:type] != :server
 
-    cmd_list.push_common(["bgp cluster-id #{rr_config[:cluster_id]}"])
-    cmd_list.push_ipv4uc(rr_config[:clients].map { |client| "neighbor #{client} route-reflector-client" })
+    cmd_list.push_bgp_common(["bgp cluster-id #{rr_config[:cluster_id]}"])
+    cmd_list.push_bgp_ipv4uc(rr_config[:clients].map { |client| "neighbor #{client} route-reflector-client" })
     cmd_list
   end
 
@@ -197,11 +163,12 @@ module TinetConfigBGPModule
     # rubocop:enable Security/Eval
   end
 
+  # static bgp-network definition for experiments
   def network_commands_static(asn)
     cmd_list = SectionCommandList.new # empty command list
-    return cmd_list if INTERNAL_AS_RANGE.cover?(asn.to_i)
+    return cmd_list if INTERNAL_AS_RANGE.cover?(asn)
 
-    cmd_list.push_ipv4uc(EXTERNAL_AS_NETWORK[asn.to_i].map { |pf| "network #{pf}" })
+    cmd_list.push_bgp_ipv4uc(EXTERNAL_AS_NETWORK[asn].map { |pf| "network #{pf}" })
     cmd_list
   end
 
@@ -210,10 +177,14 @@ module TinetConfigBGPModule
     prefixes = find_network_config_in(proc_node)
     return cmd_list if prefixes.empty?
 
-    cmd_list.push_ipv4uc(prefixes.map { |pref| "network #{pref}" })
+    cmd_list.push_bgp_ipv4uc(prefixes.map { |pref| "network #{pref}" })
     cmd_list
   end
 
+  # @param [Integer] asn AS number of proc_node
+  # @param [Netomox::Topology::Node] proc_node Node in bgp-proc network
+  # @param [Netomox::Topology::Network] bgp_proc_nw bgp-proc network
+  # @param [Netomox::Topology::Network] bgp_as_nw bgp-as network
   def add_bgp_proc_node_config(asn, proc_node, bgp_proc_nw, bgp_as_nw)
     l3_node_name = proc_node.attribute.name
     warn "AS:#{asn}, NODE:#{proc_node}, L3_NODE:#{l3_node_name}"
@@ -231,46 +202,23 @@ module TinetConfigBGPModule
     proc_node.attribute.router_id[0].split('_').pop
   end
 
-  def insert_commands_before(cmds, insert_point_key, insert_cmds)
-    insert_point = cmds.rindex(insert_point_key)
-    cmds.insert(insert_point, *insert_cmds)
-  end
-
-  # cmd_list: SectionCommandList
-  def insert_commands_to_section(cmds, cmd_list)
-    insert_commands_before(cmds, COMMON_INSERT_POINT_KEY, cmd_list.common)
-    insert_commands_before(cmds, IPV4UC_INSERT_POINT_KEY, cmd_list.ipv4uc)
-  end
-
-  def clean_insert_point(cmds)
-    cmds.delete(COMMON_INSERT_POINT_KEY)
-    cmds.delete(IPV4UC_INSERT_POINT_KEY)
-  end
-
-  # rubocop:disable Metrics/MethodLength
+  # @param [Integer] asn AS Number of proc_node
+  # @param [Netomox::Topology::Node] proc_node BGP-process node
+  # @param [Array<Hash>] proc_neighbors
   def config_bgp_proc_node_config(asn, proc_node, proc_neighbors)
-    cmds = [
-      'conf t',
-      "router bgp #{asn}",
-      "bgp router-id #{router_id(proc_node)}",
-      'bgp log-neighbor-changes',
-      COMMON_INSERT_POINT_KEY,
-      'address-family ipv4 unicast',
-      IPV4UC_INSERT_POINT_KEY,
-      # 'redistribute connected',
-      'exit-address-family',
-      'exit', # router bgp
-      'exit' # conf t
-    ]
-    insert_commands_to_section(cmds, confederation_commands(proc_node))
-    insert_commands_to_section(cmds, route_reflector_commands(proc_node))
-    insert_commands_to_section(cmds, neighbor_commands(asn, proc_node, proc_neighbors))
-    insert_commands_to_section(cmds, network_commands(proc_node))
-    insert_commands_to_section(cmds, network_commands_static(asn))
-    clean_insert_point(cmds)
-    format_vtysh_cmds(cmds)
+    cmd_list = SectionCommandList.new
+    cmd_list.push_conf_t([
+                           "router bgp #{asn}",
+                           "bgp router-id #{router_id(proc_node)}"
+                         ])
+    cmd_list.push_bgp_common(['bgp log-neighbor-changes'])
+    cmd_list.append_section(confederation_commands(proc_node))
+    cmd_list.append_section(route_reflector_commands(proc_node))
+    cmd_list.append_section(neighbor_commands(asn, proc_node, proc_neighbors))
+    cmd_list.append_section(network_commands(proc_node))
+    cmd_list.append_section(network_commands_static(asn))
+    format_vtysh_cmds(cmd_list.list_all_commands)
   end
-  # rubocop:enable Metrics/MethodLength
 end
 # rubocop:enable Metrics/ModuleLength
 
