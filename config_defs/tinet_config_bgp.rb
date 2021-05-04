@@ -10,17 +10,90 @@ module TinetConfigBGPModule
 
   def add_bgp_node_config_by_nw(bgp_as_nw, bgp_proc_nw)
     bgp_as_nw.nodes.each do |bgp_as_node|
-      asn = bgp_as_node.name.split(/as/).pop.to_i
+      asn = asn_of_as_node(bgp_as_node)
       bgp_as_node.supports.each do |support_node|
         next if support_node.network_ref != 'bgp-proc'
 
         bgp_proc_node = bgp_proc_nw.find_node_by_name(support_node.node_ref)
-        add_bgp_proc_node_config(asn, bgp_proc_node)
+        add_bgp_proc_node_config(asn, bgp_proc_node, bgp_proc_nw, bgp_as_nw)
       end
     end
   end
 
   private
+
+  def asn_of_as_node(as_node)
+    as_node.name.split(/as/).pop.to_i
+  end
+
+  def find_links_origin(proc_node, proc_nw)
+    proc_nw.links.find_all { |link| link.source.node_ref == proc_node.name }
+  end
+
+  def find_parent(proc_node_ref, as_nw)
+    parent = as_nw.nodes.find do |node|
+      node.supports.find { |sup| sup.network_ref == 'bgp-proc' && sup.node_ref == proc_node_ref }
+    end
+    parent ? asn_of_as_node(parent) : nil
+  end
+
+  def find_bgp_proc_neighbors(proc_node, proc_nw, as_nw)
+    neighbor_links = find_links_origin(proc_node, proc_nw)
+    neighbor_links.map do |link|
+      peer_node_ref = link.destination.node_ref
+      peer_node = proc_nw.find_node_by_name(peer_node_ref)
+      peer_tp = peer_node.find_tp_by_name(link.destination.tp_ref)
+      {
+        orig_node: proc_node, # origin
+        peer_node: peer_node, # peer
+        peer_ip: peer_tp.attribute.ip_addrs, # tp name contains ':N' duplicated count
+        asn: find_parent(peer_node_ref, as_nw),
+        confederation: find_confederation_config_in(peer_node)
+      }
+    end
+  end
+
+  def neighbor_ibgp_cmds(peer_ip, remote_asn)
+    neighbor_str = "neighbor #{peer_ip}"
+    [
+      "#{neighbor_str} remote-as #{remote_asn}",
+      "#{neighbor_str} update-source lo"
+    ]
+  end
+
+  def neighbor_confed_ebgp_cmds(peer_ip, remote_asn, local_asn)
+    [
+      *neighbor_ebgp_cmds(peer_ip, remote_asn),
+      "bgp confederation peers #{local_asn}"
+    ]
+  end
+
+  def neighbor_ebgp_cmds(peer_ip, remote_asn)
+    [ "neighbor #{peer_ip} remote-as #{remote_asn}" ]
+  end
+
+  def confed_ebgp(orig_asn, orig_confed, neighbor)
+    neighbor[:asn] != orig_asn && # asn is same as confederation.local_as
+      !neighbor[:confederation].empty? && !orig_confed.empty? &&
+      neighbor[:confederation][:global_as] == orig_confed[:global_as]
+  end
+
+  def neighbor_commands(asn, proc_node, proc_neighbors)
+    cmd_list = SectionCommandList.new
+    confederation = find_confederation_config_in(proc_node) # origin config
+    proc_neighbors.each do |neighbor|
+      cmds = if neighbor[:asn] == asn
+               neighbor_ibgp_cmds(neighbor[:peer_node].attribute.router_id[0], neighbor[:asn])
+             elsif confed_ebgp(asn, confederation, neighbor)
+               neighbor_confed_ebgp_cmds(neighbor[:peer_ip][0], neighbor[:asn], neighbor[:confederation][:local_as])
+             else
+               neighbor_ebgp_cmds(neighbor[:peer_ip][0], neighbor[:asn])
+             end
+      cmd_list.push_common(cmds)
+    end
+    cmd_list.uniq_all!
+    cmd_list
+  end
 
   class SectionCommandList
     def initialize
@@ -51,6 +124,10 @@ module TinetConfigBGPModule
     def ipv4uc
       @section[:ipv4uc]
     end
+
+    def uniq_all!
+      @section.keys.each { |key| @section[key].uniq! }
+    end
   end
 
   def find_confederation_config_in(proc_node)
@@ -68,7 +145,7 @@ module TinetConfigBGPModule
 
     common_cmds = [
       "bgp confederation identifier #{confederation_config[:global_as]}"
-    # "bgp confederation peers #{}" # TODO: local-as-peer
+    # "bgp confederation peers #{}" # added in neighbor commands
     ]
     cmd_list.push_common(common_cmds)
     cmd_list
@@ -92,11 +169,12 @@ module TinetConfigBGPModule
     cmd_list
   end
 
-  def add_bgp_proc_node_config(asn, proc_node)
+  def add_bgp_proc_node_config(asn, proc_node, bgp_proc_nw, bgp_as_nw)
     l3_node_name = proc_node.attribute.name
     warn "AS:#{asn}, NODE:#{proc_node}, L3_NODE:#{l3_node_name}"
     target_node_config = find_node_config_by_name(l3_node_name)
-    target_node_config[:cmds].push(config_bgp_proc_node_config(asn, proc_node))
+    proc_neighbors = find_bgp_proc_neighbors(proc_node, bgp_proc_nw, bgp_as_nw)
+    target_node_config[:cmds].push(config_bgp_proc_node_config(asn, proc_node, proc_neighbors))
   end
 
   def add_bgp_test(_node)
@@ -105,7 +183,7 @@ module TinetConfigBGPModule
 
   def router_id(proc_node)
     # pick router_id: asXXXXX_N.N.N.N (external AS node), N.N.N.N (AS internal)
-    proc_node.attribute.router_id.shift.split('_').pop
+    proc_node.attribute.router_id[0].split('_').pop
   end
 
   def insert_commands_before(cmds, insert_point_key, insert_cmds)
@@ -119,7 +197,12 @@ module TinetConfigBGPModule
     insert_commands_before(cmds, IPV4UC_INSERT_POINT_KEY, cmd_list.ipv4uc)
   end
 
-  def config_bgp_proc_node_config(asn, proc_node)
+  def clean_insert_point(cmds)
+    cmds.delete(COMMON_INSERT_POINT_KEY)
+    cmds.delete(IPV4UC_INSERT_POINT_KEY)
+  end
+
+  def config_bgp_proc_node_config(asn, proc_node, proc_neighbors)
     cmds = [
       'conf t',
       "router bgp #{asn}",
@@ -135,6 +218,8 @@ module TinetConfigBGPModule
     ]
     insert_commands_to_section(cmds, confederation_commands(proc_node))
     insert_commands_to_section(cmds, route_reflector_commands(proc_node))
+    insert_commands_to_section(cmds, neighbor_commands(asn, proc_node, proc_neighbors))
+    clean_insert_point(cmds)
     format_vtysh_cmds(cmds)
   end
 end
