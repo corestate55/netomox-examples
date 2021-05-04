@@ -7,8 +7,15 @@ require_relative './tinet_config_layer3'
 module TinetConfigBGPModule
   include TinetConfigBaseModule
 
+  # constants
   COMMON_INSERT_POINT_KEY = '!! bgp-common'
   IPV4UC_INSERT_POINT_KEY = '!! bgp-ipv4-unicast'
+  # constants for bgp topology
+  INTERNAL_AS_RANGE = (65530..65532)
+  EXTERNAL_AS_NETWORK = {
+    65533 => ['10.1.0.0/16'],
+    65534 => ['10.2.0.0/16']
+  }
 
   def add_bgp_node_config_by_nw(bgp_as_nw, bgp_proc_nw)
     bgp_as_nw.nodes.each do |bgp_as_node|
@@ -179,12 +186,30 @@ module TinetConfigBGPModule
     cmd_list
   end
 
+  def find_network_config_in(proc_node)
+    network_regexp = /network=(.*)/
+    network_flag = proc_node.attribute.flags.find { |f| f =~ network_regexp }
+    return [] unless network_flag
+
+    # rubocop:disable Security/Eval
+    eval(network_regexp.match(network_flag).captures.pop)
+    # rubocop:enable Security/Eval
+  end
+
+  def network_commands_static(asn)
+    cmd_list = SectionCommandList.new # empty command list
+    return cmd_list if INTERNAL_AS_RANGE.cover?(asn.to_i)
+
+    cmd_list.push_ipv4uc(EXTERNAL_AS_NETWORK[asn.to_i].map { |pf| "network #{pf}" })
+    cmd_list
+  end
+
   def network_commands(proc_node)
     cmd_list = SectionCommandList.new # empty command list
-    prefixes = proc_node.attribute.prefixes.find_all { |pf| pf.flag.include?('static') }
+    prefixes = find_network_config_in(proc_node)
     return cmd_list if prefixes.empty?
 
-    cmd_list.push_ipv4uc(prefixes.map { |pref| "network #{pref.prefix}" })
+    cmd_list.push_ipv4uc(prefixes.map { |pref| "network #{pref}" })
     cmd_list
   end
 
@@ -240,6 +265,7 @@ module TinetConfigBGPModule
     insert_commands_to_section(cmds, route_reflector_commands(proc_node))
     insert_commands_to_section(cmds, neighbor_commands(asn, proc_node, proc_neighbors))
     insert_commands_to_section(cmds, network_commands(proc_node))
+    insert_commands_to_section(cmds, network_commands_static(asn))
     clean_insert_point(cmds)
     format_vtysh_cmds(cmds)
   end

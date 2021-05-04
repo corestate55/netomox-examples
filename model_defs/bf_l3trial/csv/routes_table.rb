@@ -40,10 +40,7 @@ class RoutesTable < TableBase
   end
 
   def routes_bgp_proc(node)
-    [
-      routes_of(node, /.*bgp/),
-      find_all_bgp_advertise_network(node).map { |row| prefix_attr(row.network, row.metric, row.protocol) }
-    ].flatten
+    routes_of(node, /.*bgp/)
   end
 
   def bgp_advertise_networks(node)
