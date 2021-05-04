@@ -11,11 +11,11 @@ module TinetConfigBGPModule
   COMMON_INSERT_POINT_KEY = '!! bgp-common'
   IPV4UC_INSERT_POINT_KEY = '!! bgp-ipv4-unicast'
   # constants for bgp topology
-  INTERNAL_AS_RANGE = (65530..65532)
+  INTERNAL_AS_RANGE = (65_530..65_532).freeze
   EXTERNAL_AS_NETWORK = {
-    65533 => ['10.1.0.0/16'],
-    65534 => ['10.2.0.0/16']
-  }
+    65_533 => ['10.1.0.0/16'],
+    65_534 => ['10.2.0.0/16']
+  }.freeze
 
   def add_bgp_node_config_by_nw(bgp_as_nw, bgp_proc_nw)
     bgp_as_nw.nodes.each do |bgp_as_node|
@@ -94,7 +94,8 @@ module TinetConfigBGPModule
     elsif confed_ebgp(asn, confederation, neighbor)
       neighbor_confed_ebgp_cmds(neighbor[:peer_ip][0], neighbor[:asn], neighbor[:confederation][:local_as])
     else
-      neighbor_ebgp_cmds(neighbor[:peer_ip][0], neighbor[:asn])
+      remote_asn = neighbor[:confederation].empty? ? neighbor[:asn] : neighbor[:confederation][:global_as]
+      neighbor_ebgp_cmds(neighbor[:peer_ip][0], remote_asn)
     end
   end
   # rubocop:enable Metrics/AbcSize
