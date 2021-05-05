@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/corestate55/netomox
-  revision: 408717c7c0dbfdec7cadcffeb919def8f3adbb04
+  revision: b0ecbfdb124f52ffa3b58dcaf63f90aa8200327a
   branch: develop
   specs:
     netomox (0.1.0)
@@ -11,10 +11,10 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
-    ast (2.4.0)
-    coderay (1.1.2)
-    excon (0.73.0)
-    ffi (1.12.2)
+    ast (2.4.2)
+    coderay (1.1.3)
+    excon (0.81.0)
+    ffi (1.15.0)
     formatador (0.2.5)
     guard (2.16.2)
       formatador (>= 0.2.4)
@@ -26,17 +26,19 @@ GEM
       shellany (~> 0.0)
       thor (>= 0.18.1)
     guard-compat (1.2.1)
-    guard-shell (0.7.1)
+    guard-shell (0.7.2)
       guard (>= 2.0.0)
       guard-compat (~> 1.0)
+    hashie (4.1.0)
     highline (2.0.3)
-    json (2.3.0)
-    listen (3.2.1)
+    ipaddress (0.8.3)
+    json (2.5.1)
+    listen (3.5.1)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
-    lumberjack (1.2.4)
+    lumberjack (1.2.8)
     method_source (1.0.0)
-    multi_json (1.14.1)
+    multi_json (1.15.0)
     nenv (0.3.0)
     neography (1.8.0)
       excon (>= 0.33.0)
@@ -48,36 +50,38 @@ GEM
     notiffany (0.1.3)
       nenv (~> 0.1)
       shellany (~> 0.0)
-    os (1.1.0)
-    parallel (1.19.1)
-    parser (2.7.1.3)
-      ast (~> 2.4.0)
-    pry (0.13.1)
+    os (1.1.1)
+    parallel (1.20.1)
+    parser (3.0.1.1)
+      ast (~> 2.4.1)
+    pry (0.14.1)
       coderay (~> 1.1)
       method_source (~> 1.0)
     rainbow (3.0.0)
-    rake (13.0.1)
+    rake (13.0.3)
     rb-fsevent (0.10.4)
     rb-inotify (0.10.1)
       ffi (~> 1.0)
-    rexml (3.2.4)
-    rubocop (0.84.0)
+    regexp_parser (2.1.1)
+    rexml (3.2.5)
+    rubocop (1.13.0)
       parallel (~> 1.10)
-      parser (>= 2.7.0.1)
+      parser (>= 3.0.0.0)
       rainbow (>= 2.2.2, < 4.0)
+      regexp_parser (>= 1.8, < 3.0)
       rexml
-      rubocop-ast (>= 0.0.3)
+      rubocop-ast (>= 1.2.0, < 2.0)
       ruby-progressbar (~> 1.7)
-      unicode-display_width (>= 1.4.0, < 2.0)
-    rubocop-ast (0.0.3)
-      parser (>= 2.7.0.1)
-    ruby-progressbar (1.10.1)
+      unicode-display_width (>= 1.4.0, < 3.0)
+    rubocop-ast (1.5.0)
+      parser (>= 3.0.1.1)
+    ruby-progressbar (1.11.0)
     rubyzip (2.3.0)
     shellany (0.0.1)
     termcolor (1.2.2)
       highline (>= 1.5.0)
     thor (1.0.1)
-    unicode-display_width (1.7.0)
+    unicode-display_width (2.0.0)
 
 PLATFORMS
   ruby
@@ -85,6 +89,8 @@ PLATFORMS
 DEPENDENCIES
   guard
   guard-shell
+  hashie (>= 4.1.0)
+  ipaddress (~> 0.8.3)
   netomox!
   rubocop (>= 0.80)
 

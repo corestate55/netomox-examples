@@ -8,8 +8,8 @@ class InterfacePropertiesTableRecord < TableRecordBase
   attr_accessor :node, :interface, :vrf, :mtu, :access_vlan, :allowed_vlans,
                 :switchport, :switchport_mode, :switchport_encap
 
-  # rubocop:disable Metrics/AbcSize
   def initialize(record)
+    super()
     interface = EdgeBase.new(record[:interface])
     @node = interface.node
     @interface = interface.interface
@@ -22,7 +22,6 @@ class InterfacePropertiesTableRecord < TableRecordBase
     @mtu = record[:mtu]
     @vrf = record[:vrf]
   end
-  # rubocop:enable Metrics/AbcSize
 
   def switchport?
     @switchport =~ /TRUE/i
@@ -49,7 +48,7 @@ class InterfacePropertiesTableRecord < TableRecordBase
   private
 
   def vlan_range_to_array(range_str)
-    if range_str =~ /(\d+)\-(\d+)/
+    if range_str =~ /(\d+)-(\d+)/
       md = Regexp.last_match
       return (md[1].to_i..md[2].to_i).to_a
     end
@@ -63,7 +62,7 @@ class InterfacePropertiesTableRecord < TableRecordBase
     when /^\d+$/
       # single number
       [vlans_str.to_i]
-    when /^\d+\-\d+$/
+    when /^\d+-\d+$/
       # single range
       vlan_range_to_array(vlans_str)
     when /,/

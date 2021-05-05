@@ -26,6 +26,7 @@ class ConfigBGPProcTableRecord < ConfigBGPProcTableRecordCore
     @routes_table = table_of[:routes]
     @ip_owners_table = table_of[:ip_owners]
     @edges_bgp_table = table_of[:edges_bgp]
+    @config_bgp_peer_table = table_of[:config_bgp_peer]
   end
 
   def ips_facing_neighbors
@@ -40,7 +41,12 @@ class ConfigBGPProcTableRecord < ConfigBGPProcTableRecordCore
       name: @node,
       router_id: @router_id,
       prefixes: @routes_table.routes_bgp_proc(@node),
-      flags: ['bgp-proc']
+      flags: [
+        'bgp-proc',
+        "confederation=#{confederation_flags}",
+        "RR=#{rr_flags}",
+        "network=#{@routes_table.bgp_advertise_networks(@node)}"
+      ]
     }
   end
 
@@ -49,6 +55,21 @@ class ConfigBGPProcTableRecord < ConfigBGPProcTableRecordCore
   def new_bgp_proc_tp(edge)
     tp = @ip_owners_table.find_interface(@node, edge.src.ip)
     BGPProcEdge.new(@node, edge.src.ip, tp)
+  end
+
+  def confederation_flags
+    confederation_local_asn = @config_bgp_peer_table.local_asn(@node)
+    confederation_asn = @config_bgp_peer_table.confederation_asn(@node)
+    return {} if confederation_local_asn.nil? || confederation_asn.nil?
+
+    {
+      local_as: confederation_local_asn,
+      global_as: confederation_asn
+    }
+  end
+
+  def rr_flags
+    @config_bgp_peer_table.rr_data(@node)
   end
 end
 

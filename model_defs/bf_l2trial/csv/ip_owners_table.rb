@@ -8,6 +8,7 @@ class IPOwnersTableRecord < TableRecordBase
   attr_accessor :node, :vrf, :interface, :ip, :mask, :active
 
   def initialize(record)
+    super()
     @node = record[:node]
     @vrf = record[:vrf]
     @interface = record[:interface]

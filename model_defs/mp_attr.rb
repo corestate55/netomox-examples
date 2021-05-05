@@ -39,7 +39,7 @@ nws.register do
     node 'network1' do
       attribute(
         name: 'server-segment',
-        monitor_id: 20001,
+        monitor_id: 20_001
       )
       term_point 'sv1'
       term_point 'sv2'
@@ -47,7 +47,7 @@ nws.register do
     node 'sv1' do
       attribute(
         name: 'server1',
-        monitor_id: 30001,
+        monitor_id: 30_001
       )
       term_point 'eth0' do
         attribute(address: '192.168.1.101')
@@ -56,7 +56,7 @@ nws.register do
     node 'sv2' do
       attribute(
         name: 'server2',
-        monitor_id: 30002,
+        monitor_id: 30_002
       )
       term_point 'eth0' do
         attribute(address: '192.168.1.102')

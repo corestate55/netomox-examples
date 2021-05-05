@@ -23,8 +23,7 @@ class BGPProcTopologyConverter < BGPTopologyConverterBase
 
   def make_proc_node_tps(rec)
     tps = rec.ips_facing_neighbors # returns Array of BGPProcEdge
-    debug "### check node:#{rec.node}, " \
-            "neighbors:#{rec.neighbors}, tps:", tps
+    debug "### check node:#{rec.node}, neighbors:#{rec.neighbors}, tps:", tps
     tp_name_counter = TPNameCounter.new(tps)
     tps.map do |tp|
       tp_name = tp_name_counter.tp_name(tp)
@@ -33,9 +32,11 @@ class BGPProcTopologyConverter < BGPTopologyConverterBase
   end
 
   def make_proc_node(rec)
+    debug "### make node: #{rec.router_id}"
     pnode = PNode.new(rec.router_id)
     pnode.supports.push(['layer3', rec.node])
     pnode.attribute = rec.bgp_proc_node_attribute
+    debug '#### node attribute: ', pnode.attribute
     pnode.tps = make_proc_node_tps(rec)
     pnode
   end

@@ -2,8 +2,40 @@
 
 require 'forwardable'
 require_relative 'table_base'
-require_relative 'as_area_util'
 require_relative 'as_area_links_table'
+
+# record of as_area table.
+class ASAreaTableRecord < TableRecordBase
+  attr_accessor :as, :area, :node, :process_id, :router_id, :interfaces, :areas
+
+  def initialize(opts, debug = false)
+    super(debug)
+
+    @as = opts[:asn]
+    @area = opts[:area]
+    @node = opts[:node]
+    @process_id = opts[:process_id]
+    @router_id = opts[:router_id]
+    @areas = opts[:areas] # Array of areas in the ospf processf
+    @interfaces = opts[:interfaces] # Array of InterfaceInfo instance
+
+    @routes_table = opts[:routes_table]
+  end
+
+  def ospf_proc_node_attribute
+    {
+      name: "process_#{@process_id}",
+      router_id: @router_id,
+      prefixes: @routes_table.routes_ospf_proc(@node),
+      flags: ['ospf-proc', "areas=#{@areas.join('/')}"]
+    }
+  end
+
+  def to_s
+    ints_str = @interfaces.map(&:to_s).join(',')
+    "ASAreaTableRecord: #{@as},#{@area},#{@node},#{@process_id},#{@router_id},[#{ints_str}]"
+  end
+end
 
 # BGP-AS--OSPF-Area table
 class ASAreaTable < TableBase
@@ -47,7 +79,6 @@ class ASAreaTable < TableBase
     @records.select { |r| r.area >= 0 }
   end
 
-  # rubocop:disable Metrics/MethodLength
   def make_ospf_area_links
     # find router and its interface that connects multiple-area
     area_node_pairs = area_node_connections
@@ -63,7 +94,6 @@ class ASAreaTable < TableBase
     end
     links.flatten
   end
-  # rubocop:enable Metrics/MethodLength
 
   def find_all_by_as_node(asn, node)
     @records.find_all { |r| r.as == asn && r.node == node }
@@ -116,10 +146,12 @@ class ASAreaTable < TableBase
 
   def make_as_area_table(nodes_in_as)
     as_area_table = []
+    # Combine data: AS -> Node (in AS) -> OSPF Area/Proc
     nodes_in_as.each_pair do |asn, nodes|
       nodes.each do |node|
         @config_ospf_area_table.find_all_by_node(node).each do |record|
-          as_area_table.push(record.as_area(asn))
+          opts = record.as_area(asn)
+          as_area_table.push(ASAreaTableRecord.new(opts, @debug))
         end
       end
     end

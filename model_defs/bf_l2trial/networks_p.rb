@@ -17,7 +17,6 @@ def to_json(nws)
   shortening_interface_name(json_str)
 end
 
-# rubocop:disable Metrics/MethodLength
 def dump(target, layer)
   layer_p = case layer
             when /l(?:ayer)?1/i
@@ -32,7 +31,6 @@ def dump(target, layer)
   nws.networks = layer_p.interpret.networks
   print_nws(nws)
 end
-# rubocop:enable Metrics/MethodLength
 
 def generate_json(target)
   nws = Netomox::DSL::Networks.new

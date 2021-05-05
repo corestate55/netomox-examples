@@ -8,6 +8,7 @@ class SwitchVlanPropsTableRecord < TableRecordBase
   attr_accessor :node, :vlan_id, :interfaces
 
   def initialize(record)
+    super()
     @node = record[:node]
     @vlan_id = record[:vlan_id]
     @interfaces = extract_interfaces(record[:interfaces])

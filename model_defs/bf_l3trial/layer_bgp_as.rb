@@ -12,7 +12,6 @@ class BGPASTopologyConverter < BGPTopologyConverterBase
   def initialize(opts = {})
     super(opts)
 
-    setup_config_ospf_area_table
     setup_nodes_in_as_table # MUST after config_ospf_area_table
     setup_areas_in_as_table # MUST after nodes_in_as_table
     setup_links_inter_as_table
@@ -20,15 +19,6 @@ class BGPASTopologyConverter < BGPTopologyConverterBase
   end
 
   private
-
-  def setup_config_ospf_area_table
-    table_of = {
-      ip_owners: @ip_owners_table,
-      routes: @routes_table
-    }
-    @config_ospf_area_table = ConfigOSPFAreaTable.new(@target, table_of)
-    debug '# config_ospf_area: ', @config_ospf_area_table
-  end
 
   def setup_nodes_in_as_table
     table_of = {

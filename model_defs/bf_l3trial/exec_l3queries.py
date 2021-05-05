@@ -16,8 +16,9 @@ def exec_query(snapshot_dir, snapshot_name, csv_dir):
         'edges_bgp': lambda: bfq.edges(edgeType='bgp'),
         'edges_ospf': lambda: bfq.edges(edgeType='ospf'),
         'edges_layer3': lambda: bfq.edges(edgeType='layer3'),
-        'config_bgp_proc': lambda: bfq.bgpProcessConfiguration(),
         'config_ospf_area': lambda: bfq.ospfAreaConfiguration(),
+        'config_ospf_proc': lambda: bfq.ospfProcessConfiguration(),
+        'config_bgp_proc': lambda: bfq.bgpProcessConfiguration(),
         'config_bgp_peer': lambda: bfq.bgpPeerConfiguration(),
     }
     # exec query

@@ -5,7 +5,7 @@ require_relative 'table_base'
 
 # row of routes table
 class RoutesTableRecord < TableRecordBase
-  attr_accessor :node, :protocol, :network, :metric
+  attr_accessor :node, :protocol, :network, :metric, :next_hop_ip, :next_hop_interface
 
   def initialize(record, debug = false)
     super(debug)
@@ -14,6 +14,8 @@ class RoutesTableRecord < TableRecordBase
     @protocol = record[:protocol]
     @network = record[:network]
     @metric = record[:metric]
+    @next_hop_ip = record[:next_hop_ip]
+    @next_hop_interface = record[:next_hop_interface]
   end
 end
 
@@ -39,6 +41,25 @@ class RoutesTable < TableBase
 
   def routes_bgp_proc(node)
     routes_of(node, /.*bgp/)
+  end
+
+  def bgp_advertise_networks(node)
+    found_networks = find_all_bgp_advertise_network(node)
+    return [] if found_networks.empty?
+
+    found_networks.map(&:network)
+  end
+
+  def find_all_bgp_advertise_network(node)
+    # batfish bgp-related-query cannot pick up
+    # bgp `network` command info (what network is advertised).
+    # but it appears in answer of `routes` query as static-route
+    # (it is static and doesn't have next-hop)
+    @records.find_all do |row|
+      row.node == node && row.protocol == 'static' &&
+        row.next_hop_ip == 'AUTO/NONE(-1l)' &&
+        row.next_hop_interface == 'null_interface'
+    end
   end
 
   private
