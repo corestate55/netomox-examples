@@ -1,0 +1,376 @@
+---
+nodes:
+- name: as65533_10.0.0.17
+  image: slankdev/frr
+  interfaces:
+  - name: 10.0.0.17
+    type: direct
+    args: border01#Fa0-0
+- name: as65534_10.0.0.45
+  image: slankdev/frr
+  interfaces:
+  - name: 10.0.0.45
+    type: direct
+    args: border12#Fa1-1
+- name: as65534_10.0.1.13
+  image: slankdev/frr
+  interfaces:
+  - name: 10.0.1.13
+    type: direct
+    args: border21#Fa1-0
+- name: border01
+  image: slankdev/frr
+  interfaces:
+  - name: Fa0-0
+    type: direct
+    args: as65533_10.0.0.17#10.0.0.17
+  - name: Fa1-0
+    type: direct
+    args: core01#Fa1-0
+  - name: Fa1-1
+    type: direct
+    args: core02#Fa1-0
+- name: border11
+  image: slankdev/frr
+  interfaces:
+  - name: Fa0-0
+    type: direct
+    args: border12#Fa0-0
+  - name: Fa1-0
+    type: direct
+    args: core01#Fa1-1
+  - name: Fa1-1
+    type: direct
+    args: border21#Fa1-1
+- name: border12
+  image: slankdev/frr
+  interfaces:
+  - name: Fa0-0
+    type: direct
+    args: border11#Fa0-0
+  - name: Fa1-0
+    type: direct
+    args: core02#Fa1-1
+  - name: Fa1-1
+    type: direct
+    args: as65534_10.0.0.45#10.0.0.45
+- name: border21
+  image: slankdev/frr
+  interfaces:
+  - name: Fa1-0
+    type: direct
+    args: as65534_10.0.1.13#10.0.1.13
+  - name: Fa1-1
+    type: direct
+    args: border11#Fa1-1
+- name: core01
+  image: slankdev/frr
+  interfaces:
+  - name: Fa0-0
+    type: direct
+    args: core02#Fa0-0
+  - name: Fa1-0
+    type: direct
+    args: border01#Fa1-0
+  - name: Fa1-1
+    type: direct
+    args: border11#Fa1-0
+- name: core02
+  image: slankdev/frr
+  interfaces:
+  - name: Fa0-0
+    type: direct
+    args: core01#Fa0-0
+  - name: Fa1-0
+    type: direct
+    args: border01#Fa1-1
+  - name: Fa1-1
+    type: direct
+    args: border12#Fa1-0
+node_configs:
+- name: as65533_10.0.0.17
+  cmds:
+  - cmd: "/usr/lib/frr/frr start"
+  - cmd: ip addr add 10.0.0.17/30 dev 10.0.0.17
+  - cmd: >-
+      vtysh
+      -c "conf t"
+      -c "ip route 10.1.0.0/16 blackhole"
+      -c "router bgp 65533"
+      -c "bgp router-id 10.0.0.17"
+      -c "bgp log-neighbor-changes"
+      -c "neighbor 10.0.0.18 remote-as 65530"
+      -c "address-family ipv4 unicast"
+      -c "network 10.1.0.0/16"
+      -c "exit-address-family"
+      -c "exit"
+      -c "exit"
+- name: as65534_10.0.0.45
+  cmds:
+  - cmd: "/usr/lib/frr/frr start"
+  - cmd: ip addr add 10.0.0.45/30 dev 10.0.0.45
+  - cmd: >-
+      vtysh
+      -c "conf t"
+      -c "ip route 10.2.0.0/16 blackhole"
+      -c "router bgp 65534"
+      -c "bgp router-id 10.0.0.45"
+      -c "bgp log-neighbor-changes"
+      -c "neighbor 10.0.0.46 remote-as 65530"
+      -c "address-family ipv4 unicast"
+      -c "network 10.2.0.0/16"
+      -c "exit-address-family"
+      -c "exit"
+      -c "exit"
+- name: as65534_10.0.1.13
+  cmds:
+  - cmd: "/usr/lib/frr/frr start"
+  - cmd: ip addr add 10.0.1.13/30 dev 10.0.1.13
+  - cmd: >-
+      vtysh
+      -c "conf t"
+      -c "ip route 10.2.0.0/16 blackhole"
+      -c "router bgp 65534"
+      -c "bgp router-id 10.0.1.13"
+      -c "bgp log-neighbor-changes"
+      -c "neighbor 10.0.1.14 remote-as 65530"
+      -c "address-family ipv4 unicast"
+      -c "network 10.2.0.0/16"
+      -c "exit-address-family"
+      -c "exit"
+      -c "exit"
+- name: border01
+  cmds:
+  - cmd: "/usr/lib/frr/frr start"
+  - cmd: ip addr add 10.0.0.18/30 dev Fa0-0
+  - cmd: ip addr add 10.0.0.21/30 dev Fa1-0
+  - cmd: ip addr add 10.0.0.25/30 dev Fa1-1
+  - cmd: ip addr add 10.0.0.1/32 dev lo
+  - cmd: >-
+      vtysh
+      -c "conf t"
+      -c "router ospf"
+      -c "log-adjacency-changes"
+      -c "passive-interface lo"
+      -c "redistribute connected"
+      -c "network 10.0.0.20/30 area 100"
+      -c "network 10.0.0.24/30 area 100"
+      -c "exit"
+      -c "exit"
+  - cmd: >-
+      vtysh
+      -c "conf t"
+      -c "ip route 10.0.0.0/16 blackhole"
+      -c "router bgp 65531"
+      -c "bgp router-id 10.0.0.1"
+      -c "bgp log-neighbor-changes"
+      -c "bgp confederation identifier 65530"
+      -c "neighbor 10.0.0.3 remote-as 65531"
+      -c "neighbor 10.0.0.3 update-source lo"
+      -c "neighbor 10.0.0.2 remote-as 65531"
+      -c "neighbor 10.0.0.2 update-source lo"
+      -c "neighbor 10.0.0.17 remote-as 65533"
+      -c "address-family ipv4 unicast"
+      -c "network 10.0.0.0/16"
+      -c "exit-address-family"
+      -c "exit"
+      -c "exit"
+- name: border11
+  cmds:
+  - cmd: "/usr/lib/frr/frr start"
+  - cmd: ip addr add 10.0.0.41/30 dev Fa0-0
+  - cmd: ip addr add 10.0.0.34/30 dev Fa1-0
+  - cmd: ip addr add 10.0.1.9/30 dev Fa1-1
+  - cmd: ip addr add 10.0.0.4/32 dev lo
+  - cmd: >-
+      vtysh
+      -c "conf t"
+      -c "router ospf"
+      -c "log-adjacency-changes"
+      -c "passive-interface lo"
+      -c "redistribute connected"
+      -c "network 10.0.0.40/30 area 10"
+      -c "network 10.0.0.32/30 area 10"
+      -c "exit"
+      -c "exit"
+  - cmd: >-
+      vtysh
+      -c "conf t"
+      -c "ip route 10.0.0.0/24 blackhole"
+      -c "router bgp 65531"
+      -c "bgp router-id 10.0.0.4"
+      -c "bgp log-neighbor-changes"
+      -c "bgp confederation identifier 65530"
+      -c "neighbor 10.0.0.2 remote-as 65531"
+      -c "neighbor 10.0.0.2 update-source lo"
+      -c "neighbor 10.0.1.10 remote-as 65532"
+      -c "bgp confederation peers 65532"
+      -c "address-family ipv4 unicast"
+      -c "network 10.0.0.0/24"
+      -c "exit-address-family"
+      -c "exit"
+      -c "exit"
+- name: border12
+  cmds:
+  - cmd: "/usr/lib/frr/frr start"
+  - cmd: ip addr add 10.0.0.42/30 dev Fa0-0
+  - cmd: ip addr add 10.0.0.38/30 dev Fa1-0
+  - cmd: ip addr add 10.0.0.46/30 dev Fa1-1
+  - cmd: ip addr add 10.0.0.5/32 dev lo
+  - cmd: >-
+      vtysh
+      -c "conf t"
+      -c "router ospf"
+      -c "log-adjacency-changes"
+      -c "passive-interface lo"
+      -c "redistribute connected"
+      -c "network 10.0.0.40/30 area 10"
+      -c "network 10.0.0.36/30 area 10"
+      -c "exit"
+      -c "exit"
+  - cmd: >-
+      vtysh
+      -c "conf t"
+      -c "ip route 10.0.0.0/16 blackhole"
+      -c "router bgp 65531"
+      -c "bgp router-id 10.0.0.5"
+      -c "bgp log-neighbor-changes"
+      -c "bgp confederation identifier 65530"
+      -c "neighbor 10.0.0.3 remote-as 65531"
+      -c "neighbor 10.0.0.3 update-source lo"
+      -c "neighbor 10.0.0.45 remote-as 65534"
+      -c "address-family ipv4 unicast"
+      -c "network 10.0.0.0/16"
+      -c "exit-address-family"
+      -c "exit"
+      -c "exit"
+- name: border21
+  cmds:
+  - cmd: "/usr/lib/frr/frr start"
+  - cmd: ip addr add 10.0.1.14/30 dev Fa1-0
+  - cmd: ip addr add 10.0.1.10/30 dev Fa1-1
+  - cmd: ip addr add 10.0.1.0/32 dev lo
+  - cmd: >-
+      vtysh
+      -c "conf t"
+      -c "ip route 10.0.1.0/24 blackhole"
+      -c "router bgp 65532"
+      -c "bgp router-id 10.0.1.0"
+      -c "bgp log-neighbor-changes"
+      -c "bgp confederation identifier 65530"
+      -c "neighbor 10.0.1.9 remote-as 65531"
+      -c "bgp confederation peers 65531"
+      -c "neighbor 10.0.1.13 remote-as 65534"
+      -c "address-family ipv4 unicast"
+      -c "network 10.0.1.0/24"
+      -c "exit-address-family"
+      -c "exit"
+      -c "exit"
+- name: core01
+  cmds:
+  - cmd: "/usr/lib/frr/frr start"
+  - cmd: ip addr add 10.0.0.29/30 dev Fa0-0
+  - cmd: ip addr add 10.0.0.22/30 dev Fa1-0
+  - cmd: ip addr add 10.0.0.33/30 dev Fa1-1
+  - cmd: ip addr add 10.0.0.2/32 dev lo
+  - cmd: >-
+      vtysh
+      -c "conf t"
+      -c "router ospf"
+      -c "log-adjacency-changes"
+      -c "passive-interface lo"
+      -c "redistribute connected"
+      -c "network 10.0.0.28/30 area 0"
+      -c "network 10.0.0.20/30 area 100"
+      -c "network 10.0.0.32/30 area 10"
+      -c "exit"
+      -c "exit"
+  - cmd: >-
+      vtysh
+      -c "conf t"
+      -c "router bgp 65531"
+      -c "bgp router-id 10.0.0.2"
+      -c "bgp log-neighbor-changes"
+      -c "bgp confederation identifier 65530"
+      -c "bgp cluster-id 10.0.0.2"
+      -c "neighbor 10.0.0.4 remote-as 65531"
+      -c "neighbor 10.0.0.4 update-source lo"
+      -c "neighbor 10.0.0.1 remote-as 65531"
+      -c "neighbor 10.0.0.1 update-source lo"
+      -c "neighbor 10.0.0.3 remote-as 65531"
+      -c "neighbor 10.0.0.3 update-source lo"
+      -c "address-family ipv4 unicast"
+      -c "neighbor 10.0.0.4 route-reflector-client"
+      -c "exit-address-family"
+      -c "exit"
+      -c "exit"
+- name: core02
+  cmds:
+  - cmd: "/usr/lib/frr/frr start"
+  - cmd: ip addr add 10.0.0.30/30 dev Fa0-0
+  - cmd: ip addr add 10.0.0.26/30 dev Fa1-0
+  - cmd: ip addr add 10.0.0.37/30 dev Fa1-1
+  - cmd: ip addr add 10.0.0.3/32 dev lo
+  - cmd: >-
+      vtysh
+      -c "conf t"
+      -c "router ospf"
+      -c "log-adjacency-changes"
+      -c "passive-interface lo"
+      -c "redistribute connected"
+      -c "network 10.0.0.28/30 area 0"
+      -c "network 10.0.0.24/30 area 100"
+      -c "network 10.0.0.36/30 area 10"
+      -c "exit"
+      -c "exit"
+  - cmd: >-
+      vtysh
+      -c "conf t"
+      -c "router bgp 65531"
+      -c "bgp router-id 10.0.0.3"
+      -c "bgp log-neighbor-changes"
+      -c "bgp confederation identifier 65530"
+      -c "bgp cluster-id 10.0.0.3"
+      -c "neighbor 10.0.0.1 remote-as 65531"
+      -c "neighbor 10.0.0.1 update-source lo"
+      -c "neighbor 10.0.0.2 remote-as 65531"
+      -c "neighbor 10.0.0.2 update-source lo"
+      -c "neighbor 10.0.0.5 remote-as 65531"
+      -c "neighbor 10.0.0.5 update-source lo"
+      -c "address-family ipv4 unicast"
+      -c "neighbor 10.0.0.5 route-reflector-client"
+      -c "exit-address-family"
+      -c "exit"
+      -c "exit"
+test:
+  cmds:
+  - cmd: docker exec as65533_10.0.0.17 ping -c2 10.0.0.18
+  - cmd: docker exec as65534_10.0.0.45 ping -c2 10.0.0.46
+  - cmd: docker exec as65534_10.0.1.13 ping -c2 10.0.1.14
+  - cmd: docker exec border01 ping -c2 10.0.0.17
+  - cmd: docker exec border01 ping -c2 10.0.0.22
+  - cmd: docker exec border01 ping -c2 10.0.0.26
+  - cmd: docker exec border11 ping -c2 10.0.0.42
+  - cmd: docker exec border11 ping -c2 10.0.0.33
+  - cmd: docker exec border11 ping -c2 10.0.1.10
+  - cmd: docker exec border12 ping -c2 10.0.0.41
+  - cmd: docker exec border12 ping -c2 10.0.0.37
+  - cmd: docker exec border12 ping -c2 10.0.0.45
+  - cmd: docker exec border21 ping -c2 10.0.1.13
+  - cmd: docker exec border21 ping -c2 10.0.1.9
+  - cmd: docker exec core01 ping -c2 10.0.0.30
+  - cmd: docker exec core01 ping -c2 10.0.0.21
+  - cmd: docker exec core01 ping -c2 10.0.0.34
+  - cmd: docker exec core02 ping -c2 10.0.0.29
+  - cmd: docker exec core02 ping -c2 10.0.0.25
+  - cmd: docker exec core02 ping -c2 10.0.0.38
+  - cmd: docker exec border01 vtysh -c "show ip ospf neighbor"
+  - cmd: docker exec border01 vtysh -c "show ip route ospf"
+  - cmd: docker exec border11 vtysh -c "show ip ospf neighbor"
+  - cmd: docker exec border11 vtysh -c "show ip route ospf"
+  - cmd: docker exec border12 vtysh -c "show ip ospf neighbor"
+  - cmd: docker exec border12 vtysh -c "show ip route ospf"
+  - cmd: docker exec core01 vtysh -c "show ip ospf neighbor"
+  - cmd: docker exec core01 vtysh -c "show ip route ospf"
+  - cmd: docker exec core02 vtysh -c "show ip ospf neighbor"
+  - cmd: docker exec core02 vtysh -c "show ip route ospf"
