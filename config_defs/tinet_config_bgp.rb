@@ -168,6 +168,7 @@ module TinetConfigBGPModule
     cmd_list = SectionCommandList.new # empty command list
     return cmd_list if INTERNAL_AS_RANGE.cover?(asn)
 
+    cmd_list.push_conf_t(EXTERNAL_AS_NETWORK[asn].map { |pf| "ip route #{pf} blackhole" })
     cmd_list.push_bgp_ipv4uc(EXTERNAL_AS_NETWORK[asn].map { |pf| "network #{pf}" })
     cmd_list
   end
@@ -177,7 +178,8 @@ module TinetConfigBGPModule
     prefixes = find_network_config_in(proc_node)
     return cmd_list if prefixes.empty?
 
-    cmd_list.push_bgp_ipv4uc(prefixes.map { |pref| "network #{pref}" })
+    cmd_list.push_conf_t(prefixes.map { |pf| "ip route #{pf} blackhole" })
+    cmd_list.push_bgp_ipv4uc(prefixes.map { |pf| "network #{pf}" })
     cmd_list
   end
 
@@ -207,11 +209,11 @@ module TinetConfigBGPModule
   # @param [Array<Hash>] proc_neighbors
   def config_bgp_proc_node_config(asn, proc_node, proc_neighbors)
     cmd_list = SectionCommandList.new
-    cmd_list.push_conf_t([
-                           "router bgp #{asn}",
-                           "bgp router-id #{router_id(proc_node)}"
-                         ])
-    cmd_list.push_bgp_common(['bgp log-neighbor-changes'])
+    cmd_list.store_bgp_header("router bgp #{asn}")
+    cmd_list.push_bgp_common([
+                               "bgp router-id #{router_id(proc_node)}",
+                               'bgp log-neighbor-changes'
+                             ])
     cmd_list.append_section(confederation_commands(proc_node))
     cmd_list.append_section(route_reflector_commands(proc_node))
     cmd_list.append_section(neighbor_commands(asn, proc_node, proc_neighbors))

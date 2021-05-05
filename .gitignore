@@ -6,7 +6,6 @@ dist/
 
 # generated files
 model_defs/model
-spec.yaml
 
 # ruby
 .bundle/
