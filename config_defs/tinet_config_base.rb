@@ -2,6 +2,7 @@
 
 require 'hashie'
 require 'yaml'
+require_relative './netomox_patch'
 
 # Base class of tinet config wrapper.
 class TinetConfigBase

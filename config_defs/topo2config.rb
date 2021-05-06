@@ -22,7 +22,7 @@ def config_converter(opts)
   end
 end
 # exec:
-# hagiwara@dev02:~/nwmodel/netomox-examples$ bundle exec ruby config_defs/convert_topology2config.rb [--debug foo]
+# hagiwara@dev02:~/nwmodel/netomox-examples$ bundle exec ruby config_defs/topo2config.rb [--debug foo]
 
 opts = ARGV.getopts('', 'debug:')
 

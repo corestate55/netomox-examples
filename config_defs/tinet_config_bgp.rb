@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative './tinet_config_layer3'
+require_relative './tinet_config_base'
 require_relative './tinet_config_bgp_util'
 require_relative './tinet_config_bgp_test'
 
@@ -70,9 +70,9 @@ module TinetConfigBGPModule
     ]
   end
 
-  def neighbor_confed_ebgp_cmds(peer_ip, remote_asn, local_asn)
+  def neighbor_confederation_ebgp_cmds(peer_ip, remote_asn, local_asn)
     [
-      *neighbor_ebgp_cmds(peer_ip, remote_asn),
+      *neighbor_ebgp_cmds(peer_ip, remote_asn), # expand array
       "bgp confederation peers #{local_asn}"
     ]
   end
@@ -81,7 +81,7 @@ module TinetConfigBGPModule
     ["neighbor #{peer_ip} remote-as #{remote_asn}"]
   end
 
-  def confed_ebgp(orig_asn, orig_confed, neighbor)
+  def confederation_ebgp?(orig_asn, orig_confed, neighbor)
     neighbor[:asn] != orig_asn && # asn is same as confederation.local_as
       !neighbor[:confederation].empty? && !orig_confed.empty? &&
       neighbor[:confederation][:global_as] == orig_confed[:global_as]
@@ -91,8 +91,8 @@ module TinetConfigBGPModule
   def select_neighbor_commands(asn, confederation, neighbor)
     if neighbor[:asn] == asn
       neighbor_ibgp_cmds(neighbor[:peer_node].attribute.router_id[0], neighbor[:asn])
-    elsif confed_ebgp(asn, confederation, neighbor)
-      neighbor_confed_ebgp_cmds(neighbor[:peer_ip][0], neighbor[:asn], neighbor[:confederation][:local_as])
+    elsif confederation_ebgp?(asn, confederation, neighbor)
+      neighbor_confederation_ebgp_cmds(neighbor[:peer_ip][0], neighbor[:asn], neighbor[:confederation][:local_as])
     else
       remote_asn = neighbor[:confederation].empty? ? neighbor[:asn] : neighbor[:confederation][:global_as]
       neighbor_ebgp_cmds(neighbor[:peer_ip][0], remote_asn)
@@ -220,8 +220,3 @@ module TinetConfigBGPModule
   end
 end
 # rubocop:enable Metrics/ModuleLength
-
-# Tinet config generator for bgp-proc topology model
-class TinetConfigBGP < TinetConfigLayer3
-  include TinetConfigBGPModule
-end

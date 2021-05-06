@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_relative './tinet_config_base'
-require_relative './netomox_patch'
 
 # Mix-in module to construct layer3 tinet config
 module TinetConfigLayer3Module
@@ -89,9 +88,4 @@ module TinetConfigLayer3Module
       cmds: config_l3_node_cmds(node)
     )
   end
-end
-
-# Tinet config generator for layer3 topology model
-class TinetConfigLayer3 < TinetConfigBase
-  include TinetConfigLayer3Module
 end

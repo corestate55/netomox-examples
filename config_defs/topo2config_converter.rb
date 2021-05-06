@@ -1,14 +1,7 @@
 # frozen_string_literal: true
 
 require_relative './topo2config_converter_base'
-require_relative './tinet_config_ospf'
-require_relative './tinet_config_bgp'
-
-# whole layers
-class TinetConfigAll < TinetConfigLayer3
-  include TinetConfigOSPFModule
-  include TinetConfigBGPModule
-end
+require_relative './tinet_config_all'
 
 # data converter (layer3 to tinet)
 class Topo2Layer3ConfigConverter < Topo2ConfigConverterBase

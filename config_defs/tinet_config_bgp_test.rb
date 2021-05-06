@@ -35,12 +35,12 @@ module TinetConfigBGPModule
     end
   end
 
-  # @param [String] src_node_names Node name in layer3 network
+  # @param [Array<String>] src_node_names Node name in layer3 network
   # @param [Array<String>] dst_ipaddrs IP Addresses to ping from src_node
   # @return [Array<String>] Commands
   def config_bgp_test(src_node_names, dst_ipaddrs)
-    cmds = src_node_names.product(dst_ipaddrs).map do |prod|
-      "docker exec #{prod[0]} ping -c2 #{prod[1]}"
+    cmds = src_node_names.product(dst_ipaddrs).map do |node_ip_pair|
+      "docker exec #{node_ip_pair[0]} ping -c2 #{node_ip_pair[1]}"
     end
     format_cmds(cmds)
   end

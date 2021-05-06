@@ -27,9 +27,14 @@ class Topo2ConfigConverterBase
 
   private
 
-  # check and convert interface name to implement veth interface name constraints.
+  # does specified interface name satisfies linux veth interface name constraints?
+  def invalid_ifname?(name)
+    !name.ascii_only? || name.include?(' ') || name.length > 15
+  end
+
+  # check and convert interface name
   def check_interface_name(name)
-    warn "Interface name is invalid or too log: #{name}" if !name.ascii_only? || name.include?(' ') || name.length > 15
+    warn "Interface name is invalid or too log: #{name}" if invalid_ifname?(name)
     name.tr!(' ', '_')
     name.tr!('/', '-')
     name

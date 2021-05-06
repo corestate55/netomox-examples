@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'ipaddress'
-require_relative './tinet_config_layer3'
+require_relative './tinet_config_base'
 
 # Mix-in module to construct ospf tinet config
 module TinetConfigOSPFModule
@@ -81,9 +81,4 @@ module TinetConfigOSPFModule
     cmds.push('exit') # conf t
     format_vtysh_cmds(cmds)
   end
-end
-
-# Tinet config generator for ospf-proc topology model
-class TinetConfigOSPF < TinetConfigLayer3
-  include TinetConfigOSPFModule
 end
