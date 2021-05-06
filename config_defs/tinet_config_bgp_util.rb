@@ -55,7 +55,7 @@ module TinetConfigBGPModule
 
     def uniq_all!
       @section.each_key
-              .filter { |key| @section[key].kind_of?(Array) }
+              .filter { |key| @section[key].is_a?(Array) }
               .each { |key| @section[key].uniq! }
     end
 

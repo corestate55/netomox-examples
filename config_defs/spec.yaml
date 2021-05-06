@@ -374,3 +374,89 @@ test:
   - cmd: docker exec core01 vtysh -c "show ip route ospf"
   - cmd: docker exec core02 vtysh -c "show ip ospf neighbor"
   - cmd: docker exec core02 vtysh -c "show ip route ospf"
+  - cmd: docker exec border01 vtysh -c "show ip bgp summary"
+  - cmd: docker exec border01 vtysh -c "show ip bgp detail"
+  - cmd: docker exec border01 vtysh -c "show ip bgp nexthop"
+  - cmd: docker exec border01 vtysh -c "show ip route bgp"
+  - cmd: docker exec core01 vtysh -c "show ip bgp summary"
+  - cmd: docker exec core01 vtysh -c "show ip bgp detail"
+  - cmd: docker exec core01 vtysh -c "show ip bgp nexthop"
+  - cmd: docker exec core01 vtysh -c "show ip route bgp"
+  - cmd: docker exec core02 vtysh -c "show ip bgp summary"
+  - cmd: docker exec core02 vtysh -c "show ip bgp detail"
+  - cmd: docker exec core02 vtysh -c "show ip bgp nexthop"
+  - cmd: docker exec core02 vtysh -c "show ip route bgp"
+  - cmd: docker exec border11 vtysh -c "show ip bgp summary"
+  - cmd: docker exec border11 vtysh -c "show ip bgp detail"
+  - cmd: docker exec border11 vtysh -c "show ip bgp nexthop"
+  - cmd: docker exec border11 vtysh -c "show ip route bgp"
+  - cmd: docker exec border12 vtysh -c "show ip bgp summary"
+  - cmd: docker exec border12 vtysh -c "show ip bgp detail"
+  - cmd: docker exec border12 vtysh -c "show ip bgp nexthop"
+  - cmd: docker exec border12 vtysh -c "show ip route bgp"
+  - cmd: docker exec border21 vtysh -c "show ip bgp summary"
+  - cmd: docker exec border21 vtysh -c "show ip bgp detail"
+  - cmd: docker exec border21 vtysh -c "show ip bgp nexthop"
+  - cmd: docker exec border21 vtysh -c "show ip route bgp"
+  - cmd: docker exec as65533_10.0.0.17 vtysh -c "show ip bgp summary"
+  - cmd: docker exec as65533_10.0.0.17 vtysh -c "show ip bgp detail"
+  - cmd: docker exec as65533_10.0.0.17 vtysh -c "show ip bgp nexthop"
+  - cmd: docker exec as65533_10.0.0.17 vtysh -c "show ip route bgp"
+  - cmd: docker exec as65534_10.0.0.45 vtysh -c "show ip bgp summary"
+  - cmd: docker exec as65534_10.0.0.45 vtysh -c "show ip bgp detail"
+  - cmd: docker exec as65534_10.0.0.45 vtysh -c "show ip bgp nexthop"
+  - cmd: docker exec as65534_10.0.0.45 vtysh -c "show ip route bgp"
+  - cmd: docker exec as65534_10.0.1.13 vtysh -c "show ip bgp summary"
+  - cmd: docker exec as65534_10.0.1.13 vtysh -c "show ip bgp detail"
+  - cmd: docker exec as65534_10.0.1.13 vtysh -c "show ip bgp nexthop"
+  - cmd: docker exec as65534_10.0.1.13 vtysh -c "show ip route bgp"
+  - cmd: docker exec border01 ping -c2 10.0.0.17
+  - cmd: docker exec border01 ping -c2 10.0.0.45
+  - cmd: docker exec border01 ping -c2 10.0.1.10
+  - cmd: docker exec border01 ping -c2 10.0.1.13
+  - cmd: docker exec border01 ping -c2 10.0.1.14
+  - cmd: docker exec border11 ping -c2 10.0.0.17
+  - cmd: docker exec border11 ping -c2 10.0.0.45
+  - cmd: docker exec border11 ping -c2 10.0.1.10
+  - cmd: docker exec border11 ping -c2 10.0.1.13
+  - cmd: docker exec border11 ping -c2 10.0.1.14
+  - cmd: docker exec border12 ping -c2 10.0.0.17
+  - cmd: docker exec border12 ping -c2 10.0.0.45
+  - cmd: docker exec border12 ping -c2 10.0.1.10
+  - cmd: docker exec border12 ping -c2 10.0.1.13
+  - cmd: docker exec border12 ping -c2 10.0.1.14
+  - cmd: docker exec core01 ping -c2 10.0.0.17
+  - cmd: docker exec core01 ping -c2 10.0.0.45
+  - cmd: docker exec core01 ping -c2 10.0.1.10
+  - cmd: docker exec core01 ping -c2 10.0.1.13
+  - cmd: docker exec core01 ping -c2 10.0.1.14
+  - cmd: docker exec core02 ping -c2 10.0.0.17
+  - cmd: docker exec core02 ping -c2 10.0.0.45
+  - cmd: docker exec core02 ping -c2 10.0.1.10
+  - cmd: docker exec core02 ping -c2 10.0.1.13
+  - cmd: docker exec core02 ping -c2 10.0.1.14
+  - cmd: docker exec border21 ping -c2 10.0.0.17
+  - cmd: docker exec border21 ping -c2 10.0.0.18
+  - cmd: docker exec border21 ping -c2 10.0.0.45
+  - cmd: docker exec border21 ping -c2 10.0.0.46
+  - cmd: docker exec border21 ping -c2 10.0.1.13
+  - cmd: docker exec border21 ping -c2 10.0.1.9
+  - cmd: docker exec as65533_10.0.0.17 ping -c2 10.0.0.18
+  - cmd: docker exec as65533_10.0.0.17 ping -c2 10.0.0.45
+  - cmd: docker exec as65533_10.0.0.17 ping -c2 10.0.0.46
+  - cmd: docker exec as65533_10.0.0.17 ping -c2 10.0.1.10
+  - cmd: docker exec as65533_10.0.0.17 ping -c2 10.0.1.13
+  - cmd: docker exec as65533_10.0.0.17 ping -c2 10.0.1.14
+  - cmd: docker exec as65533_10.0.0.17 ping -c2 10.0.1.9
+  - cmd: docker exec as65534_10.0.0.45 ping -c2 10.0.0.17
+  - cmd: docker exec as65534_10.0.0.45 ping -c2 10.0.0.18
+  - cmd: docker exec as65534_10.0.0.45 ping -c2 10.0.0.46
+  - cmd: docker exec as65534_10.0.0.45 ping -c2 10.0.1.10
+  - cmd: docker exec as65534_10.0.0.45 ping -c2 10.0.1.14
+  - cmd: docker exec as65534_10.0.0.45 ping -c2 10.0.1.9
+  - cmd: docker exec as65534_10.0.1.13 ping -c2 10.0.0.17
+  - cmd: docker exec as65534_10.0.1.13 ping -c2 10.0.0.18
+  - cmd: docker exec as65534_10.0.1.13 ping -c2 10.0.0.46
+  - cmd: docker exec as65534_10.0.1.13 ping -c2 10.0.1.10
+  - cmd: docker exec as65534_10.0.1.13 ping -c2 10.0.1.14
+  - cmd: docker exec as65534_10.0.1.13 ping -c2 10.0.1.9

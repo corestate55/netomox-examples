@@ -56,6 +56,7 @@ module Topo2BGPConfigConverterModule
     bgp_as_nw = @networks.find_network('bgp-as')
     bgp_proc_nw = @networks.find_network('bgp-proc')
     @tinet_config.add_bgp_node_config_by_nw(bgp_as_nw, bgp_proc_nw)
+    @tinet_config.add_bgp_test_by_nw(bgp_as_nw, bgp_proc_nw)
   end
 end
 

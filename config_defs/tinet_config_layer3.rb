@@ -7,17 +7,19 @@ require_relative './netomox_patch'
 module TinetConfigLayer3Module
   include TinetConfigBaseModule
 
-  # l3_nw : Netomox::Topology::Network
-  # node : Netomox::Topology::Node
+  # @param [Netomox::Topology::Network] l3_nw layer3 network
+  # @param [Netomox::Topology::Node] node Node in layer3 network
   def add_l3_node(l3_nw, node)
     @config[:nodes].push(config_l3_node(l3_nw, node))
   end
 
-  # node : Netomox::Topology::Node
+  # @param [Netomox::Topology::Node] node Node in layer3 network
   def add_l3_node_config(node)
     @config[:node_configs].push(config_l3_node_config(node))
   end
 
+  # @param [Netomox::Topology::Network] l3_nw layer3 network
+  # @param [Netomox::Topology::Node] node Node in layer3 network
   def add_l3_test(l3_nw, node)
     @config[:test][:cmds].concat(config_l3_test(l3_nw, node))
   end

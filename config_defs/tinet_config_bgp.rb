@@ -2,6 +2,7 @@
 
 require_relative './tinet_config_layer3'
 require_relative './tinet_config_bgp_util'
+require_relative './tinet_config_bgp_test'
 
 # rubocop:disable Metrics/ModuleLength
 # Mix-in module to construct bgp tinet config
@@ -15,8 +16,8 @@ module TinetConfigBGPModule
     65_534 => ['10.2.0.0/16']
   }.freeze
 
-  # @param [Netomox::Topology::Network] bgp_as_nw
-  # @param [Netomox::Topology::Network] bgp_proc_nw
+  # @param [Netomox::Topology::Network] bgp_as_nw bgp-as network
+  # @param [Netomox::Topology::Network] bgp_proc_nw bgp-proc network
   def add_bgp_node_config_by_nw(bgp_as_nw, bgp_proc_nw)
     bgp_as_nw.nodes.each do |bgp_as_node|
       asn = asn_of_as_node(bgp_as_node)
@@ -193,10 +194,6 @@ module TinetConfigBGPModule
     target_node_config = find_node_config_by_name(l3_node_name)
     proc_neighbors = find_bgp_proc_neighbors(proc_node, bgp_proc_nw, bgp_as_nw)
     target_node_config[:cmds].push(config_bgp_proc_node_config(asn, proc_node, proc_neighbors))
-  end
-
-  def add_bgp_test(_node)
-    # TODO: test commands for bgp network
   end
 
   def router_id(proc_node)

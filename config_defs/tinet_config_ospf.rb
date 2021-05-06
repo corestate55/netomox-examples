@@ -7,36 +7,36 @@ require_relative './tinet_config_layer3'
 module TinetConfigOSPFModule
   include TinetConfigBaseModule
 
+  # constants
+  OSPF_STATUS_CHECK_CMDS = [
+    'show ip ospf neighbor',
+    'show ip route ospf'
+  ].freeze
+  STATIC_OSPF_CMDS = [
+    'log-adjacency-changes',
+    'passive-interface lo',
+    'redistribute connected'
+  ].freeze
+
+  # @param [Netomox::Topology::Node] node Node in ospf-proc network
   def add_ospf_node_config(node)
     target_node_config = node_config_by_ospf_node(node)
     target_node_config[:cmds].push(config_ospf_node_cmds(node))
   end
 
+  # @param [Netomox::Topology::Node] node Node in ospf-proc network
   def add_ospf_test(node)
     @config[:test][:cmds].concat(config_ospf_test(node))
   end
 
   private
 
-  def ospf_status_check_cmds
-    [
-      'show ip ospf neighbor',
-      'show ip route ospf'
-    ]
-  end
-
   def config_ospf_test(node)
     l3_node_name = find_support_layer3_node_name(node)
-    cmds = ospf_status_check_cmds.map do |cmd|
+    cmds = OSPF_STATUS_CHECK_CMDS.map do |cmd|
       "docker exec #{l3_node_name} vtysh -c \"#{cmd}\""
     end
     format_cmds(cmds)
-  end
-
-  def find_support_layer3_node_name(node)
-    # ospf-proc node has single support node
-    l3_node_support = node.find_all_supports_by_network('layer3').shift
-    l3_node_support.ref_node
   end
 
   def find_node_config_by_ospf_node(node)
@@ -55,14 +55,6 @@ module TinetConfigOSPFModule
     end
   end
 
-  def static_ospf_cmds
-    [
-      'log-adjacency-changes',
-      'passive-interface lo', # TODO: loopback interface name?
-      'redistribute connected'
-    ]
-  end
-
   def ospf_network_cmd(ip_ospf_str)
     area, ip_str = ip_ospf_str.split(':')
     area.tr!('area', '')
@@ -77,7 +69,7 @@ module TinetConfigOSPFModule
     # cmds.push("router ospf #{proc_id}")
     cmds.push('router ospf')
     # add static ospf config
-    cmds.concat(static_ospf_cmds)
+    cmds.concat(STATIC_OSPF_CMDS)
 
     # add ospf network commands
     node.each_tps_except_loopback do |tp|
