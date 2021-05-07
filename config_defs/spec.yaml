@@ -344,6 +344,24 @@ node_configs:
       -c "exit"
 test:
   cmds:
+  - cmd: docker exec as65533_10.0.0.17 vtysh -c "show interface"
+  - cmd: docker exec as65533_10.0.0.17 vtysh -c "show running-config"
+  - cmd: docker exec as65534_10.0.0.45 vtysh -c "show interface"
+  - cmd: docker exec as65534_10.0.0.45 vtysh -c "show running-config"
+  - cmd: docker exec as65534_10.0.1.13 vtysh -c "show interface"
+  - cmd: docker exec as65534_10.0.1.13 vtysh -c "show running-config"
+  - cmd: docker exec border01 vtysh -c "show interface"
+  - cmd: docker exec border01 vtysh -c "show running-config"
+  - cmd: docker exec border11 vtysh -c "show interface"
+  - cmd: docker exec border11 vtysh -c "show running-config"
+  - cmd: docker exec border12 vtysh -c "show interface"
+  - cmd: docker exec border12 vtysh -c "show running-config"
+  - cmd: docker exec border21 vtysh -c "show interface"
+  - cmd: docker exec border21 vtysh -c "show running-config"
+  - cmd: docker exec core01 vtysh -c "show interface"
+  - cmd: docker exec core01 vtysh -c "show running-config"
+  - cmd: docker exec core02 vtysh -c "show interface"
+  - cmd: docker exec core02 vtysh -c "show running-config"
   - cmd: docker exec as65533_10.0.0.17 ping -c2 10.0.0.18
   - cmd: docker exec as65534_10.0.0.45 ping -c2 10.0.0.46
   - cmd: docker exec as65534_10.0.1.13 ping -c2 10.0.1.14

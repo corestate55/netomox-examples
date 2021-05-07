@@ -22,7 +22,7 @@ module TinetConfigBGPModule
   def add_show_bgp_route_test(bgp_proc_nw)
     l3_node_names = bgp_proc_nw.nodes.map { |node| find_support_layer3_node_name(node) }
     cmds = l3_node_names.product(BGP_STATUS_CHECK_CMDS).map do |node_cmd_pair|
-      "docker exec #{node_cmd_pair[0]} vtysh -c \"#{node_cmd_pair[1]}\""
+      "docker exec #{node_cmd_pair[0]} #{vtysh_cmd([node_cmd_pair[1]])}"
     end
     @config[:test][:cmds].concat(format_cmds(cmds))
   end
@@ -37,7 +37,7 @@ module TinetConfigBGPModule
 
   # @param [Array<String>] src_node_names Node name in layer3 network
   # @param [Array<String>] dst_ipaddrs IP Addresses to ping from src_node
-  # @return [Array<String>] Commands
+  # @return [Array<Hashie::Mash>] Commands
   def config_bgp_test(src_node_names, dst_ipaddrs)
     cmds = src_node_names.product(dst_ipaddrs).map do |node_ip_pair|
       "docker exec #{node_ip_pair[0]} ping -c2 #{node_ip_pair[1]}"

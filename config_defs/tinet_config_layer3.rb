@@ -6,6 +6,12 @@ require_relative './tinet_config_base'
 module TinetConfigLayer3Module
   include TinetConfigBaseModule
 
+  # constants
+  L3_STATUS_CHECK_CMDS = [
+    'show interface',
+    'show running-config'
+  ].freeze
+
   # @param [Netomox::Topology::Network] l3_nw layer3 network
   # @param [Netomox::Topology::Node] node Node in layer3 network
   def add_l3_node(l3_nw, node)
@@ -18,9 +24,8 @@ module TinetConfigLayer3Module
   end
 
   # @param [Netomox::Topology::Network] l3_nw layer3 network
-  # @param [Netomox::Topology::Node] node Node in layer3 network
-  def add_l3_test(l3_nw, node)
-    @config[:test][:cmds].concat(config_l3_test(l3_nw, node))
+  def add_l3_test_by_nw(l3_nw)
+    @config[:test][:cmds].concat(config_l3_test(l3_nw))
   end
 
   private
@@ -38,18 +43,22 @@ module TinetConfigLayer3Module
     found_link ? "#{found_link.destination.node_ref}##{found_link.destination.tp_ref}" : '_NONE_'
   end
 
-  def config_l3_test(l3_nw, node)
-    cmds = []
-    node.find_all_tps_except_loopback.map do |tp|
-      dst_tp = facing_tp(l3_nw, node, tp)
-      next unless dst_tp.attribute.attribute?(:ip_addrs)
+  def config_l3_test_status(node)
+    L3_STATUS_CHECK_CMDS.map { |cmd| "docker exec #{node.name} #{vtysh_cmd([cmd])}" }
+  end
 
-      dst_tp.attribute.ip_addrs.each do |dst_ip_addr|
-        # test p2p link ping
-        cmds.push("docker exec #{node.name} ping -c2 #{dst_ip_addr.split('/').shift}")
-      end
-    end
-    format_cmds(cmds)
+  def config_l3_test_ping(l3_nw, node)
+    dst_tps = node.find_all_tps_except_loopback.map { |tp| facing_tp(l3_nw, node, tp) }
+    dst_ips = dst_tps.map { |dst_tp| dst_tp.attribute.ip_addrs }.flatten
+    dst_ips.map { |ip| "docker exec #{node.name} ping -c2 #{ip.split('/').shift}" }
+  end
+
+  def config_l3_test(l3_nw)
+    cmds = [
+      l3_nw.nodes.map { |node| config_l3_test_status(node) },
+      l3_nw.nodes.map { |node| config_l3_test_ping(l3_nw, node) }
+    ]
+    format_cmds(cmds.flatten)
   end
 
   def config_l3_interfaces(l3_nw, node)

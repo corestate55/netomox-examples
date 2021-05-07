@@ -34,7 +34,7 @@ module TinetConfigOSPFModule
   def config_ospf_test(node)
     l3_node_name = find_support_layer3_node_name(node)
     cmds = OSPF_STATUS_CHECK_CMDS.map do |cmd|
-      "docker exec #{l3_node_name} vtysh -c \"#{cmd}\""
+      "docker exec #{l3_node_name} #{vtysh_cmd([cmd])}"
     end
     format_cmds(cmds)
   end

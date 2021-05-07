@@ -17,8 +17,8 @@ class Topo2Layer3ConfigConverter < Topo2ConfigConverterBase
     l3_nw.nodes.each do |node|
       @tinet_config.add_l3_node(l3_nw, node)
       @tinet_config.add_l3_node_config(node)
-      @tinet_config.add_l3_test(l3_nw, node)
     end
+    @tinet_config.add_l3_test_by_nw(l3_nw)
   end
 end
 
