@@ -18,14 +18,18 @@ module TinetConfigBGPModule
 
   # @param [Netomox::Topology::Network] bgp_as_nw bgp-as network
   # @param [Netomox::Topology::Network] bgp_proc_nw bgp-proc network
-  def add_bgp_node_config_by_nw(bgp_as_nw, bgp_proc_nw)
+  def add_bgp_node_config(bgp_as_nw, bgp_proc_nw)
+    # init topology data base
+    @bgp_as_nw = bgp_as_nw
+    @bgp_proc_nw = bgp_proc_nw
+    # make node configs
     bgp_as_nw.nodes.each do |bgp_as_node|
       asn = asn_of_as_node(bgp_as_node)
       bgp_as_node.supports.each do |support_node|
         next if support_node.network_ref != 'bgp-proc'
 
         bgp_proc_node = bgp_proc_nw.find_node_by_name(support_node.node_ref)
-        add_bgp_proc_node_config(asn, bgp_proc_node, bgp_proc_nw, bgp_as_nw)
+        add_bgp_proc_node_config(asn, bgp_proc_node)
       end
     end
   end
@@ -39,24 +43,24 @@ module TinetConfigBGPModule
   end
 
   # @return [Netomox::Topology::Node, nil]
-  def find_parent(proc_node_ref, as_nw)
-    parent = as_nw.nodes.find do |node|
+  def find_parent(proc_node_ref)
+    parent = @bgp_as_nw.nodes.find do |node|
       node.supports.find { |sup| sup.network_ref == 'bgp-proc' && sup.node_ref == proc_node_ref }
     end
     parent ? asn_of_as_node(parent) : nil
   end
 
-  def find_bgp_proc_neighbors(proc_node, proc_nw, as_nw)
-    neighbor_links = proc_nw.find_all_links_by_source_node(proc_node.name)
+  def find_bgp_proc_neighbors(proc_node)
+    neighbor_links = @bgp_proc_nw.find_all_links_by_source_node(proc_node.name)
     neighbor_links.map do |link|
       peer_node_ref = link.destination.node_ref
-      peer_node = proc_nw.find_node_by_name(peer_node_ref)
+      peer_node = @bgp_proc_nw.find_node_by_name(peer_node_ref)
       peer_tp = peer_node.find_tp_by_name(link.destination.tp_ref)
       {
         orig_node: proc_node, # origin [Netomox::Topology::Node]
         peer_node: peer_node, # peer [Netomox::Topology::Node]
         peer_ip: peer_tp.attribute.ip_addrs, # tp name contains ':N' duplicated count
-        asn: find_parent(peer_node_ref, as_nw),
+        asn: find_parent(peer_node_ref),
         confederation: find_confederation_config_in(peer_node)
       }
     end
@@ -186,13 +190,11 @@ module TinetConfigBGPModule
 
   # @param [Integer] asn AS number of proc_node
   # @param [Netomox::Topology::Node] proc_node Node in bgp-proc network
-  # @param [Netomox::Topology::Network] bgp_proc_nw bgp-proc network
-  # @param [Netomox::Topology::Network] bgp_as_nw bgp-as network
-  def add_bgp_proc_node_config(asn, proc_node, bgp_proc_nw, bgp_as_nw)
+  def add_bgp_proc_node_config(asn, proc_node)
     l3_node_name = proc_node.attribute.name
     warn "AS:#{asn}, NODE:#{proc_node}, L3_NODE:#{l3_node_name}"
     target_node_config = find_node_config_by_name(l3_node_name)
-    proc_neighbors = find_bgp_proc_neighbors(proc_node, bgp_proc_nw, bgp_as_nw)
+    proc_neighbors = find_bgp_proc_neighbors(proc_node)
     target_node_config[:cmds].push(config_bgp_proc_node_config(asn, proc_node, proc_neighbors))
   end
 

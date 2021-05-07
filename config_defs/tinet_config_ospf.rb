@@ -18,15 +18,19 @@ module TinetConfigOSPFModule
     'redistribute connected'
   ].freeze
 
-  # @param [Netomox::Topology::Node] node Node in ospf-proc network
-  def add_ospf_node_config(node)
-    target_node_config = node_config_by_ospf_node(node)
-    target_node_config[:cmds].push(config_ospf_node_cmds(node))
+  # @param [Netomox::Topology::Network] ospf_proc_nw ospf-proc network
+  def add_ospf_node_config(ospf_proc_nw)
+    ospf_proc_nw.nodes.each do |node|
+      target_node_config = node_config_by_ospf_node(node)
+      target_node_config[:cmds].push(config_ospf_node_cmds(node))
+    end
   end
 
-  # @param [Netomox::Topology::Node] node Node in ospf-proc network
-  def add_ospf_test(node)
-    @config[:test][:cmds].concat(config_ospf_test(node))
+  # @param [Netomox::Topology::Network] ospf_proc_nw ospf-proc network
+  def add_ospf_test(ospf_proc_nw)
+    ospf_proc_nw.nodes.each do |node|
+      @config[:test][:cmds].concat(config_ospf_test(node))
+    end
   end
 
   private
@@ -44,6 +48,7 @@ module TinetConfigOSPFModule
     find_node_config_by_name(l3_node_name)
   end
 
+  # @param [Netomox::Topology::Node] node Node in ospf-proc network
   def node_config_by_ospf_node(node)
     node_config = find_node_config_by_ospf_node(node)
     if node_config
@@ -62,6 +67,7 @@ module TinetConfigOSPFModule
     "network #{ip.network.to_string} area #{area}"
   end
 
+  # @param [Netomox::Topology::Node] node Node in ospf-proc network
   def config_ospf_node_cmds(node)
     cmds = ['conf t']
     # the proc number is not used in the ospfd of FRR.

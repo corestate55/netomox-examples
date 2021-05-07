@@ -14,11 +14,8 @@ class Topo2Layer3ConfigConverter < Topo2ConfigConverterBase
 
   def construct_layer3_config
     l3_nw = @networks.find_network('layer3')
-    l3_nw.nodes.each do |node|
-      @tinet_config.add_l3_node(l3_nw, node)
-      @tinet_config.add_l3_node_config(node)
-    end
-    @tinet_config.add_l3_test_by_nw(l3_nw)
+    @tinet_config.add_l3_node_config(l3_nw)
+    @tinet_config.add_l3_test(l3_nw)
   end
 end
 
@@ -26,10 +23,8 @@ end
 module Topo2OSPFConfigConverterModule
   def construct_ospf_config
     ospf_proc_nw = @networks.find_network('ospf-proc')
-    ospf_proc_nw.nodes.each do |node|
-      @tinet_config.add_ospf_node_config(node)
-      @tinet_config.add_ospf_test(node)
-    end
+    @tinet_config.add_ospf_node_config(ospf_proc_nw)
+    @tinet_config.add_ospf_test(ospf_proc_nw)
   end
 end
 
@@ -48,8 +43,8 @@ module Topo2BGPConfigConverterModule
   def construct_bgp_config
     bgp_as_nw = @networks.find_network('bgp-as')
     bgp_proc_nw = @networks.find_network('bgp-proc')
-    @tinet_config.add_bgp_node_config_by_nw(bgp_as_nw, bgp_proc_nw)
-    @tinet_config.add_bgp_test_by_nw(bgp_as_nw, bgp_proc_nw)
+    @tinet_config.add_bgp_node_config(bgp_as_nw, bgp_proc_nw)
+    @tinet_config.add_bgp_test(bgp_as_nw, bgp_proc_nw)
   end
 end
 
