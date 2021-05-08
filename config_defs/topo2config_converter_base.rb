@@ -44,7 +44,7 @@ class Topo2ConfigConverterBase
     @networks.all_nodes do |node, _nw|
       node.each_tps do |tp|
         tp.name = check_interface_name(tp.name)
-        tp.each_supports do |stp|
+        tp.supports.each do |stp|
           stp.tp_ref = check_interface_name(stp.tp_ref)
         end
       end
