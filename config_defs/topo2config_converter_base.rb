@@ -40,14 +40,11 @@ class Topo2ConfigConverterBase
     name
   end
 
-  def convert_ifname_for_nodes
-    @networks.all_nodes do |node, _nw|
-      node.each_tps do |tp|
-        tp.name = check_interface_name(tp.name)
-        tp.supports.each do |stp|
-          stp.tp_ref = check_interface_name(stp.tp_ref)
-        end
-      end
+  def convert_ifname_for_term_points
+    @networks.all_termination_points do |tp, _node, _nw|
+      # Notice: patched to rewrite tp name
+      tp.name = check_interface_name(tp.name)
+      tp.supports.each { |stp| stp.tp_ref = check_interface_name(stp.tp_ref) }
     end
   end
 
@@ -59,7 +56,7 @@ class Topo2ConfigConverterBase
   end
 
   def convert_interface_name
-    convert_ifname_for_nodes
+    convert_ifname_for_term_points
     convert_ifname_for_links
   end
 
