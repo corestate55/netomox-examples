@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 require 'ipaddress'
-require_relative './tinet_config_base'
+require_relative './frr_configurable'
 
 # Mix-in module to construct ospf tinet config
-module TinetConfigOSPFModule
-  include TinetConfigBaseModule
+module FrrOSPFConfigurable
+  include FrrConfigurable
 
   # constants
   OSPF_STATUS_CHECK_CMDS = [

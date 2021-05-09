@@ -7,17 +7,13 @@ require_relative 'topo2config_converter'
 def config_converter(opts)
   case opts[:debug]
   when :bgp
-    opts[:tinet_config] = TinetConfigBGP.new
     Topo2BGPConfigConverter.new(opts)
   when :ospf
-    opts[:tinet_config] = TinetConfigOSPF.new
     Topo2OSPFConfigConverter.new(opts)
   when :l3, :layer3
-    opts[:tinet_config] = TinetConfigLayer3.new
     Topo2Layer3ConfigConverter.new(opts)
   else
     # default (also :all)
-    opts[:tinet_config] = TinetConfigAll.new
     Topo2AllConfigConverter.new(opts)
   end
 end

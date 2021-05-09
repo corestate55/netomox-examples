@@ -6,11 +6,14 @@ require 'netomox'
 
 # base class of tinet config converter
 class Topo2ConfigConverterBase
-  def initialize(opts)
-    @file = opts[:file]
-    @tinet_config = opts[:tinet_config]
-    @debug = opts[:debug]
-    warn "file: #{@file}, tinet_config:#{@tinet_config.class}" if @debug
+  # @param [TinetConfigBase] config Tinet config wrapper
+  # @param [String] file File path of RFC8345 topology json
+  # @param [Symbol, nil] debug Debug mode
+  def initialize(config:, file:, debug: nil)
+    @file = file
+    @config = config
+    @debug = debug
+    warn "file: #{@file}, tinet_config:#{@config.class}" if @debug
 
     @topology_data = read_topology_data
     @networks = convert_data_to_topology
@@ -22,7 +25,7 @@ class Topo2ConfigConverterBase
   end
 
   def to_config
-    @tinet_config.to_yaml
+    @config.to_yaml
   end
 
   private

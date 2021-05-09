@@ -1,30 +1,9 @@
 # frozen_string_literal: true
 
-require 'hashie'
-require 'yaml'
 require_relative './netomox_patch'
 
-# Base class of tinet config wrapper.
-class TinetConfigBase
-  attr_reader :config
-
-  def initialize
-    @config = Hashie::Mash.new(
-      nodes: [],
-      node_configs: [],
-      test: { cmds: [] }
-    )
-  end
-
-  def to_yaml
-    # change multiple line string format of commands:
-    # blick/chomp(|-) to fold/chomp(>-)
-    YAML.dump(@config.to_hash).tr('cmd: |-', 'cmd: >-')
-  end
-end
-
 # Base methods to mix-in
-module TinetConfigBaseModule
+module FrrConfigurable
   # find l3-node-name supported by ospf-proc/bgp-proc node
   # @param [Netomox::Topology::Node] node Node in ospf-proc or bgp-proc network
   # @return [String] supported layer3 node name

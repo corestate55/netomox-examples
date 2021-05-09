@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Mix-in module to construct bgp tinet config
-module TinetConfigBGPModule
+module FrrBGPConfigurable
   # constants
   BGP_STATUS_CHECK_CMDS = [
     'show ip bgp summary',

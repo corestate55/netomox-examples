@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-require_relative './tinet_config_base'
-require_relative './tinet_config_bgp_util'
-require_relative './tinet_config_bgp_test'
+require_relative './frr_configurable'
+require_relative './frr_bgp_configurable_util'
+require_relative './frr_bgp_configurable_test'
 
 # rubocop:disable Metrics/ModuleLength
 # Mix-in module to construct bgp tinet config
-module TinetConfigBGPModule
-  include TinetConfigBaseModule
+module FrrBGPConfigurable
+  include FrrConfigurable
 
   # constants for bgp topology
   INTERNAL_AS_RANGE = (65_530..65_532).freeze

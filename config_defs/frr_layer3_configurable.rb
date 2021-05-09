@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require_relative './tinet_config_base'
+require_relative './frr_configurable'
 
 # Mix-in module to construct layer3 tinet config
-module TinetConfigLayer3Module
-  include TinetConfigBaseModule
+module FrrLayer3Configurable
+  include FrrConfigurable
 
   # constants
   L3_STATUS_CHECK_CMDS = [
