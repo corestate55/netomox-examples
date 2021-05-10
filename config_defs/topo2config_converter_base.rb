@@ -2,7 +2,7 @@
 
 require 'json'
 require 'yaml'
-require 'netomox'
+require_relative './netomox_patch'
 
 # base class of tinet config converter
 class Topo2ConfigConverterBase
@@ -45,8 +45,7 @@ class Topo2ConfigConverterBase
 
   def convert_ifname_for_term_points
     @networks.all_termination_points do |tp, _node, _nw|
-      # Notice: patched to rewrite tp name
-      tp.name = check_interface_name(tp.name)
+      tp.rename!(check_interface_name(tp.name))
       tp.supports.each { |stp| stp.tp_ref = check_interface_name(stp.tp_ref) }
     end
   end

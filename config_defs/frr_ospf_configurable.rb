@@ -78,7 +78,7 @@ module FrrOSPFConfigurable
     cmds.concat(STATIC_OSPF_CMDS)
 
     # add ospf network commands
-    node.each_tps_except_loopback do |tp|
+    node.termination_points.reject { |tp| tp.name =~ /Lo/i }.each do |tp|
       tp.attribute.ip_addrs.each do |ip_ospf_str|
         cmds.push(ospf_network_cmd(ip_ospf_str))
       end

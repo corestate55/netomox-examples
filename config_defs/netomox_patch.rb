@@ -5,28 +5,6 @@ require 'netomox'
 # monkey patches
 module Netomox
   module Topology
-    # patch for object base
-    class TopoObjectBase
-      # rewrite object name
-      def name=(value)
-        @name = value
-        path_elements = @path.split('__')
-        path_elements[-1] = @name
-        @path = path_elements.join('__')
-      end
-    end
-
-    # patch for Netomox::Topology::Node
-    class Node < TopoObjectBase
-      def find_all_tps_except_loopback
-        @termination_points.filter { |tp| tp.name !~ /Lo/i }
-      end
-
-      def each_tps_except_loopback(&block)
-        find_all_tps_except_loopback.each(&block)
-      end
-    end
-
     # patch for Netomox::Topology::TpRef
     class TpRef < SupportingRefBase
       def to_s

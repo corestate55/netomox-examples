@@ -50,7 +50,7 @@ module FrrLayer3Configurable
   end
 
   def config_l3_test_ping(node)
-    dst_tps = node.find_all_tps_except_loopback.map { |tp| facing_tp(node, tp) }
+    dst_tps = node.termination_points.reject { |tp| tp.name =~ /Lo/i }.each.map { |tp| facing_tp(node, tp) }
     dst_ips = dst_tps.map { |dst_tp| dst_tp.attribute.ip_addrs }.flatten
     dst_ips.map { |ip| "docker exec #{node.name} ping -c2 #{ip.split('/').shift}" }
   end
@@ -64,7 +64,7 @@ module FrrLayer3Configurable
   end
 
   def config_l3_interfaces(node)
-    node.find_all_tps_except_loopback.map do |tp|
+    node.termination_points.reject { |tp| tp.name =~ /Lo/i }.each.map do |tp|
       Hashie::Mash.new(
         name: tp.name,
         type: 'direct',
