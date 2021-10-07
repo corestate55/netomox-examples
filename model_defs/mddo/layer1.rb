@@ -5,7 +5,7 @@ require 'netomox'
 # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
 def register_target_layer1(nws)
   nws.register do
-    network 'target-L1' do
+    network 'layer1' do
       # RegionA Nodes
       node 'RegionA-PE01' do
         (0..3).each { |i| term_point "p#{i}" }
