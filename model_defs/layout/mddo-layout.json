@@ -1,0 +1,34 @@
+{
+  "standard": {
+    "grid": {
+      "x": [50, 150, 250, 300],
+      "y": [50, 150, 250, 350]
+    },
+    "layout": {
+      "layer3__": {"i": 0, "j": 0}
+    }
+  },
+  "reverse": {
+    "grid": {
+      "x": [50, 250, 500, 700],
+      "y": [50, 200, 350, 500]
+    },
+    "layout": {
+      "layer1__RegionA-PE01": {"i": 0, "j": 0},
+      "layer1__RegionA-PE02": {"i": 1, "j": 0},
+      "layer1__RegionA-CE01": {"i": 0, "j": 1},
+      "layer1__RegionA-CE02": {"i": 1, "j": 1},
+      "layer1__RegionA-Acc01": {"i": 0, "j": 2},
+      "layer1__RegionA-Svr01": {"i": 0, "j": 3},
+      "layer1__RegionA-Svr02": {"i": 1, "j": 3},
+      "layer1__RegionB-PE01": {"i": 2, "j": 0},
+      "layer1__RegionB-PE02": {"i": 3, "j": 0},
+      "layer1__RegionB-CE01": {"i": 2, "j": 1},
+      "layer1__RegionB-CE02": {"i": 3, "j": 1},
+      "layer1__RegionB-Acc01": {"i": 2, "j": 2},
+      "layer1__RegionB-Acc02": {"i": 3, "j": 2},
+      "layer1__RegionB-Svr01": {"i": 2, "j": 3},
+      "layer1__RegionB-Svr02": {"i": 3, "j": 3}
+    }
+  }
+}
