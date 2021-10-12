@@ -1,0 +1,8 @@
+version: "3"
+services:
+  netoviz:
+    image: netoviz/allinone
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./netoviz_model:/home/netoviz/static/model
