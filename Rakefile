@@ -10,7 +10,7 @@ require 'rake/clean'
 require 'json'
 
 YANG_DIR = './yang'
-MODEL_DIR = './netoviz/static/model'
+MODEL_DIR = './netoviz_model'
 MODEL_DEF_DIR = './model_defs'
 MODEL_LAYOUT_DIR = "#{MODEL_DEF_DIR}/layout"
 YANG = %W[
@@ -30,7 +30,12 @@ TARGET_JSON = TARGET_RB.map do |rb|
   "#{MODEL_DIR}/#{File.basename(rb).ext('json')}"
 end
 
-task default: %i[rb2json model_check validate_json json2xml install_layout]
+task default: %i[make_modeldir make_index rb2json model_check validate_json json2xml install_layout]
+
+desc 'pre-task'
+task :make_modeldir do
+  sh "mkdir -p #{MODEL_DIR}"
+end
 
 desc 'make json schema file from yang'
 task :jsonschema do
