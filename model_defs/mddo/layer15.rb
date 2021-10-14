@@ -36,33 +36,12 @@ def register_target_layer15(nws)
         term_point 'p23' do
           (2..3).each { |i| support %W[layer1 RegionA-Acc01 p#{i}] }
         end
-        term_point 'p45' do
-          (4..5).each { |i| support %W[layer1 RegionA-Acc01 p#{i}] }
-        end
-        term_point 'p67' do
-          (6..7).each { |i| support %W[layer1 RegionA-Acc01 p#{i}] }
-        end
-      end
-
-      node 'RegionA-Svr01' do
-        support %w[layer1 RegionA-Svr01]
-        term_point 'p01' do
-          (0..1).each { |i| support %W[layer1 RegionA-Svr01 eno#{i}] }
-        end
-      end
-      node 'RegionA-Svr02' do
-        support %w[layer1 RegionA-Svr02]
-        term_point 'p01' do
-          (0..1).each { |i| support %W[layer1 RegionA-Svr02 eno#{i}] }
-        end
       end
 
       # RegionA Links
-      bdlink %w[RegionA-CE01 p01 RegionA-CE01 p01]
+      bdlink %w[RegionA-CE01 p01 RegionA-CE02 p01]
       bdlink %w[RegionA-CE01 p45 RegionA-Acc01 p01]
       bdlink %w[RegionA-CE02 p45 RegionA-Acc01 p23]
-      bdlink %w[RegionA-Acc01 p45 RegionA-Svr01 p01]
-      bdlink %w[RegionA-Acc01 p67 RegionA-Svr02 p01]
 
       # RegionB Nodes
       node 'RegionB-CE01' do
@@ -98,9 +77,6 @@ def register_target_layer15(nws)
         term_point 'p23' do
           (2..3).each { |i| support %W[layer1 RegionB-Acc01 p#{i}] }
         end
-        term_point 'p45' do
-          (4..5).each { |i| support %W[layer1 RegionB-Acc01 p#{i}] }
-        end
       end
       node 'RegionB-Acc02' do
         support %w[layer1 RegionB-Acc02]
@@ -110,30 +86,12 @@ def register_target_layer15(nws)
         term_point 'p23' do
           (2..3).each { |i| support %W[layer1 RegionB-Acc02 p#{i}] }
         end
-        term_point 'p45' do
-          (4..5).each { |i| support %W[layer1 RegionB-Acc02 p#{i}] }
-        end
-      end
-
-      node 'RegionB-Svr01' do
-        support %w[layer1 RegionB-Svr01]
-        term_point 'p01' do
-          (0..1).each { |i| support %W[layer1 RegionB-Svr01 eno#{i}] }
-        end
-      end
-      node 'RegionB-Svr02' do
-        support %w[layer1 RegionB-Svr02]
-        term_point 'p01' do
-          (0..1).each { |i| support %W[layer1 RegionB-Svr02 eno#{i}] }
-        end
       end
 
       # RegionB Links
-      bdlink %w[RegionB-CE01 p01 RegionB-CE01 p01]
+      bdlink %w[RegionB-CE01 p01 RegionB-CE02 p01]
       bdlink %w[RegionB-CE01 p45 RegionB-Acc01 p01]
       bdlink %w[RegionB-CE02 p45 RegionB-Acc01 p23]
-      bdlink %w[RegionB-Acc01 p45 RegionB-Svr01 p01]
-      bdlink %w[RegionB-Acc02 p45 RegionB-Svr02 p01]
     end
   end
 end
