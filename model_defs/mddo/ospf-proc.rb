@@ -5,7 +5,7 @@ require 'netomox'
 # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
 def register_target_ospf_proc(nws)
   nws.register do
-    network 'ospf_proc' do
+    network 'ospf-proc' do
       support 'layer3'
 
       # RegionA Nodes

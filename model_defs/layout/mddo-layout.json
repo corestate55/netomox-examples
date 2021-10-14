@@ -1,35 +1,12 @@
 {
   "standard": {
     "grid": {
-      "x": [50, 150, 250, 350, 450, 650, 750, 850],
+      "x": [50, 250],
       "y": [50, 150, 250, 350]
     },
     "layout": {
-      "bgp-proc__RegionA-PE01": {"i": 0, "j": 0},
-      "bgp-proc__RegionA-PE02": {"i": 2, "j": 0},
-      "layer3__RegionA-CE01-GRT": {"i": 0, "j": 1},
-      "layer3__RegionA-CE01-VRF": {"i": 1, "j": 1},
-      "layer3__RegionA-CE02-GRT": {"i": 2, "j": 1},
-      "layer3__RegionA-CE02-VRF": {"i": 3, "j": 1},
-      "layer3__RegionA-VL10": {"i": 0, "j": 2},
-      "layer3__RegionA-VL20": {"i": 1, "j": 2},
-      "layer3__RegionA-VL110": {"i": 2, "j": 2},
-      "layer3__RegionA-VL120": {"i": 3, "j": 2},
-      "layer3__RegionA-Svr01": {"i": 0, "j": 3},
-      "layer3__RegionA-Svr02": {"i": 2, "j": 3},
-      "bgp-proc__RegionB-PE01": {"i": 4, "j": 0},
-      "bgp-proc__RegionB-PE02": {"i": 6, "j": 0},
-      "layer3__RegionB-CE01-GRT": {"i": 4, "j": 1},
-      "layer3__RegionB-CE01-VRF": {"i": 5, "j": 1},
-      "layer3__RegionB-CE02-GRT": {"i": 6, "j": 1},
-      "layer3__RegionB-CE02-VRF": {"i": 7, "j": 1},
-      "layer3__RegionB-VL10": {"i": 4, "j": 2},
-      "layer3__RegionB-VL20": {"i": 5, "j": 2},
-      "layer3__RegionB-VL110": {"i": 6, "j": 2},
-      "layer3__RegionB-VL120": {"i": 7, "j": 2},
-      "layer3__RegionB-Svr01": {"i": 4, "j": 3},
-      "layer3__RegionB-Svr02": {"i": 6, "j": 3}
-
+      "region__RegionA": {"i": 0, "j": 0},
+      "region__RegionB": {"i": 1, "j": 0}
     }
   },
   "reverse": {
