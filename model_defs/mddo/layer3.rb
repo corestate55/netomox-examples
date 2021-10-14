@@ -189,3 +189,4 @@ def register_target_layer3(nws)
     end
   end
 end
+# rubocop:enable Metrics/MethodLength, Metrics/AbcSize

@@ -115,3 +115,4 @@ def register_target_layer1(nws)
     end
   end
 end
+# rubocop:enable Metrics/MethodLength, Metrics/AbcSize

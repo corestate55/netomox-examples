@@ -55,3 +55,4 @@ def register_target_bgp_proc(nws)
     end
   end
 end
+# rubocop:enable Metrics/MethodLength, Metrics/AbcSize

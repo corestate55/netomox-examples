@@ -6,77 +6,77 @@ require 'netomox'
 def register_target_layer2(nws)
   nws.register do
     network 'layer2' do
-      support 'layer1'
+      support 'layer15'
 
       # RegionA Nodes
       node 'RegionA-CE01-GRT' do
         (0..1).each { |i| term_point "p#{i}" }
-        support %w[layer1 RegionA-CE01]
+        support %w[layer15 RegionA-CE01]
       end
       node 'RegionA-CE01-VRF' do
         (0..1).each { |i| term_point "p#{i}" }
-        support %w[layer1 RegionA-CE01]
+        support %w[layer15 RegionA-CE01]
       end
 
       node 'RegionA-CE02-GRT' do
         (0..1).each { |i| term_point "p#{i}" }
-        support %w[layer1 RegionA-CE02]
+        support %w[layer15 RegionA-CE02]
       end
       node 'RegionA-CE02-VRF' do
         (0..1).each { |i| term_point "p#{i}" }
-        support %w[layer1 RegionA-CE02]
+        support %w[layer15 RegionA-CE02]
       end
 
       node 'RegionA-CE01-VL10' do
         (0..1).each { |i| term_point "p#{i}" }
-        support %w[layer1 RegionA-CE01]
+        support %w[layer15 RegionA-CE01]
       end
       node 'RegionA-CE01-VL20' do
         term_point 'p0'
-        support %w[layer1 RegionA-CE01]
+        support %w[layer15 RegionA-CE01]
       end
       node 'RegionA-CE01-VL110' do
         (0..1).each { |i| term_point "p#{i}" }
-        support %w[layer1 RegionA-CE01]
+        support %w[layer15 RegionA-CE01]
       end
       node 'RegionA-CE01-VL120' do
         term_point 'p0'
-        support %w[layer1 RegionA-CE01]
+        support %w[layer15 RegionA-CE01]
       end
 
       node 'RegionA-CE02-VL10' do
         (0..1).each { |i| term_point "p#{i}" }
-        support %w[layer1 RegionA-CE02]
+        support %w[layer15 RegionA-CE02]
       end
       node 'RegionA-CE02-VL20' do
         (0..1).each { |i| term_point "p#{i}" }
-        support %w[layer1 RegionA-CE02]
+        support %w[layer15 RegionA-CE02]
       end
       node 'RegionA-CE02-VL110' do
         (0..1).each { |i| term_point "p#{i}" }
-        support %w[layer1 RegionA-CE02]
+        support %w[layer15 RegionA-CE02]
       end
       node 'RegionA-CE02-VL120' do
         (0..1).each { |i| term_point "p#{i}" }
-        support %w[layer1 RegionA-CE02]
+        support %w[layer15 RegionA-CE02]
       end
 
       node 'RegionA-Acc01-VL10' do
         (0..3).each { |i| term_point "p#{i}" }
-        support %w[layer1 RegionA-Acc01]
+        support %w[layer15 RegionA-Acc01]
       end
       node 'RegionA-Acc01-VL110' do
         (0..3).each { |i| term_point "p#{i}" }
-        support %w[layer1 RegionA-Acc01]
+        support %w[layer15 RegionA-Acc01]
       end
 
       node 'RegionA-Svr01' do
         (0..1).each { |i| term_point "eno#{i}" }
-        support %w[layer1 RegionA-Svr01]
+        support %w[layer15 RegionA-Svr01]
       end
       node 'RegionA-Svr02' do
         (0..1).each { |i| term_point "eno#{i}" }
-        support %w[layer1 RegionA-Svr02]
+        support %w[layer15 RegionA-Svr02]
       end
 
       # RegionA Links
@@ -106,81 +106,81 @@ def register_target_layer2(nws)
       # RegionB Nodes
       node 'RegionB-CE01-GRT' do
         (0..1).each { |i| term_point "p#{i}" }
-        support %w[layer1 RegionB-CE01]
+        support %w[layer15 RegionB-CE01]
       end
       node 'RegionB-CE01-VRF' do
         (0..1).each { |i| term_point "p#{i}" }
-        support %w[layer1 RegionB-CE01]
+        support %w[layer15 RegionB-CE01]
       end
 
       node 'RegionB-CE02-GRT' do
         (0..1).each { |i| term_point "p#{i}" }
-        support %w[layer1 RegionB-CE02]
+        support %w[layer15 RegionB-CE02]
       end
       node 'RegionB-CE02-VRF' do
         (0..1).each { |i| term_point "p#{i}" }
-        support %w[layer1 RegionB-CE02]
+        support %w[layer15 RegionB-CE02]
       end
 
       node 'RegionB-CE01-VL10' do
         (0..1).each { |i| term_point "p#{i}" }
-        support %w[layer1 RegionB-CE01]
+        support %w[layer15 RegionB-CE01]
       end
       node 'RegionB-CE01-VL20' do
         (0..1).each { |i| term_point "p#{i}" }
-        support %w[layer1 RegionB-CE01]
+        support %w[layer15 RegionB-CE01]
       end
       node 'RegionB-CE01-VL110' do
         (0..1).each { |i| term_point "p#{i}" }
-        support %w[layer1 RegionB-CE01]
+        support %w[layer15 RegionB-CE01]
       end
       node 'RegionB-CE01-VL120' do
         (0..1).each { |i| term_point "p#{i}" }
-        support %w[layer1 RegionB-CE01]
+        support %w[layer15 RegionB-CE01]
       end
 
       node 'RegionB-CE02-VL10' do
         (0..1).each { |i| term_point "p#{i}" }
-        support %w[layer1 RegionB-CE02]
+        support %w[layer15 RegionB-CE02]
       end
       node 'RegionB-CE02-VL20' do
         (0..1).each { |i| term_point "p#{i}" }
-        support %w[layer1 RegionB-CE02]
+        support %w[layer15 RegionB-CE02]
       end
       node 'RegionB-CE02-VL110' do
         (0..1).each { |i| term_point "p#{i}" }
-        support %w[layer1 RegionB-CE02]
+        support %w[layer15 RegionB-CE02]
       end
       node 'RegionB-CE02-VL120' do
         (0..1).each { |i| term_point "p#{i}" }
-        support %w[layer1 RegionB-CE02]
+        support %w[layer15 RegionB-CE02]
       end
 
       node 'RegionB-Acc01-VL10' do
         (0..3).each { |i| term_point "p#{i}" }
-        support %w[layer1 RegionB-Acc01]
+        support %w[layer15 RegionB-Acc01]
       end
       node 'RegionB-Acc01-VL110' do
         (0..3).each { |i| term_point "p#{i}" }
-        support %w[layer1 RegionB-Acc01]
+        support %w[layer15 RegionB-Acc01]
       end
 
       node 'RegionB-Acc02-VL20' do
         (0..3).each { |i| term_point "p#{i}" }
-        support %w[layer1 RegionB-Acc02]
+        support %w[layer15 RegionB-Acc02]
       end
       node 'RegionB-Acc02-VL120' do
         (0..3).each { |i| term_point "p#{i}" }
-        support %w[layer1 RegionB-Acc02]
+        support %w[layer15 RegionB-Acc02]
       end
 
       node 'RegionB-Svr01' do
         (0..1).each { |i| term_point "eno#{i}" }
-        support %w[layer1 RegionB-Svr01]
+        support %w[layer15 RegionB-Svr01]
       end
       node 'RegionB-Svr02' do
         (0..1).each { |i| term_point "eno#{i}" }
-        support %w[layer1 RegionB-Svr02]
+        support %w[layer15 RegionB-Svr02]
       end
 
       # RegionB Links
@@ -214,3 +214,4 @@ def register_target_layer2(nws)
     end
   end
 end
+# rubocop:enable Metrics/MethodLength, Metrics/AbcSize
