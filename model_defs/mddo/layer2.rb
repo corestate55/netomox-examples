@@ -221,7 +221,7 @@ def register_target_layer2(nws)
         term_point 'p2' do
           support %w[layer15 RegionB-CE01 p01]
         end
-        (0..1).each { |i| term_point "p#{i}" }
+        support %w[layer15 RegionB-CE01]
       end
       node 'RegionB-CE01-VL120' do
         term_point 'p0'
