@@ -24,6 +24,10 @@ class PNetworks
     @nmx_networks
   end
 
+  def find_network_by_name(network_name)
+    @networks.find { |nw| nw.name == network_name}
+  end
+
   private
 
   def make_nmx_network(network)

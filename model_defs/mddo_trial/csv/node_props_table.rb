@@ -48,6 +48,11 @@ class NodePropsTable < TableBase
     @records = @orig_table.map { |r| NodePropsTableRecord.new(r) }
   end
 
+  # alias
+  def find_record_by_node(node_name)
+    find_node(node_name)
+  end
+
   def find_node(node)
     @records.find { |r| r.node == node }
   end

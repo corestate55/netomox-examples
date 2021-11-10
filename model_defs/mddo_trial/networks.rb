@@ -3,6 +3,7 @@
 require 'json'
 require 'pry'
 require_relative 'layer1p'
+require_relative 'layer2p'
 
 def to_json(nws)
   JSON.pretty_generate(nws.topo_data)
@@ -21,13 +22,14 @@ def dump(target, layer)
 end
 
 def generate_json(target)
+  l1_builder = L1DataBuilder.new(target)
+  layer1p = l1_builder.make_networks
+
+  l2_builder = L2DataBuilder.new(target, layer1p.find_network_by_name('layer1'))
+  layer2p = l2_builder.make_networks
+
   nws = Netomox::DSL::Networks.new
-  layers = [
-    # L3DataBuilder.new(target),
-    # L2DataBuilder.new(target),
-    L1DataBuilder.new(target)
-  ]
-  nws.networks = layers.map(&:interpret).map(&:networks).flatten
+  nws.networks = [layer1p, layer2p].map(&:interpret).map(&:networks).flatten
   # binding.pry # debug
   to_json(nws)
 end

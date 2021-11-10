@@ -31,6 +31,14 @@ class InterfacePropertiesTableRecord < TableRecordBase
     switchport? && @switchport_mode =~ /ACCESS/i
   end
 
+  def host_access?
+    !switchport? && @switchport_mode =~ /NONE/i
+  end
+
+  def almost_access?
+    swp_access? || host_access?
+  end
+
   def swp_trunk?
     switchport? && @switchport_mode =~ /TRUNK/i
   end
@@ -43,6 +51,10 @@ class InterfacePropertiesTableRecord < TableRecordBase
 
   def swp_has_vlan?(vlan_id)
     swp_vlans.include?(vlan_id)
+  end
+
+  def to_s
+    "InterfacePropertiesTableRecord: #{@node}, #{@interface}"
   end
 
   private
@@ -83,6 +95,10 @@ class InterfacePropertiesTable < TableBase
   def initialize(target)
     super(target, 'interface_props.csv')
     @records = @orig_table.map { |r| InterfacePropertiesTableRecord.new(r) }
+  end
+
+  def find_record_by_node_intf(node_name, intf_name)
+    @records.find { |r| r.node == node_name && r.interface == intf_name }
   end
 
   def find_node_int(node, interface)

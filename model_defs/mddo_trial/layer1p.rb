@@ -11,7 +11,14 @@ class L1DataBuilder < DataBuilderBase
     super()
     @node_props = NodePropsTable.new(target)
     @l1_edges = EdgesLayer1Table.new(target)
-    make_networks
+  end
+
+  def make_networks
+    @network = PNetwork.new('layer1')
+    @network.nodes = make_nodes
+    @network.links = make_links
+    @networks.push(@network)
+    @networks
   end
 
   private
@@ -35,14 +42,6 @@ class L1DataBuilder < DataBuilderBase
                edge.dst.node, edge.dst.interface, false)
     end
     @links
-  end
-
-  def make_networks
-    @network = PNetwork.new('layer1')
-    @network.nodes = make_nodes
-    @network.links = make_links
-    @networks.push(@network)
-    @networks
   end
 end
 

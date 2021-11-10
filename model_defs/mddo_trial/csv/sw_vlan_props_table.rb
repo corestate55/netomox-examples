@@ -38,6 +38,17 @@ class SwitchVlanPropsTable < TableBase
     @records = @orig_table.map { |r| SwitchVlanPropsTableRecord.new(r) }
   end
 
+  def find_all_records_by_node_intf(node_name, intf_name)
+    @records.find_all do |r|
+      r.node == node_name && r.interfaces.map(&:interface).include?(intf_name)
+    end
+  end
+
+  # alias
+  def find_record_by_node_intf(node_name, intf_name)
+    find_node_int(node_name, intf_name)
+  end
+
   def find_node_int(node, interface)
     @records.find do |r|
       r.node == node && r.interfaces.map(&:interface).include?(interface)

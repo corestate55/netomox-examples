@@ -11,7 +11,7 @@ require_relative 'mddo/region'
 
 opts = ARGV.getopts('d')
 if opts['d']
-  puts 'OOL-MDDO PJ Trial'
+  puts 'OOL-MDDO PJ Trial 1'
   exit 0
 end
 
