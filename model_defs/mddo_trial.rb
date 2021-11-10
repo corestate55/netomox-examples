@@ -9,9 +9,10 @@ if opts['d']
   exit 0
 end
 
+target_config = 'sample5'
 if opts['debug']
-  dump('sample3', opts['debug'])
+  dump(target_config, opts['debug'])
   exit 0
 end
 
-puts generate_json('sample3')
+puts generate_json(target_config)

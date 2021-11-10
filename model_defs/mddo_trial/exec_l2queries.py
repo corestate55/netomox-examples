@@ -35,7 +35,7 @@ def dir_info(name):
 
 
 if __name__ == '__main__':
-    dirs = map(lambda d: dir_info(d), ['sample3']) # ['sample3', 'sample4', 'sample5']
+    dirs = map(lambda d: dir_info(d), ['sample3', 'sample4', 'sample5'])
     for d in dirs:
         makedirs(d['csv_dir'], exist_ok=True)
         exec_query(d['dir'], d['name'], d['csv_dir'])

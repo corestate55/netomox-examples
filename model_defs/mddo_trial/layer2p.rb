@@ -29,12 +29,25 @@ class L2DataBuilder < DataBuilderBase
     0 # Host port (not specified vlan)
   end
 
+  def vlan_bridge_on_device(tp_prop)
+    return 0 if tp_prop.host_access? # NOP for host
+
+    found_sw_vlan_prop = @sw_vlan_props.find_record_by_node_intf(tp_prop.node, tp_prop.interface)
+    return found_sw_vlan_prop.vlan_id if found_sw_vlan_prop
+
+    -1 # vlan bridge doesn't exists
+  end
+
   def same_access_vlan?(src_tp_prop, dst_tp_prop)
-    [access_port_vlan_id(src_tp_prop), access_port_vlan_id(dst_tp_prop)].filter { |n| n != 0 }.length < 2
+    access_port_vlan_id(src_tp_prop) == vlan_bridge_on_device(src_tp_prop) &&
+      access_port_vlan_id(dst_tp_prop) == vlan_bridge_on_device(dst_tp_prop)
+  end
+
+  def sw_vlans(tp_prop)
+    @sw_vlan_props.find_all_records_by_node_intf(tp_prop.node, tp_prop.interface).map(&:vlan_id).uniq
   end
 
   def port_l2_config_check(src_tp_prop, dst_tp_prop)
-    # TODO: it must check "vlan bridge" existence on device
     if src_tp_prop.almost_access? && dst_tp_prop.almost_access? && same_access_vlan?(src_tp_prop, dst_tp_prop)
       return {
         type: :access,
@@ -45,7 +58,7 @@ class L2DataBuilder < DataBuilderBase
     if src_tp_prop.swp_trunk? && dst_tp_prop.swp_trunk?
       return {
         type: :trunk,
-        vlan_ids: src_tp_prop.allowed_vlans & dst_tp_prop.allowed_vlans
+        vlan_ids: src_tp_prop.allowed_vlans & dst_tp_prop.allowed_vlans & sw_vlans(src_tp_prop) & sw_vlans(dst_tp_prop)
       }
     end
     { type: :error }

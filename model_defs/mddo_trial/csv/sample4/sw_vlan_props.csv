@@ -1,0 +1,7 @@
+,Node,VLAN_ID,Interfaces,VXLAN_VNI
+0,switch2,100,"[switch2[GigabitEthernet1/0/1], switch2[GigabitEthernet1/0/2], switch2[GigabitEthernet1/0/3], switch2[GigabitEthernet1/0/4], switch2[GigabitEthernet1/0/23], switch2[GigabitEthernet1/0/24], switch2[Port-channel1], switch2[Vlan100]]",
+1,switch1,100,"[switch1[GigabitEthernet1/0/1], switch1[GigabitEthernet1/0/2], switch1[GigabitEthernet1/0/3], switch1[GigabitEthernet1/0/4], switch1[GigabitEthernet1/0/23], switch1[GigabitEthernet1/0/24], switch1[Port-channel1], switch1[Vlan100]]",
+2,switch1,1,[switch1[Vlan1]],
+3,switch1,200,"[switch1[GigabitEthernet1/0/5], switch1[GigabitEthernet1/0/6], switch1[GigabitEthernet1/0/7], switch1[GigabitEthernet1/0/8], switch1[GigabitEthernet1/0/23], switch1[GigabitEthernet1/0/24], switch1[Port-channel1], switch1[Vlan200]]",
+4,switch2,1,[switch2[Vlan1]],
+5,switch2,200,"[switch2[GigabitEthernet1/0/5], switch2[GigabitEthernet1/0/6], switch2[GigabitEthernet1/0/7], switch2[GigabitEthernet1/0/8], switch2[GigabitEthernet1/0/23], switch2[GigabitEthernet1/0/24], switch2[Port-channel1], switch2[Vlan200]]",
