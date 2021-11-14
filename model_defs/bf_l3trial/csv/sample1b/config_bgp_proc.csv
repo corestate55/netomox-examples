@@ -1,10 +1,10 @@
 ,Confederation_ID,Confederation_Members,Multipath_EBGP,Multipath_IBGP,Multipath_Match_Mode,Neighbors,Node,Route_Reflector,Router_ID,Tie_Breaker,Unnamed: 0,VRF
-0,65530.0,[65531],False,False,EXACT_PATH,"['10.0.1.9/32', '10.0.1.13/32']",border21,False,10.0.1.0,ARRIVAL_ORDER,0.0,default
-1,,,False,False,EXACT_PATH,"['10.0.0.2/32', '10.0.0.3/32', '10.0.0.17/32']",border01,False,10.0.0.1,ARRIVAL_ORDER,1.0,default
-2,65530.0,[65532],False,False,EXACT_PATH,"['10.0.0.2/32', '10.0.1.10/32']",border11,False,10.0.0.4,ARRIVAL_ORDER,2.0,default
-3,,,False,False,EXACT_PATH,"['10.0.0.1/32', '10.0.0.2/32', '10.0.0.5/32']",core02,True,10.0.0.3,ARRIVAL_ORDER,3.0,default
-4,,,False,False,EXACT_PATH,"['10.0.0.1/32', '10.0.0.3/32', '10.0.0.4/32']",core01,True,10.0.0.2,ARRIVAL_ORDER,4.0,default
-5,,,False,False,EXACT_PATH,"['10.0.0.3/32', '10.0.0.45/32']",border12,False,10.0.0.5,ARRIVAL_ORDER,5.0,default
+0,,,False,False,EXACT_PATH,"['10.0.0.1', '10.0.0.2', '10.0.0.5']",core02,True,10.0.0.3,ARRIVAL_ORDER,0.0,default
+1,,,False,False,EXACT_PATH,"['10.0.0.1', '10.0.0.3', '10.0.0.4']",core01,True,10.0.0.2,ARRIVAL_ORDER,1.0,default
+2,,,False,False,EXACT_PATH,"['10.0.0.3', '10.0.0.45']",border12,False,10.0.0.5,ARRIVAL_ORDER,2.0,default
+3,,,False,False,EXACT_PATH,"['10.0.0.2', '10.0.0.3', '10.0.0.17']",border01,False,10.0.0.1,ARRIVAL_ORDER,3.0,default
+4,65530.0,[65532],False,False,EXACT_PATH,"['10.0.0.2', '10.0.1.10']",border11,False,10.0.0.4,ARRIVAL_ORDER,4.0,default
+5,65530.0,[65531],False,False,EXACT_PATH,"['10.0.1.9', '10.0.1.13']",border21,False,10.0.1.0,ARRIVAL_ORDER,5.0,default
 6,,,False,False,,['10.0.1.14'],as65534_10.0.1.13,False,as65534_10.0.1.13,ARRIVAL_OERDER,,default
 7,,,False,False,,['10.0.0.18'],as65533_10.0.0.17,False,as65533_10.0.0.17,ARRIVAL_OERDER,,default
 8,,,False,False,,['10.0.0.46'],as65534_10.0.0.45,False,as65534_10.0.0.45,ARRIVAL_OERDER,,default

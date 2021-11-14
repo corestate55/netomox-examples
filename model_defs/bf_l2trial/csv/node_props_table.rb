@@ -5,12 +5,12 @@ require_relative 'table_base'
 
 # row of node-properties table
 class NodePropsTableRecord < TableRecordBase
-  attr_accessor :node, :device_type, :interfaces, :vrfs
+  attr_accessor :node, :config_format, :interfaces, :vrfs
 
   def initialize(record)
     super()
     @node = record[:node]
-    @device_type = record[:device_type]
+    @config_format = record[:configuration_format]
     @interfaces = interfaces2array(record[:interfaces])
     @vrfs = record[:vrfs]
   end
@@ -21,11 +21,11 @@ class NodePropsTableRecord < TableRecordBase
   end
 
   def host?
-    @device_type == 'HOST'
+    @config_format == 'HOST'
   end
 
   def switch?
-    @device_type == 'SWITCH'
+    %w[CISCO_IOS].include?(@config_format)
   end
 
   private

@@ -15,7 +15,7 @@ def exec_query(snapshot_dir, snapshot_name, csv_dir):
         'edges_layer1': lambda: bfq.edges(edgeType='layer1'),
         'edges_layer3': lambda: bfq.edges(edgeType='layer3'),
         'interface_props': lambda: bfq.interfaceProperties(nodes='.*', properties='.*'),
-        'node_props': lambda: bfq.nodeProperties(nodes='.*', properties='Device_Type, VRFs, Interfaces'),
+        'node_props': lambda: bfq.nodeProperties(nodes='.*', properties='Configuration_Format, VRFs, Interfaces'),
         'sw_vlan_props': lambda: bfq.switchedVlanProperties(nodes='.*')
     }
     # exec query
